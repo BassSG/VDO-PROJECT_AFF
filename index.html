@@ -551,7 +551,7 @@
           <div class="api-mini-head"><span>System health</span><span id="systemPct">0/1</span></div>
           <div class="api-row"><span>OpenRouter</span><i class="status-dot" id="openrouterDot"></i></div>
         </div>
-        <div class="sidebar-note">ADORA v<span id="sideVersion">1.3.4</span><br>OpenRouter-only creative pipeline</div>
+        <div class="sidebar-note">ADORA v<span id="sideVersion">1.4.0</span><br>OpenRouter-only creative pipeline</div>
       </div>
     </aside>
 
@@ -617,7 +617,7 @@
                     <div class="field-label"><span>รูปสินค้า <b style="color:var(--danger)">*</b></span><span class="field-hint">ภาพชัด พื้นหลังเรียบดีที่สุด</span></div>
                     <label class="upload-zone" id="productDrop">
                       <input type="file" id="productImage" accept="image/jpeg,image/png,image/webp">
-                      <div><div class="upload-icon">↥</div><div class="upload-title">วางรูปสินค้าที่นี่ หรือคลิกเพื่อเลือก</div><div class="upload-copy">JPG, PNG, WEBP · ไม่เกิน 5 MB<br>ระบบจะรักษารูปทรง สี และแพ็กเกจเดิม</div></div>
+                      <div><div class="upload-icon">↥</div><div class="upload-title">วางรูปสินค้าที่นี่ หรือคลิกเพื่อเลือก</div><div class="upload-copy">JPG, PNG, WEBP · รองรับไฟล์ใหญ่สูงสุด 50 MB<br>ระบบจะย่อและบีบอัดให้อัตโนมัติก่อนอัปโหลด</div></div>
                       <div class="upload-preview" id="productPreview" hidden><img alt="Product preview"><span class="upload-badge">PRODUCT REFERENCE</span><button type="button" class="remove-image" data-remove="product">×</button></div>
                     </label>
                   </div>
@@ -625,7 +625,7 @@
                     <div class="field-label"><span>รูปพรีเซนเตอร์</span><span class="field-hint">ไม่ใส่ก็ให้ AI สร้างได้</span></div>
                     <label class="upload-zone" id="presenterDrop">
                       <input type="file" id="presenterImage" accept="image/jpeg,image/png,image/webp">
-                      <div><div class="upload-icon">◎</div><div class="upload-title">อัปโหลดพรีเซนเตอร์ของคุณ</div><div class="upload-copy">ใช้รูปหน้าตรง แสงชัด และได้รับอนุญาต<br>หรือข้ามเพื่อสร้าง AI Presenter ใหม่</div></div>
+                      <div><div class="upload-icon">◎</div><div class="upload-title">อัปโหลดพรีเซนเตอร์ของคุณ</div><div class="upload-copy">ไฟล์ใหญ่จะถูกย่อและบีบอัดอัตโนมัติ<br>หรือข้ามเพื่อสร้าง AI Presenter ใหม่</div></div>
                       <div class="upload-preview" id="presenterPreview" hidden><img alt="Presenter preview"><span class="upload-badge">PRESENTER REFERENCE</span><button type="button" class="remove-image" data-remove="presenter">×</button></div>
                     </label>
                   </div>
@@ -634,33 +634,50 @@
               </section>
 
               <section class="wizard-step" data-step="2" hidden>
-                <div class="grid-2">
-                  <div>
-                    <div class="field"><label class="field-label" for="productName"><span>ชื่อสินค้า <b style="color:var(--danger)">*</b></span></label><input class="input" id="productName" placeholder="เช่น LUMI Glow Serum"></div>
-                    <div class="field"><label class="field-label" for="category"><span>หมวดหมู่สินค้า</span></label><input class="input" id="category" placeholder="เช่น สกินแคร์, อาหาร, แฟชั่น"></div>
-                    <div class="field"><label class="field-label" for="sellingPoints"><span>จุดขายสำคัญ <b style="color:var(--danger)">*</b></span><span class="field-hint">ใส่ได้หลายข้อ</span></label><textarea class="textarea" id="sellingPoints" placeholder="เช่น เนื้อบางเบา ซึมไว, แพ็กเกจพกพาง่าย, เหมาะกับผิวแพ้ง่าย"></textarea></div>
-                  </div>
-                  <div>
-                    <div class="field"><label class="field-label" for="audience"><span>กลุ่มเป้าหมาย</span></label><textarea class="textarea" id="audience" placeholder="เช่น ผู้หญิงวัยทำงาน 25–40 ปี ชอบดูรีวิวสินค้าใน TikTok"></textarea></div>
-                    <div class="field"><label class="field-label" for="offer"><span>ราคา / โปรโมชั่น</span></label><input class="input" id="offer" placeholder="เช่น วันนี้ 590 บาท ส่งฟรี"></div>
-                    <div class="field"><label class="field-label" for="forbiddenClaims"><span>สิ่งที่ห้าม AI กล่าว</span><span class="field-hint">ช่วยลดโฆษณาเกินจริง</span></label><textarea class="textarea" id="forbiddenClaims" placeholder="เช่น ห้ามกล่าวว่ารักษาโรค, ห้ามรับประกันผล 100%"></textarea></div>
+                <div class="field-label"><span>เลือกวิธีสร้าง Prompt</span><span class="field-hint">เปลี่ยนได้ตลอดก่อนสร้างงาน</span></div>
+                <div class="grid-2" id="promptModeGrid">
+                  <button type="button" class="option-card selected prompt-mode-card" data-prompt-mode="set"><div class="option-title">✦ Prompt Set สำเร็จรูป</div><div class="option-sub">กรอกแค่ชื่อสินค้า แล้วเลือกแนวที่ชอบ</div></button>
+                  <button type="button" class="option-card prompt-mode-card" data-prompt-mode="custom"><div class="option-title">⌁ กำหนด Prompt เอง</div><div class="option-sub">ควบคุมจุดขาย กลุ่มเป้าหมาย และคำสั่งได้เต็มที่</div></button>
+                </div>
+                <div class="grid-2" style="margin-top:18px">
+                  <div class="field"><label class="field-label" for="productName"><span>ชื่อสินค้า <b style="color:var(--danger)">*</b></span></label><input class="input" id="productName" placeholder="เช่น LUMI Glow Serum"></div>
+                  <div class="field"><label class="field-label" for="category"><span>หมวดหมู่สินค้า</span></label><input class="input" id="category" placeholder="เช่น สกินแคร์, อาหาร, แฟชั่น"></div>
+                </div>
+                <div class="info-box" id="setModeInfo" style="margin-top:2px"><strong>โหมดง่าย:</strong> ระบบจะวิเคราะห์สิ่งที่มองเห็นได้จากรูปสินค้า แล้วใช้ Prompt Set ที่คุณเลือกใน Step 3 สร้าง Campaign ให้ครบโดยอัตโนมัติ ไม่ต้องเขียนรายละเอียดเพิ่ม</div>
+                <div id="customBriefFields" hidden>
+                  <div class="grid-2">
+                    <div>
+                      <div class="field"><label class="field-label" for="sellingPoints"><span>จุดขายสำคัญ <b style="color:var(--danger)">*</b></span><span class="field-hint">ใส่ได้หลายข้อ</span></label><textarea class="textarea" id="sellingPoints" placeholder="เช่น เนื้อบางเบา ซึมไว, แพ็กเกจพกพาง่าย, เหมาะกับผิวแพ้ง่าย"></textarea></div>
+                      <div class="field"><label class="field-label" for="audience"><span>กลุ่มเป้าหมาย</span></label><textarea class="textarea" id="audience" placeholder="เช่น ผู้หญิงวัยทำงาน 25–40 ปี ชอบดูรีวิวสินค้าใน TikTok"></textarea></div>
+                    </div>
+                    <div>
+                      <div class="field"><label class="field-label" for="offer"><span>ราคา / โปรโมชั่น</span></label><input class="input" id="offer" placeholder="เช่น วันนี้ 590 บาท ส่งฟรี"></div>
+                      <div class="field"><label class="field-label" for="forbiddenClaims"><span>สิ่งที่ห้าม AI กล่าว</span><span class="field-hint">ช่วยลดโฆษณาเกินจริง</span></label><textarea class="textarea" id="forbiddenClaims" placeholder="เช่น ห้ามกล่าวว่ารักษาโรค, ห้ามรับประกันผล 100%"></textarea></div>
+                    </div>
                   </div>
                 </div>
               </section>
 
               <section class="wizard-step" data-step="3" hidden>
-                <div class="field-label"><span>เลือกรูปแบบงานโฆษณา</span><span class="field-hint">เลือก 1 รูปแบบ</span></div>
-                <div class="grid-3" id="styleGrid">
-                  <button type="button" class="style-card selected" data-style="UGC Review"><div class="style-top"><span class="style-icon">◉</span><span class="select-check">✓</span></div><div class="style-name">UGC Review</div><div class="style-desc">รีวิวจริงใจ ดูเป็นธรรมชาติ เหมาะกับ TikTok</div></button>
-                  <button type="button" class="style-card" data-style="Unboxing"><div class="style-top"><span class="style-icon">▣</span><span class="select-check">✓</span></div><div class="style-name">Unboxing</div><div class="style-desc">แกะกล่อง โชว์สินค้า และสร้างความอยากได้</div></button>
-                  <button type="button" class="style-card" data-style="Luxury"><div class="style-top"><span class="style-icon">✧</span><span class="select-check">✓</span></div><div class="style-name">Luxury</div><div class="style-desc">หรู พรีเมียม แสงสตูดิโอ เน้นภาพลักษณ์</div></button>
-                  <button type="button" class="style-card" data-style="Lifestyle"><div class="style-top"><span class="style-icon">☼</span><span class="select-check">✓</span></div><div class="style-name">Lifestyle</div><div class="style-desc">วางสินค้าในชีวิตจริง เข้าถึงง่ายและอบอุ่น</div></button>
-                  <button type="button" class="style-card" data-style="Cinematic"><div class="style-top"><span class="style-icon">▶</span><span class="select-check">✓</span></div><div class="style-name">Cinematic</div><div class="style-desc">ภาพเล่าเรื่อง มีอารมณ์ และกล้องแบบภาพยนตร์</div></button>
-                  <button type="button" class="style-card" data-style="Product Focus"><div class="style-top"><span class="style-icon">◇</span><span class="select-check">✓</span></div><div class="style-name">Product Focus</div><div class="style-desc">สินค้าเด่นที่สุด เหมาะกับการโชว์ฟีเจอร์</div></button>
+                <div id="promptSetPanel">
+                  <div class="field-label"><span>เลือก Prompt Set ที่ถูกใจ</span><span class="field-hint">ระบบเขียน Prompt และวาง Story ให้ทั้งหมด</span></div>
+                  <div class="grid-3" id="promptSetGrid"></div>
                 </div>
-                <div class="grid-2" style="margin-top:18px">
-                  <div class="field"><label class="field-label" for="presenterDescription"><span>บุคลิกพรีเซนเตอร์</span></label><input class="input" id="presenterDescription" value="พรีเซนเตอร์ไทย บุคลิกเป็นมิตร ทันสมัย ดูน่าเชื่อถือ" placeholder="อายุ บุคลิก สไตล์การแต่งตัว"></div>
-                  <div class="field"><label class="field-label" for="tone"><span>น้ำเสียงของแบรนด์</span></label><select class="select" id="tone"><option>มั่นใจ เป็นธรรมชาติ</option><option>สนุก สดใส</option><option>หรู สุขุม</option><option>อบอุ่น จริงใจ</option><option>เร่งด่วน กระตุ้นยอดขาย</option></select></div>
+                <div id="customPromptPanel" hidden>
+                  <div class="field"><label class="field-label" for="customPrompt"><span>Prompt ของคุณ</span><span class="field-hint">อธิบายภาพ เรื่องราว มุมกล้อง หรืออารมณ์ที่ต้องการได้เต็มที่</span></label><textarea class="textarea" id="customPrompt" style="min-height:140px" placeholder="ตัวอย่าง: เปิดด้วยภาพพรีเซนเตอร์กำลังรีบไปทำงาน หยิบสินค้าออกจากกระเป๋า สาธิตการใช้แบบ close-up โทนสดใส ตัดต่อเร็ว และจบด้วยภาพสินค้าเด่นกลางเฟรม"></textarea></div>
+                  <div class="field-label"><span>เลือกรูปแบบงานโฆษณา</span><span class="field-hint">ใช้ร่วมกับ Prompt ของคุณ</span></div>
+                  <div class="grid-3" id="styleGrid">
+                    <button type="button" class="style-card selected" data-style="UGC Review"><div class="style-top"><span class="style-icon">◉</span><span class="select-check">✓</span></div><div class="style-name">UGC Review</div><div class="style-desc">รีวิวจริงใจ ดูเป็นธรรมชาติ เหมาะกับ TikTok</div></button>
+                    <button type="button" class="style-card" data-style="Unboxing"><div class="style-top"><span class="style-icon">▣</span><span class="select-check">✓</span></div><div class="style-name">Unboxing</div><div class="style-desc">แกะกล่อง โชว์สินค้า และสร้างความอยากได้</div></button>
+                    <button type="button" class="style-card" data-style="Luxury"><div class="style-top"><span class="style-icon">✧</span><span class="select-check">✓</span></div><div class="style-name">Luxury</div><div class="style-desc">หรู พรีเมียม แสงสตูดิโอ เน้นภาพลักษณ์</div></button>
+                    <button type="button" class="style-card" data-style="Lifestyle"><div class="style-top"><span class="style-icon">☼</span><span class="select-check">✓</span></div><div class="style-name">Lifestyle</div><div class="style-desc">วางสินค้าในชีวิตจริง เข้าถึงง่ายและอบอุ่น</div></button>
+                    <button type="button" class="style-card" data-style="Cinematic"><div class="style-top"><span class="style-icon">▶</span><span class="select-check">✓</span></div><div class="style-name">Cinematic</div><div class="style-desc">ภาพเล่าเรื่อง มีอารมณ์ และกล้องแบบภาพยนตร์</div></button>
+                    <button type="button" class="style-card" data-style="Product Focus"><div class="style-top"><span class="style-icon">◇</span><span class="select-check">✓</span></div><div class="style-name">Product Focus</div><div class="style-desc">สินค้าเด่นที่สุด เหมาะกับการโชว์ฟีเจอร์</div></button>
+                  </div>
+                  <div class="grid-2" style="margin-top:18px">
+                    <div class="field"><label class="field-label" for="presenterDescription"><span>บุคลิกพรีเซนเตอร์</span></label><input class="input" id="presenterDescription" value="พรีเซนเตอร์ไทย บุคลิกเป็นมิตร ทันสมัย ดูน่าเชื่อถือ" placeholder="อายุ บุคลิก สไตล์การแต่งตัว"></div>
+                    <div class="field"><label class="field-label" for="tone"><span>น้ำเสียงของแบรนด์</span></label><select class="select" id="tone"><option>มั่นใจ เป็นธรรมชาติ</option><option>สนุก สดใส</option><option>หรู สุขุม</option><option>อบอุ่น จริงใจ</option><option>เร่งด่วน กระตุ้นยอดขาย</option></select></div>
+                  </div>
                 </div>
               </section>
 
@@ -694,7 +711,7 @@
                         <div class="model-row"><span class="model-role">สร้างวิดีโอ</span><span class="model-name" id="tierVideo">Seedance 1.5 Pro</span></div>
                       </div>
                     </div>
-                    <div class="field" style="margin-top:18px"><label class="field-label" for="callToAction"><span>Call to Action</span></label><input class="input" id="callToAction" value="สั่งซื้อเลยวันนี้" placeholder="เช่น กดสั่งซื้อที่ตะกร้าได้เลย"></div>
+                    <div class="field" id="customCtaField" style="margin-top:18px" hidden><label class="field-label" for="callToAction"><span>Call to Action</span></label><input class="input" id="callToAction" value="สั่งซื้อเลยวันนี้" placeholder="เช่น กดสั่งซื้อที่ตะกร้าได้เลย"></div>
                   </div>
                   <aside class="summary-card">
                     <div class="summary-head"><strong>Campaign summary</strong><span class="chip">OpenRouter only</span></div>
@@ -819,6 +836,14 @@
         otherMin: .28, otherMax: .50,
       },
     ];
+    const PREVIEW_PROMPT_SETS = [
+      { id: 'sales_boost', label: 'ขายไว กระตุ้นยอด', style: 'UGC Review', tone: 'สนุก มั่นใจ และกระชับ', description: 'เปิดด้วยปัญหาที่ตรงใจ โชว์ประโยชน์อย่างรวดเร็ว และปิดด้วย CTA ชัดเจน' },
+      { id: 'trusted_review', label: 'รีวิวจริง น่าเชื่อถือ', style: 'UGC Review', tone: 'จริงใจ เป็นธรรมชาติ', description: 'เล่าเหมือนผู้ใช้จริง สาธิตอย่างเป็นธรรมชาติ และไม่กล่าวอ้างเกินจริง' },
+      { id: 'luxury_launch', label: 'เปิดตัวหรู พรีเมียม', style: 'Luxury', tone: 'หรู สุขุม', description: 'เปิดตัวแบบ cinematic เน้นแสง วัสดุ รายละเอียด และภาพลักษณ์แบรนด์' },
+      { id: 'problem_solution', label: 'ปัญหา → ทางออก', style: 'Product Focus', tone: 'ชัดเจน เข้าใจง่าย', description: 'เริ่มจาก pain point แล้วสาธิตว่าสินค้าช่วยตอบโจทย์อย่างไร' },
+      { id: 'lifestyle_story', label: 'Lifestyle ใช้ในชีวิตจริง', style: 'Lifestyle', tone: 'อบอุ่น เป็นกันเอง', description: 'ให้สินค้าเป็นส่วนหนึ่งของกิจวัตร เน้นเรื่องราว อารมณ์ และประสบการณ์' },
+      { id: 'product_demo', label: 'สาธิตสินค้า เข้าใจทันที', style: 'Product Focus', tone: 'กระชับ เป็นมืออาชีพ', description: 'โชว์วิธีใช้และรายละเอียดสำคัญแบบ close-up ตั้งแต่ต้นจนจบ' },
+    ];
     const state = {
       bootstrap: null,
       step: 1,
@@ -828,6 +853,8 @@
       form: {
         productImage: '',
         presenterImage: '',
+        promptMode: 'set',
+        promptSet: 'sales_boost',
         style: 'UGC Review',
         platform: 'TikTok',
         duration: 8,
@@ -886,7 +913,7 @@
     function notifyParentHostReady() {
       try {
         if (window.top !== window) {
-          window.top.postMessage({ type: 'ADORA_APP_READY', release: '1.3.4' }, '*');
+          window.top.postMessage({ type: 'ADORA_APP_READY', release: '1.4.0' }, '*');
         }
       } catch (error) { /* parent communication is optional */ }
     }
@@ -902,7 +929,7 @@
     function buildLiveAppUrl(source) {
       const target = new URL(LIVE_APP_URL);
       target.searchParams.set('source', source || 'github-embed');
-      target.searchParams.set('release', '1.3.4');
+      target.searchParams.set('release', '1.4.0');
       target.searchParams.set('embedded', '1');
       return target.toString();
     }
@@ -939,7 +966,7 @@
       return {
         app: {
           name: 'ADORA AI Studio',
-          version: '1.3.4',
+          version: '1.4.0',
           limits: { maxImageBytes: 5 * 1024 * 1024, maxScenes: 1, allowedDurations: [8, 10, 12, 15], pollInterval: 20 },
           defaults: {
             plannerModel: 'google/gemini-2.5-flash-lite',
@@ -948,6 +975,7 @@
             modelTier: 'economy',
           },
           modelTiers: PREVIEW_MODEL_TIERS,
+          promptSets: PREVIEW_PROMPT_SETS,
         },
         settings: {
           openrouterConfigured: false,
@@ -981,6 +1009,7 @@
       }));
       setupDropZone($('#productDrop'), 'product');
       setupDropZone($('#presenterDrop'), 'presenter');
+      $$('.prompt-mode-card').forEach((button) => button.addEventListener('click', () => selectPromptMode(button.dataset.promptMode)));
       $$('.style-card').forEach((button) => button.addEventListener('click', () => selectCard('.style-card', button, 'style', button.dataset.style)));
       $$('.option-card[data-platform]').forEach((button) => button.addEventListener('click', () => selectCard('.option-card[data-platform]', button, 'platform', button.dataset.platform)));
       $$('.option-card[data-duration]').forEach((button) => button.addEventListener('click', () => {
@@ -993,7 +1022,7 @@
         updateSummary();
         saveDraft();
       });
-      ['productName','category','sellingPoints','audience','offer','forbiddenClaims','presenterDescription','tone','callToAction'].forEach((id) => {
+      ['productName','category','sellingPoints','audience','offer','forbiddenClaims','customPrompt','presenterDescription','tone','callToAction'].forEach((id) => {
         $('#' + id).addEventListener('input', saveDraft);
       });
       $('#saveSettingsBtn').addEventListener('click', saveSettings);
@@ -1006,6 +1035,7 @@
       const { app, settings, campaigns } = state.bootstrap;
       $('#sideVersion').textContent = app.version;
       populateModelTierSelects(app.modelTiers || PREVIEW_MODEL_TIERS);
+      renderPromptSets(app.promptSets || PREVIEW_PROMPT_SETS);
       state.form.modelTier = state.form.modelTier || settings.defaultModelTier || app.defaults.modelTier || 'economy';
       $('#modelTier').value = state.form.modelTier;
       $('#defaultModelTier').value = settings.defaultModelTier || app.defaults.modelTier || 'economy';
@@ -1013,6 +1043,7 @@
       syncDurationAvailability();
       renderSettingsStatus(settings);
       renderProjects(campaigns || []);
+      syncPromptModeUI();
       updateSummary();
     }
 
@@ -1020,6 +1051,49 @@
       const options = tiers.map((tier) => `<option value="${escapeAttr(tier.id)}">${escapeHtml(tier.label)}</option>`).join('');
       $('#modelTier').innerHTML = options;
       $('#defaultModelTier').innerHTML = options;
+    }
+
+    function renderPromptSets(sets) {
+      const icons = ['↗', '◎', '✧', '◇', '☼', '▣'];
+      $('#promptSetGrid').innerHTML = sets.map((set, index) => `
+        <button type="button" class="option-card prompt-set-card${set.id === state.form.promptSet ? ' selected' : ''}" data-prompt-set="${escapeAttr(set.id)}">
+          <div class="style-top"><span class="style-icon">${icons[index % icons.length]}</span><span class="select-check">✓</span></div>
+          <div class="style-name">${escapeHtml(set.label)}</div>
+          <div class="style-desc">${escapeHtml(set.description)}</div>
+          <div class="tag" style="margin-top:12px">${escapeHtml(set.style)}</div>
+        </button>`).join('');
+      $$('.prompt-set-card').forEach((button) => button.addEventListener('click', () => {
+        $$('.prompt-set-card').forEach((item) => item.classList.remove('selected'));
+        button.classList.add('selected');
+        state.form.promptSet = button.dataset.promptSet;
+        const selected = getSelectedPromptSet();
+        if (selected) state.form.style = selected.style;
+        updateSummary();
+        saveDraft();
+      }));
+    }
+
+    function selectPromptMode(mode) {
+      state.form.promptMode = mode === 'custom' ? 'custom' : 'set';
+      $$('.prompt-mode-card').forEach((button) => button.classList.toggle('selected', button.dataset.promptMode === state.form.promptMode));
+      syncPromptModeUI();
+      updateSummary();
+      saveDraft();
+    }
+
+    function syncPromptModeUI() {
+      const custom = state.form.promptMode === 'custom';
+      $('#customBriefFields').hidden = !custom;
+      $('#setModeInfo').hidden = custom;
+      $('#promptSetPanel').hidden = custom;
+      $('#customPromptPanel').hidden = !custom;
+      const ctaField = $('#customCtaField');
+      if (ctaField) ctaField.hidden = !custom;
+    }
+
+    function getSelectedPromptSet() {
+      const sets = state.bootstrap?.app?.promptSets || PREVIEW_PROMPT_SETS;
+      return sets.find((set) => set.id === state.form.promptSet) || sets[0];
     }
 
     function renderSettingsStatus(settings) {
@@ -1055,14 +1129,22 @@
     async function handleImage(file, type) {
       if (!file) return;
       if (!/^image\/(jpeg|png|webp)$/.test(file.type)) return toast('รองรับเฉพาะ JPG, PNG และ WEBP', 'error');
+      if (file.size > 50 * 1024 * 1024) return toast('ไฟล์ต้นฉบับต้องมีขนาดไม่เกิน 50 MB', 'error');
       const maxBytes = state.bootstrap?.app?.limits?.maxImageBytes || 5 * 1024 * 1024;
-      if (file.size > maxBytes) return toast('ไฟล์ต้องมีขนาดไม่เกิน 5 MB', 'error');
-      const dataUrl = await readFile(file);
-      state.form[type + 'Image'] = dataUrl;
-      const preview = $('#' + type + 'Preview');
-      $('img', preview).src = dataUrl;
-      preview.hidden = false;
-      saveDraft();
+      try {
+        const optimized = await optimizeImage(file, Math.floor(maxBytes * 0.88));
+        state.form[type + 'Image'] = optimized.dataUrl;
+        const preview = $('#' + type + 'Preview');
+        $('img', preview).src = optimized.dataUrl;
+        preview.hidden = false;
+        const saved = Math.max(0, file.size - optimized.bytes);
+        toast(saved > 64 * 1024
+          ? `บีบอัดรูปแล้ว ${formatBytes(file.size)} → ${formatBytes(optimized.bytes)}`
+          : `รูปพร้อมใช้งาน · ${formatBytes(optimized.bytes)}`, 'success');
+        saveDraft();
+      } catch (error) {
+        toast(`เตรียมรูปไม่สำเร็จ: ${error.message}`, 'error');
+      }
     }
 
     function removeImage(type) {
@@ -1079,6 +1161,67 @@
         reader.onerror = reject;
         reader.readAsDataURL(file);
       });
+    }
+
+    async function optimizeImage(file, targetBytes) {
+      const bitmap = await decodeImageFile(file);
+      const maxDimension = 2048;
+      const sourceWidth = bitmap.naturalWidth || bitmap.width;
+      const sourceHeight = bitmap.naturalHeight || bitmap.height;
+      let scale = Math.min(1, maxDimension / Math.max(sourceWidth, sourceHeight));
+      if (file.size <= targetBytes && scale === 1) {
+        if (bitmap.close) bitmap.close();
+        return { dataUrl: await readFile(file), bytes: file.size };
+      }
+
+      let quality = 0.88;
+      let blob = null;
+      for (let attempt = 0; attempt < 10; attempt += 1) {
+        const width = Math.max(1, Math.round(sourceWidth * scale));
+        const height = Math.max(1, Math.round(sourceHeight * scale));
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        const context = canvas.getContext('2d', { alpha: false });
+        context.fillStyle = '#ffffff';
+        context.fillRect(0, 0, width, height);
+        context.drawImage(bitmap, 0, 0, width, height);
+        blob = await canvasToBlob(canvas, 'image/webp', quality);
+        canvas.width = 1;
+        canvas.height = 1;
+        if (blob && blob.size <= targetBytes) break;
+        if (quality > 0.58) quality -= 0.1;
+        else scale *= 0.82;
+      }
+      if (bitmap.close) bitmap.close();
+      if (!blob || blob.size > targetBytes) throw new Error('รูปมีรายละเอียดสูงเกินกว่าจะย่อให้อยู่ในขนาดที่ระบบรองรับ');
+      return { dataUrl: await readFile(blob), bytes: blob.size };
+    }
+
+    async function decodeImageFile(file) {
+      if (typeof createImageBitmap === 'function') return createImageBitmap(file, { imageOrientation: 'from-image' });
+      return new Promise((resolve, reject) => {
+        const url = URL.createObjectURL(file);
+        const image = new Image();
+        image.onload = () => { URL.revokeObjectURL(url); resolve(image); };
+        image.onerror = () => { URL.revokeObjectURL(url); reject(new Error('Browser อ่านไฟล์รูปนี้ไม่ได้')); };
+        image.src = url;
+      });
+    }
+
+    function canvasToBlob(canvas, mimeType, quality) {
+      return new Promise((resolve, reject) => canvas.toBlob(
+        (blob) => blob ? resolve(blob) : reject(new Error('Browser ไม่สามารถบีบอัดรูปนี้ได้')),
+        mimeType,
+        quality,
+      ));
+    }
+
+    function formatBytes(bytes) {
+      const value = Number(bytes) || 0;
+      return value >= 1024 * 1024
+        ? `${(value / (1024 * 1024)).toFixed(1)} MB`
+        : `${Math.max(1, Math.round(value / 1024))} KB`;
     }
 
     function selectCard(selector, button, key, value) {
@@ -1107,7 +1250,7 @@
     function validateStep(step) {
       if (step === 1 && !state.form.productImage) return 'กรุณาอัปโหลดรูปสินค้าก่อน';
       if (step === 2 && $('#productName').value.trim().length < 2) return 'กรุณาใส่ชื่อสินค้า';
-      if (step === 2 && $('#sellingPoints').value.trim().length < 5) return 'กรุณาใส่จุดขายของสินค้า';
+      if (step === 2 && state.form.promptMode === 'custom' && $('#sellingPoints').value.trim().length < 5) return 'กรุณาใส่จุดขายของสินค้า';
       return '';
     }
 
@@ -1130,6 +1273,9 @@
       return {
         productImage: state.form.productImage,
         presenterImage: state.form.presenterImage,
+        promptMode: state.form.promptMode,
+        promptSet: state.form.promptSet,
+        customPrompt: $('#customPrompt').value.trim(),
         productName: $('#productName').value.trim(),
         category: $('#category').value.trim(),
         sellingPoints: $('#sellingPoints').value.trim(),
@@ -1156,7 +1302,8 @@
       $('#heroCost').textContent = `${min.toFixed(2)}–${max.toFixed(2)}`;
       $('#heroCostNote').textContent = `แพ็กเกจ${tier.shortLabel} · ${seconds} วินาที · ก่อน regenerate`;
       $('#sumProduct').textContent = $('#productName').value.trim() || '—';
-      $('#sumStyle').textContent = state.form.style;
+      const promptSet = getSelectedPromptSet();
+      $('#sumStyle').textContent = state.form.promptMode === 'set' && promptSet ? promptSet.label : state.form.style;
       $('#sumPlatform').textContent = state.form.platform;
       $('#sumDuration').textContent = `${seconds} sec / 1 Seedance clip`;
       $('#sumTier').textContent = tier.label;
@@ -1239,7 +1386,7 @@
       if (!campaign) return;
       const progress = Number(campaign.progress || 0);
       $('#genTitle').textContent = campaign.productName || 'กำลังสร้างแคมเปญ';
-      $('#genStatus').textContent = `${campaign.platform || 'Vertical'} · ${campaign.duration || 8} sec · ${campaign.modelTierLabel || 'ประหยัด'} · ${campaign.style || 'AI Ad'}`;
+      $('#genStatus').textContent = `${campaign.platform || 'Vertical'} · ${campaign.duration || 8} sec · ${campaign.modelTierLabel || 'ประหยัด'} · ${campaign.promptSetLabel || campaign.style || 'AI Ad'}`;
       $('#progressStatus').textContent = campaign.statusText || 'กำลังประมวลผล';
       $('#progressNumber').textContent = progress + '%';
       $('#progressBar').style.width = progress + '%';
@@ -1328,7 +1475,7 @@
       grid.innerHTML = campaigns.map((campaign) => `
         <article class="card project-card" data-campaign-id="${escapeAttr(campaign.id)}">
           <div class="project-cover">${campaign.keyVisualUrl ? `<img src="${escapeAttr(campaign.keyVisualUrl)}" alt="">` : '<div class="project-placeholder">✦</div>'}<span class="project-status">${escapeHtml(campaign.status)}</span></div>
-          <div class="project-body"><div class="project-title">${escapeHtml(campaign.productName)}</div><div class="project-meta"><span class="tag">${escapeHtml(campaign.platform || 'Vertical')}</span><span class="tag">${campaign.duration || 8}s</span><span class="tag">${escapeHtml(campaign.modelTierLabel || 'ประหยัด')}</span><span class="tag">${escapeHtml(campaign.style || 'AI Ad')}</span></div><div class="project-progress"><span style="width:${Number(campaign.progress || 0)}%"></span></div></div>
+          <div class="project-body"><div class="project-title">${escapeHtml(campaign.productName)}</div><div class="project-meta"><span class="tag">${escapeHtml(campaign.platform || 'Vertical')}</span><span class="tag">${campaign.duration || 8}s</span><span class="tag">${escapeHtml(campaign.modelTierLabel || 'ประหยัด')}</span><span class="tag">${escapeHtml(campaign.promptSetLabel || campaign.style || 'AI Ad')}</span></div><div class="project-progress"><span style="width:${Number(campaign.progress || 0)}%"></span></div></div>
         </article>`).join('');
       $$('[data-campaign-id]', grid).forEach((card) => card.addEventListener('click', () => openExistingCampaign(card.dataset.campaignId)));
     }
@@ -1391,6 +1538,8 @@
         platform: state.form.platform,
         duration: state.form.duration,
         modelTier: state.form.modelTier || 'economy',
+        promptMode: state.form.promptMode,
+        promptSet: state.form.promptSet,
       };
       localStorage.setItem('adora-draft', JSON.stringify(draft));
       updateSummary();
@@ -1400,6 +1549,10 @@
       try {
         const draft = JSON.parse(localStorage.getItem('adora-draft') || '{}');
         Object.entries(draft.values || {}).forEach(([id, value]) => { if ($('#' + id)) $('#' + id).value = value; });
+        state.form.promptMode = draft.promptMode === 'custom' ? 'custom' : 'set';
+        state.form.promptSet = draft.promptSet || 'sales_boost';
+        $$('.prompt-mode-card').forEach((button) => button.classList.toggle('selected', button.dataset.promptMode === state.form.promptMode));
+        syncPromptModeUI();
         if (draft.style) { const button = $(`[data-style="${cssEscape(draft.style)}"]`); if (button) selectCard('.style-card', button, 'style', draft.style); }
         if (draft.platform) { const button = $(`[data-platform="${cssEscape(draft.platform)}"]`); if (button) selectCard('.option-card[data-platform]', button, 'platform', draft.platform); }
         if (draft.duration) { const button = $(`[data-duration="${Number(draft.duration)}"]`); if (button) selectCard('.option-card[data-duration]', button, 'duration', Number(draft.duration)); }
