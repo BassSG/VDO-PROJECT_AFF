@@ -1,3 +1,4 @@
+if (typeof self !== 'undefined' && typeof self.addEventListener === 'function') {
 const CACHE_NAME = 'adora-shell-v1.5.0';
 const APP_SHELL = [
   './',
@@ -51,3 +52,4 @@ self.addEventListener('fetch', (event) => {
     }))
   );
 });
+}
