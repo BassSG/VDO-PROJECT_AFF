@@ -1,125 +1,92 @@
 # ADORA AI Studio
 
-เว็บแอปสร้างวิดีโอโฆษณาสินค้าด้วย AI แบบ workflow ตั้งแต่รับรูปสินค้า วางแผนครีเอทีฟ สร้าง key visual สร้างวิดีโอเป็นฉาก และรวมเป็นไฟล์ MP4 พร้อมใช้งาน โดยพัฒนาบน Google Apps Script และ Deploy ด้วย `clasp`
+เว็บแอปสร้างวิดีโอโฆษณาแนวตั้งแบบครบขั้นตอนบน Google Apps Script โดยใช้ **OpenRouter API key เพียงรายการเดียว** ตั้งแต่วิเคราะห์รูป วาง Creative Plan สร้าง Key Visual จนถึงสร้างวิดีโอ Seedance พร้อมเสียง
 
-**Web App:** [เปิด ADORA AI Studio](https://script.google.com/macros/s/AKfycbz0N9eDGVPJRM89kEEfVZxqdGN8e5K1BY1E3LevfV7mCv3jbMdxJsqlx4OpTaNRi8l70g/exec)
+- Web App: https://script.google.com/macros/s/AKfycbz0N9eDGVPJRM89kEEfVZxqdGN8e5K1BY1E3LevfV7mCv3jbMdxJsqlx4OpTaNRi8l70g/exec
+- GitHub Pages preview: https://basssg.github.io/VDO-PROJECT_AFF/
 
-**GitHub Pages Preview:** [เปิดหน้า Presentation](https://basssg.github.io/VDO-PROJECT_AFF/)
-
-> Deployment ปัจจุบันตั้งเป็น owner-only (`MYSELF`) เพื่อป้องกันบุคคลอื่นใช้เครดิต API โดยไม่ได้รับอนุญาต เหมาะสำหรับเดโมและนำเสนอภายใต้บัญชีเจ้าของโปรเจกต์
-
-![ADORA AI Studio desktop preview](docs/preview-desktop.png)
-
-<details>
-  <summary>ดูตัวอย่างบนโทรศัพท์</summary>
-
-  ![ADORA AI Studio mobile preview](docs/preview-mobile.png)
-</details>
-
-## จุดเด่น
-
-- Wizard 4 ขั้นตอน: รูปสินค้า → พรีเซนเตอร์ → ข้อมูล/สไตล์ → ตรวจสอบและสร้าง
-- AI creative planner, key visual และวิดีโอผ่าน OpenRouter
-- รองรับวิดีโอ 8, 16, 24 และ 32 วินาที
-- รวมหลายฉาก ใส่ caption และ export MP4 ผ่าน Shotstack
-- บันทึกไฟล์และประวัติแคมเปญใน Google Drive
-- Responsive สำหรับ desktop, tablet และ mobile พร้อม touch target และ safe area
-- API keys เก็บฝั่ง server ใน Apps Script Script Properties ไม่ถูกส่งกลับมาที่ browser
-- มี cost estimate ก่อนเริ่มงาน และหน้าติดตามสถานะระหว่างสร้าง
-- มี Dropdown เลือกชุดโมเดล 3 ระดับ โดยเปลี่ยนพร้อมกันทั้ง AI วิเคราะห์ สร้างภาพ และสร้างวิดีโอ
+> GitHub Pages เป็นหน้าพรีวิว UI เท่านั้น งาน AI จริงทำงานบน Google Apps Script Web App
 
 ## Workflow
 
-1. อัปโหลดรูปสินค้า และเลือกรูปพรีเซนเตอร์ถ้าต้องการ
-2. ระบุชื่อสินค้า จุดขาย กลุ่มเป้าหมาย และคำกระตุ้นการซื้อ
-3. เลือกสไตล์ เช่น UGC, Unboxing, Luxury, Lifestyle, Cinematic หรือ Product Focus
-4. เลือกความยาว/แพลตฟอร์ม และชุดคุณภาพ AI แบบประหยัด สมดุล หรือพรีเมียม
-5. ระบบวาง storyboard, สร้างภาพ, สร้างวิดีโอแต่ละ scene และรวมไฟล์โดยอัตโนมัติ
+1. อัปโหลดรูปสินค้า
+2. อัปโหลดรูปพรีเซนเตอร์หรือระบุบุคลิกที่ต้องการ
+3. ใส่ชื่อสินค้า จุดขาย กลุ่มเป้าหมาย ข้อเสนอ และข้อห้ามในการโฆษณา
+4. เลือกสไตล์ แพลตฟอร์ม ความยาว และแพ็กเกจ AI
+5. ระบบใช้ OpenRouter วิเคราะห์งาน สร้างภาพ และสร้างวิดีโอ Seedance เป็น MP4 ไฟล์เดียว
 
-## API keys ที่ต้องใช้
+ความยาวที่รองรับคือ 8, 10, 12 และ 15 วินาที โดยแพ็กเกจประหยัดรองรับสูงสุด 12 วินาที ส่วนแพ็กเกจสมดุลและพรีเมียมรองรับสูงสุด 15 วินาที
 
-| Key | จำเป็นเมื่อไร | ใช้ทำอะไร | แหล่งที่มา |
+## API key ที่ต้องใช้
+
+| Key | จำเป็น | ใช้ทำอะไร | สมัคร/สร้าง Key |
 |---|---|---|---|
-| `OPENROUTER_API_KEY` | **จำเป็น** | วางแผนครีเอทีฟ วิเคราะห์ภาพ สร้าง key visual และวิดีโอผ่านโมเดลที่ตั้งค่าไว้ | [OpenRouter Keys](https://openrouter.ai/settings/keys) |
-| `SHOTSTACK_API_KEY` | จำเป็นสำหรับงาน 16/24/32 วินาที; ไม่จำเป็นสำหรับวิดีโอฉากเดียว 8 วินาที | รวมหลาย scene, ใส่ caption และ render final MP4 | [Shotstack Dashboard](https://dashboard.shotstack.io/) |
+| `OPENROUTER_API_KEY` | จำเป็น | วิเคราะห์ภาพ วางแผน สร้าง Key Visual และสร้างวิดีโอ Seedance | [OpenRouter Keys](https://openrouter.ai/settings/keys) |
 
-ไม่ต้องใช้ Google Drive API key เพราะ Apps Script ใช้สิทธิ์ OAuth ของบัญชีที่ Deploy ให้อัตโนมัติ และไม่ต้องใช้ Gemini/Veo key แยกเมื่อเรียกโมเดลผ่าน OpenRouter
+ไม่ต้องใช้ API key ของ Gemini, ByteDance, Seedance หรือ Google Drive แยก เพราะโมเดล AI เรียกผ่าน OpenRouter และ Google Drive ใช้ OAuth ของบัญชีที่ Deploy Apps Script
 
 ### ควรใส่ key ที่ไหน
 
-วิธีที่แนะนำคือเปิดเมนู **Settings** ในเว็บแอป กรอก key แล้วกดบันทึก ระบบจะเก็บไว้ใน **Script Properties ฝั่ง server** จากนั้นกด Test connection ได้ทันที
+วิธีที่แนะนำคือเปิดเมนู **ตั้งค่าระบบ** ใน Web App ใส่ OpenRouter key แล้วกดบันทึก ระบบจะเก็บ key ใน **Script Properties ฝั่งเซิร์ฟเวอร์** และไม่ส่งค่ากลับไปยัง Browser
 
-OpenRouter ต้องใช้ **API key สำหรับ inference ปกติ** ไม่ใช่ Management API key เพราะ Management key ใช้จัดการ/หมุนเวียน key เท่านั้นและเรียกโมเดลไม่ได้ ส่วน Shotstack key ต้องเลือก environment ใน Settings ให้ตรงกับชนิด key (`stage` หรือ `v1`)
-
-อีกวิธีคือใส่ค่าที่ส่วนบนของ `Code.js`:
+อีกวิธีคือใส่ที่ส่วนบนของ `Code.js`:
 
 ```javascript
 const APP_CONFIG = {
   API_KEYS: {
     OPENROUTER_API_KEY: '',
-    SHOTSTACK_API_KEY: '',
   },
   // ...
 };
 ```
 
-ห้ามใส่ API key ใน `index.html`, JavaScript ฝั่ง browser หรือ commit key จริงลง GitHub เพราะผู้ใช้สามารถเปิดดู source และนำ key ไปใช้ได้
+ห้ามใส่ API key ใน `index.html` หรือ commit key จริงลง GitHub
 
-### Shotstack stage กับ production
+## แพ็กเกจ AI 3 ระดับ
 
-- `stage`: sandbox สำหรับทดสอบ วิดีโอมี watermark; AI assets บางประเภทอาจยังมีค่าใช้จ่ายตามเงื่อนไขของผู้ให้บริการ
-- `v1`: สำหรับงานจริง ไม่มี watermark และคิดค่า render ตามแพ็กเกจ
+| แพ็กเกจ | วิเคราะห์ | สร้างภาพ | สร้างวิดีโอ | ความยาวสูงสุด | ประมาณการ 8 วินาที |
+|---|---|---|---|---:|---:|
+| ประหยัด | `google/gemini-2.5-flash-lite` | `google/gemini-3.1-flash-lite-image` 1K | `bytedance/seedance-1-5-pro` 720p | 12 วินาที | `$0.45–$0.51` |
+| สมดุล | `google/gemini-3.6-flash` | `google/gemini-3.1-flash-image` 1K | `bytedance/seedance-2.0-fast` 720p | 15 วินาที | `$1.06–$1.17` |
+| พรีเมียม | `anthropic/claude-sonnet-5` | `google/gemini-3-pro-image` 2K | `bytedance/seedance-2.0` 1080p | 15 วินาที | `$3.00–$3.22` |
 
-## ชุดโมเดล
-
-| ชุด | AI วิเคราะห์ | สร้างภาพ | สร้างวิดีโอ | ประมาณการ 8 วินาที |
-|---|---|---|---|---:|
-| ประหยัด | `google/gemini-2.5-flash-lite` | `google/gemini-3.1-flash-lite-image` (1K) | `google/veo-3.1-lite` (720p) | `$0.44–$0.50` |
-| สมดุล | `google/gemini-3.6-flash` | `google/gemini-3.1-flash-image` (1K) | `google/veo-3.1-fast` (720p) | `$0.89–$1.00` |
-| พรีเมียม | `anthropic/claude-sonnet-5` | `google/gemini-3-pro-image` (2K) | `google/veo-3.1` (1080p) | `$3.48–$3.70` |
-
-ค่าเริ่มต้นเป็นชุด **ประหยัด** เพื่อทดลอง Prompt และแนวทางงานก่อน ผู้ใช้เปลี่ยนชุดได้จาก Dropdown ใน Step 4 โดยระบบจะบันทึกชุดที่เลือกไว้กับแคมเปญนั้น ชื่อโมเดลและราคาเป็น snapshot ณ วันที่พัฒนาและควรตรวจสอบกับ OpenRouter ก่อนเปิดขายจริง
+ราคาเป็น snapshot โดยประมาณสำหรับวิดีโอพร้อมเสียงก่อน retry ณ วันที่พัฒนา ตัวเลขจริงขึ้นกับราคา provider, resolution, usage และค่าธรรมเนียม OpenRouter ควรตรวจราคาใน OpenRouter ก่อนเปิดขายจริง
 
 ## โครงสร้างโปรเจกต์
 
 ```text
 .
-├── Code.js          # API, workflow, Drive, campaign state และ server functions
-├── index.html       # UI, responsive styles และ client workflow
-├── appsscript.json  # Apps Script manifest และ web-app permissions
-├── .clasp.json      # เชื่อม repository กับ Apps Script project
+├── Code.js          # OpenRouter API, workflow, Drive และ campaign state
+├── index.html       # Responsive web application UI
+├── appsscript.json  # Apps Script manifest
+├── .clasp.json      # เชื่อมกับ Apps Script project
 └── README.md
 ```
 
-`index.html` ใช้ตัว `i` เล็กตามมาตรฐานเว็บทั่วไปและ GitHub Pages ส่วน Google Apps Script จะทำงานได้เมื่อชื่อใน `createHtmlOutputFromFile('index')` ตรงกับชื่อไฟล์
+`index.html` ใช้ตัว `i` เล็กตามมาตรฐานเว็บ และตรงกับ `createHtmlOutputFromFile('index')` ใน Apps Script
 
 ## Deploy ด้วย clasp
 
-```bash
-npm install -g @google/clasp
-clasp login
-clasp pull
-clasp push
-clasp version "ADORA AI Studio release"
-clasp deployments
-```
-
-การอัปเดต deployment เดิม:
+โปรเจกต์นี้ใช้ named profile `project-owner` ซึ่งเชื่อมกับบัญชี `bass1135@gmail.com`
 
 ```bash
-clasp deploy --deploymentId AKfycbz0N9eDGVPJRM89kEEfVZxqdGN8e5K1BY1E3LevfV7mCv3jbMdxJsqlx4OpTaNRi8l70g --versionNumber VERSION
+npx --yes @google/clasp@latest -u project-owner show-authorized-user
+npx --yes @google/clasp@latest -u project-owner push --force
+npx --yes @google/clasp@latest -u project-owner version "ADORA AI Studio release"
+npx --yes @google/clasp@latest -u project-owner deployments
 ```
 
-## ค่าใช้จ่ายโดยประมาณ
+อัปเดต deployment เดิมด้วย version number ที่สร้างใหม่:
 
-ตัวแอปคำนวณราคาตามชุดโมเดล ความยาววิดีโอ และค่า Shotstack โดยประมาณสำหรับงานเกิน 8 วินาที ตัวเลขจริงขึ้นกับราคา provider ความละเอียด จำนวน retry และค่าธรรมเนียม OpenRouter/Shotstack ณ เวลาที่ใช้งาน การกดสร้างใหม่จะคิดค่า AI ใหม่ทุกครั้ง
+```bash
+npx --yes @google/clasp@latest -u project-owner deploy \
+  --deploymentId AKfycbz0N9eDGVPJRM89kEEfVZxqdGN8e5K1BY1E3LevfV7mCv3jbMdxJsqlx4OpTaNRi8l70g \
+  --versionNumber VERSION \
+  --description "ADORA AI Studio OpenRouter-only Seedance release"
+```
 
-## ก่อนนำไปขายเป็น SaaS สาธารณะ
+## ก่อนนำไปขายเป็น SaaS
 
-เวอร์ชันนี้เป็น owner-operated presentation MVP ที่ใช้งานจริงได้ ภายในบัญชีเจ้าของ หากจะเปิดให้ลูกค้าหลายคนใช้งานและชำระเงินจริง ควรเพิ่มระบบ login, tenant isolation, quota/rate limit, billing, usage ledger, moderation, privacy/terms และกลไกไม่ให้ผู้ใช้ทุกคนใช้ API key กลางโดยไม่มีขีดจำกัด
+เวอร์ชันนี้เป็น owner-operated presentation MVP หากจะเปิดให้ลูกค้าหลายคนใช้งาน ควรเพิ่มระบบสมาชิก, tenant isolation, quota/rate limit, billing/usage ledger, moderation, consent, privacy/terms และระบบคิวที่รองรับการใช้งานพร้อมกันจำนวนมาก
 
-## หมายเหตุ
-
-- ระบบสร้างไฟล์ MP4 แต่ยังไม่โพสต์เข้า TikTok/Instagram/YouTube โดยตรง จึงยังไม่ต้องใช้ API key ของแพลตฟอร์มเหล่านั้น
-- รูปและวิดีโอที่ส่งให้ provider ประมวลผลอาจถูกตั้งเป็น anyone-with-link ชั่วคราวตาม workflow ปัจจุบัน ควรทบทวนนโยบายข้อมูลก่อนรับงานลูกค้าที่มีข้อมูลละเอียดอ่อน
-- อย่า commit `.clasprc.json`; ไฟล์นี้มีข้อมูลยืนยันตัวตนของ `clasp` และถูก ignore ไว้แล้ว
+รูปและวิดีโอที่ส่งให้ provider ประมวลผลอาจถูกตั้งเป็น anyone-with-link ชั่วคราวตาม workflow ปัจจุบัน ควรทบทวนนโยบายข้อมูลก่อนรับงานที่มีข้อมูลละเอียดอ่อน

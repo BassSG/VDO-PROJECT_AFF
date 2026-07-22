@@ -9,18 +9,17 @@
  */
 const APP_CONFIG = {
   APP_NAME: 'ADORA AI Studio',
-  VERSION: '1.2.0',
+  VERSION: '1.3.0',
 
   API_KEYS: {
     // Recommended: leave blank and save the key from the in-app Settings page.
     OPENROUTER_API_KEY: '',
-    SHOTSTACK_API_KEY: '',
   },
 
   MODELS: {
     PLANNER: 'google/gemini-2.5-flash-lite',
     IMAGE: 'google/gemini-3.1-flash-lite-image',
-    VIDEO: 'google/veo-3.1-lite',
+    VIDEO: 'bytedance/seedance-1-5-pro',
   },
 
   DEFAULT_MODEL_TIER: 'economy',
@@ -30,10 +29,10 @@ const APP_CONFIG = {
       label: 'ประหยัด · เริ่มทดลอง',
       shortLabel: 'ประหยัด',
       badge: 'เริ่มต้นที่แนะนำ',
-      description: 'ต้นทุนต่ำ เหมาะสำหรับทดลอง Prompt และตรวจแนวทางงานก่อน',
+      description: 'ต้นทุนต่ำ สร้างคลิปพร้อมเสียงผ่าน OpenRouter เหมาะสำหรับทดลองงาน สูงสุด 12 วินาที',
       planner: { id: 'google/gemini-2.5-flash-lite', name: 'Gemini 2.5 Flash Lite' },
       image: { id: 'google/gemini-3.1-flash-lite-image', name: 'Nano Banana 2 Lite', resolution: '1K' },
-      video: { id: 'google/veo-3.1-lite', name: 'Veo 3.1 Lite', pricePerSecond: 0.05, resolution: '720p' },
+      video: { id: 'bytedance/seedance-1-5-pro', name: 'Seedance 1.5 Pro', pricePerSecond: 0.05184, resolution: '720p', maxDuration: 12, generateAudio: true },
       otherMin: 0.04,
       otherMax: 0.10,
     },
@@ -42,10 +41,10 @@ const APP_CONFIG = {
       label: 'สมดุล · งานมาตรฐาน',
       shortLabel: 'สมดุล',
       badge: 'คุณภาพคุ้มราคา',
-      description: 'วิเคราะห์ละเอียดขึ้น ภาพคมขึ้น และวิดีโอคุณภาพสูงสำหรับงานใช้งานจริง',
+      description: 'สมดุลด้านราคา ความเร็ว และคุณภาพ ใช้ Seedance 2.0 Fast สร้างคลิปเดียวสูงสุด 15 วินาที',
       planner: { id: 'google/gemini-3.6-flash', name: 'Gemini 3.6 Flash' },
       image: { id: 'google/gemini-3.1-flash-image', name: 'Nano Banana 2', resolution: '1K' },
-      video: { id: 'google/veo-3.1-fast', name: 'Veo 3.1 Fast', pricePerSecond: 0.10, resolution: '720p' },
+      video: { id: 'bytedance/seedance-2.0-fast', name: 'Seedance 2.0 Fast', pricePerSecond: 0.12096, resolution: '720p', maxDuration: 15, generateAudio: true },
       otherMin: 0.09,
       otherMax: 0.20,
     },
@@ -54,10 +53,10 @@ const APP_CONFIG = {
       label: 'พรีเมียม · ดีที่สุด',
       shortLabel: 'พรีเมียม',
       badge: 'Final production',
-      description: 'ใช้โมเดลระดับสูงสำหรับวิเคราะห์แบรนด์ ภาพโฆษณา และวิดีโอคุณภาพสูงสุด',
+      description: 'คุณภาพสูงสุด ใช้ Seedance 2.0 ที่ 1080p พร้อมเสียง สร้างคลิปเดียวสูงสุด 15 วินาที',
       planner: { id: 'anthropic/claude-sonnet-5', name: 'Claude Sonnet 5' },
       image: { id: 'google/gemini-3-pro-image', name: 'Nano Banana Pro', resolution: '2K' },
-      video: { id: 'google/veo-3.1', name: 'Veo 3.1', pricePerSecond: 0.40, resolution: '1080p' },
+      video: { id: 'bytedance/seedance-2.0', name: 'Seedance 2.0', pricePerSecond: 0.3402, resolution: '1080p', maxDuration: 15, generateAudio: true },
       otherMin: 0.28,
       otherMax: 0.50,
     },
@@ -65,25 +64,21 @@ const APP_CONFIG = {
 
   API: {
     OPENROUTER_BASE_URL: 'https://openrouter.ai/api/v1',
-    SHOTSTACK_BASE_URL: 'https://api.shotstack.io/edit',
   },
 
   WORKFLOW: {
     OUTPUT_FOLDER_NAME: 'ADORA AI Studio',
-    SCENE_DURATION_SECONDS: 8,
-    MAX_SCENES: 4,
+    DEFAULT_DURATION_SECONDS: 8,
+    ALLOWED_DURATIONS: [8, 10, 12, 15],
     MAX_IMAGE_BYTES: 5 * 1024 * 1024,
     HISTORY_LIMIT: 20,
     POLL_INTERVAL_SECONDS: 20,
-    DEFAULT_SHOTSTACK_ENV: 'stage', // stage = watermarked sandbox; v1 = live production
   },
 
 };
 
 const PROPERTY_KEYS = {
   OPENROUTER: 'ADORA_OPENROUTER_API_KEY',
-  SHOTSTACK: 'ADORA_SHOTSTACK_API_KEY',
-  SHOTSTACK_ENV: 'ADORA_SHOTSTACK_ENV',
   MODEL_PLANNER: 'ADORA_MODEL_PLANNER',
   MODEL_IMAGE: 'ADORA_MODEL_IMAGE',
   MODEL_VIDEO: 'ADORA_MODEL_VIDEO',
@@ -108,15 +103,14 @@ function getBootstrapData() {
       version: APP_CONFIG.VERSION,
       limits: {
         maxImageBytes: APP_CONFIG.WORKFLOW.MAX_IMAGE_BYTES,
-        maxScenes: APP_CONFIG.WORKFLOW.MAX_SCENES,
-        sceneDuration: APP_CONFIG.WORKFLOW.SCENE_DURATION_SECONDS,
+        maxScenes: 1,
+        allowedDurations: APP_CONFIG.WORKFLOW.ALLOWED_DURATIONS,
         pollInterval: APP_CONFIG.WORKFLOW.POLL_INTERVAL_SECONDS,
       },
       defaults: {
         plannerModel: getModel_('PLANNER'),
         imageModel: getModel_('IMAGE'),
         videoModel: getModel_('VIDEO'),
-        shotstackEnv: getShotstackEnv_(),
         modelTier: getDefaultModelTier_(),
       },
       modelTiers: getPublicModelTiers_(),
@@ -134,16 +128,7 @@ function saveApiSettings(input) {
   if (input.openrouterKey && !isMaskedValue_(input.openrouterKey)) {
     props.setProperty(PROPERTY_KEYS.OPENROUTER, String(input.openrouterKey).trim());
   }
-  if (input.shotstackKey && !isMaskedValue_(input.shotstackKey)) {
-    props.setProperty(PROPERTY_KEYS.SHOTSTACK, String(input.shotstackKey).trim());
-  }
   if (input.clearOpenrouterKey === true) props.deleteProperty(PROPERTY_KEYS.OPENROUTER);
-  if (input.clearShotstackKey === true) props.deleteProperty(PROPERTY_KEYS.SHOTSTACK);
-
-  if (input.shotstackEnv) {
-    const env = String(input.shotstackEnv).toLowerCase() === 'v1' ? 'v1' : 'stage';
-    props.setProperty(PROPERTY_KEYS.SHOTSTACK_ENV, env);
-  }
 
   if (input.modelTier) {
     props.setProperty(PROPERTY_KEYS.DEFAULT_MODEL_TIER, getModelTier_(input.modelTier).id);
@@ -158,21 +143,6 @@ function saveApiSettings(input) {
 }
 
 function testApiConnection(service) {
-  const target = String(service || 'openrouter').toLowerCase();
-  if (target === 'shotstack') {
-    const key = getSecret_('SHOTSTACK');
-    if (!key) throw new Error('ยังไม่ได้ตั้งค่า Shotstack API key');
-    const url = `${APP_CONFIG.API.SHOTSTACK_BASE_URL}/${getShotstackEnv_()}/render/not-a-render-id`;
-    const response = UrlFetchApp.fetch(url, {
-      method: 'get',
-      headers: { 'x-api-key': key, Accept: 'application/json' },
-      muteHttpExceptions: true,
-    });
-    const code = response.getResponseCode();
-    if (code === 401 || code === 403) throw new Error('Shotstack API key ไม่ถูกต้องหรือไม่ตรงกับ environment');
-    return { ok: true, message: `เชื่อมต่อ Shotstack ${getShotstackEnv_()} สำเร็จ`, code };
-  }
-
   const key = getSecret_('OPENROUTER');
   if (!key) throw new Error('ยังไม่ได้ตั้งค่า OpenRouter API key');
   const response = UrlFetchApp.fetch(`${APP_CONFIG.API.OPENROUTER_BASE_URL}/key`, {
@@ -190,7 +160,7 @@ function testApiConnection(service) {
 
 /**
  * Starts the full asynchronous workflow:
- * plan -> key visual -> submit 1-4 video scenes.
+ * plan -> key visual -> submit one OpenRouter Seedance video.
  * The browser continues with pollCampaign() until a final MP4 is ready.
  */
 function startCampaign(payload) {
@@ -240,10 +210,7 @@ function startCampaign(payload) {
     };
     saveCampaign_(record, true);
 
-    const sceneCount = Math.min(
-      APP_CONFIG.WORKFLOW.MAX_SCENES,
-      Math.max(1, Math.ceil(payload.duration / APP_CONFIG.WORKFLOW.SCENE_DURATION_SECONDS))
-    );
+    const sceneCount = 1;
     const plan = generateCreativePlan_(payload, sceneCount, modelTier);
     record.plan = plan;
     record.progress = 28;
@@ -266,34 +233,27 @@ function startCampaign(payload) {
     record.keyVisualDriveUrl = keyVisualFile.getUrl();
     record.progress = 42;
     record.status = 'submitting';
-    record.statusText = `กำลังส่งงานวิดีโอ ${sceneCount} ฉากเข้าคิว`;
+    record.statusText = `กำลังส่งวิดีโอ Seedance ${payload.duration} วินาทีเข้าคิว OpenRouter`;
     saveCampaign_(record);
 
-    const scenes = [];
-    for (let i = 0; i < sceneCount; i += 1) {
-      const scenePlan = plan.scenes[i] || plan.scenes[plan.scenes.length - 1];
-      const sceneDuration = Math.min(
-        APP_CONFIG.WORKFLOW.SCENE_DURATION_SECONDS,
-        payload.duration - i * APP_CONFIG.WORKFLOW.SCENE_DURATION_SECONDS
-      );
-      const job = submitVideoScene_(payload, plan, scenePlan, keyVisualDirectUrl, sceneDuration, i, modelTier);
-      scenes.push({
-        index: i + 1,
-        title: scenePlan.title || `Scene ${i + 1}`,
-        voiceover: scenePlan.voiceover || '',
-        overlay: scenePlan.overlay || '',
-        duration: sceneDuration,
-        jobId: job.id,
-        pollingUrl: job.polling_url || `${APP_CONFIG.API.OPENROUTER_BASE_URL}/videos/${job.id}`,
-        status: job.status || 'pending',
-        cost: 0,
-      });
-    }
+    const scenePlan = plan.scenes[0];
+    const job = submitVideo_(payload, plan, scenePlan, keyVisualDirectUrl, modelTier);
+    const scenes = [{
+      index: 1,
+      title: scenePlan.title || 'Full advertisement',
+      voiceover: scenePlan.voiceover || '',
+      overlay: scenePlan.overlay || '',
+      duration: payload.duration,
+      jobId: job.id,
+      pollingUrl: job.polling_url || `${APP_CONFIG.API.OPENROUTER_BASE_URL}/videos/${job.id}`,
+      status: job.status || 'pending',
+      cost: 0,
+    }];
 
     record.scenes = scenes;
     record.status = 'generating';
     record.progress = 50;
-    record.statusText = 'AI กำลังสร้างวิดีโอและเสียงให้แต่ละฉาก';
+    record.statusText = `Seedance กำลังสร้างวิดีโอพร้อมเสียง ${payload.duration} วินาที`;
     saveCampaign_(record);
     return publicCampaign_(record);
   } catch (error) {
@@ -318,9 +278,6 @@ function pollCampaign(campaignId) {
   try {
     if (record.status === 'generating' || record.status === 'submitting') {
       advanceVideoJobs_(record);
-    }
-    if (record.status === 'rendering') {
-      advanceShotstackRender_(record);
     }
     saveCampaign_(record);
     return publicCampaign_(record);
@@ -388,84 +345,20 @@ function advanceVideoJobs_(record) {
   }
 
   const total = record.scenes.length;
-  record.progress = 50 + Math.round((completed / total) * 34);
-  record.statusText = `สร้างวิดีโอสำเร็จแล้ว ${completed}/${total} ฉาก`;
+  record.progress = 50 + Math.round((completed / total) * 50);
+  record.statusText = completed === total
+    ? 'สร้างวิดีโอ Seedance สำเร็จแล้ว'
+    : 'OpenRouter กำลังประมวลผลวิดีโอ Seedance';
 
   if (completed !== total) return;
 
-  if (total === 1) {
-    const only = record.scenes[0];
-    record.status = 'completed';
-    record.progress = 100;
-    record.statusText = 'โฆษณาพร้อมใช้งานแล้ว';
-    record.finalUrl = only.publicUrl;
-    record.finalDriveUrl = only.driveUrl;
-    record.completedAt = new Date().toISOString();
-    return;
-  }
-
-  const shotstackKey = getSecret_('SHOTSTACK');
-  if (!shotstackKey) {
-    record.status = 'needs_render_key';
-    record.progress = 85;
-    record.statusText = 'สร้างทุกฉากแล้ว — ใส่ Shotstack key เพื่อรวมเป็นไฟล์เดียว';
-    record.sceneDownloads = record.scenes.map((s) => ({ index: s.index, url: s.publicUrl, driveUrl: s.driveUrl }));
-    return;
-  }
-
-  const render = submitShotstackRender_(record, shotstackKey);
-  record.shotstackRenderId = render.response.id;
-  record.status = 'rendering';
-  record.progress = 88;
-  record.statusText = 'กำลังรวมคลิป ใส่ซับอัตโนมัติ และ Export MP4';
-}
-
-function resumeRender(campaignId) {
-  const record = getCampaignRecord_(campaignId);
-  if (!record) throw new Error('ไม่พบแคมเปญนี้');
-  if (record.status !== 'needs_render_key') return publicCampaign_(record);
-  const key = getSecret_('SHOTSTACK');
-  if (!key) throw new Error('กรุณาใส่ Shotstack API key ก่อนรวมวิดีโอ');
-  const render = submitShotstackRender_(record, key);
-  record.shotstackRenderId = render.response.id;
-  record.status = 'rendering';
-  record.progress = 88;
-  record.statusText = 'กำลังรวมคลิป ใส่ซับอัตโนมัติ และ Export MP4';
-  saveCampaign_(record);
-  return publicCampaign_(record);
-}
-
-function advanceShotstackRender_(record) {
-  const key = getSecret_('SHOTSTACK');
-  if (!key) throw new Error('ไม่พบ Shotstack API key');
-  const url = `${APP_CONFIG.API.SHOTSTACK_BASE_URL}/${getShotstackEnv_()}/render/${record.shotstackRenderId}`;
-  const response = UrlFetchApp.fetch(url, {
-    method: 'get',
-    headers: { 'x-api-key': key, Accept: 'application/json' },
-    muteHttpExceptions: true,
-  });
-  const result = parseResponse_(response, 'Shotstack render');
-  const render = result.response || {};
-  record.renderStatus = render.status || 'queued';
-
-  const progressMap = { queued: 89, fetching: 90, preprocessing: 92, rendering: 95, saving: 98 };
-  record.progress = progressMap[render.status] || record.progress;
-  record.statusText = `กำลัง Export วิดีโอ: ${render.status || 'queued'}`;
-
-  if (render.status === 'failed') throw new Error(render.error || 'Shotstack render failed');
-  if (render.status !== 'done') return;
-
-  const folder = DriveApp.getFolderById(record.folderId);
-  const videoResponse = UrlFetchApp.fetch(render.url, { muteHttpExceptions: true });
-  if (videoResponse.getResponseCode() >= 300) throw new Error('ดาวน์โหลดวิดีโอที่รวมแล้วไม่สำเร็จ');
-  const finalFile = folder.createFile(videoResponse.getBlob().setName(`${safeFileName_(record.productName)}-final.mp4`));
-  finalFile.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
-  record.finalUrl = driveDirectUrl_(finalFile.getId());
-  record.finalDriveUrl = finalFile.getUrl();
-  record.finalFileId = finalFile.getId();
+  const video = record.scenes[0];
   record.status = 'completed';
   record.progress = 100;
   record.statusText = 'โฆษณาพร้อมใช้งานแล้ว';
+  record.finalUrl = video.publicUrl;
+  record.finalDriveUrl = video.driveUrl;
+  record.finalFileId = video.fileId;
   record.completedAt = new Date().toISOString();
 }
 
@@ -494,11 +387,11 @@ function generateCreativePlan_(payload, sceneCount, modelTier) {
   };
 
   const schemaInstruction = [
-    `Create exactly ${sceneCount} scenes, each no longer than ${APP_CONFIG.WORKFLOW.SCENE_DURATION_SECONDS} seconds.`,
+    `Create one cohesive ${payload.duration}-second video sequence with 2-4 clear visual beats inside the same clip.`,
     'JSON schema:',
-    '{"title":"","angle":"","hook":"","audience":"","visualDirection":"","narrationStyle":"","caption":"","hashtags":[""],"safetyNotes":[""],"keyVisualPrompt":"","scenes":[{"index":1,"title":"","duration":8,"voiceover":"","visualPrompt":"","camera":"","motion":"","overlay":""}]}',
-    'For each visualPrompt, explicitly demand photorealistic product fidelity and vertical 9:16 composition.',
-    'Avoid asking the video model to draw readable text; overlay text will be added later.',
+    `{"title":"","angle":"","hook":"","audience":"","visualDirection":"","narrationStyle":"","caption":"","hashtags":[""],"safetyNotes":[""],"keyVisualPrompt":"","scenes":[{"index":1,"title":"Full advertisement","duration":${payload.duration},"voiceover":"","visualPrompt":"","camera":"","motion":"","overlay":""}]}`,
+    'The single visualPrompt must describe the full clip from hook through product demonstration to CTA, with photorealistic product fidelity and vertical 9:16 composition.',
+    'Keep spoken Thai concise enough for the requested duration. Do not ask the video model to draw readable on-screen text.',
   ].join('\n');
 
   const content = [
@@ -557,9 +450,9 @@ function generateKeyVisual_(payload, plan, modelTier) {
   return { base64: image.b64_json, mimeType: image.media_type || 'image/png' };
 }
 
-function submitVideoScene_(payload, plan, scene, keyVisualUrl, duration, sceneIndex, modelTier) {
+function submitVideo_(payload, plan, scene, keyVisualUrl, modelTier) {
   const prompt = [
-    `Vertical premium social advertisement, scene ${sceneIndex + 1}.`,
+    `Create one cohesive ${payload.duration}-second vertical premium social advertisement.`,
     scene.visualPrompt || '',
     `Camera: ${scene.camera || 'natural handheld commercial shot'}.`,
     `Motion: ${scene.motion || 'subtle realistic motion and confident product interaction'}.`,
@@ -572,86 +465,16 @@ function submitVideoScene_(payload, plan, scene, keyVisualUrl, duration, sceneIn
   return openRouterRequest_('/videos', {
     model: modelTier.video.id,
     prompt,
-    duration: Math.max(4, Number(duration) || APP_CONFIG.WORKFLOW.SCENE_DURATION_SECONDS),
+    duration: payload.duration,
     resolution: modelTier.video.resolution || '720p',
     aspect_ratio: '9:16',
-    generate_audio: true,
+    generate_audio: modelTier.video.generateAudio !== false,
     frame_images: [{
       type: 'image_url',
       image_url: { url: keyVisualUrl },
       frame_type: 'first_frame',
     }],
   });
-}
-
-function submitShotstackRender_(record, apiKey) {
-  const duration = Number(record.duration);
-  const videoClips = [];
-  let cursor = 0;
-  record.scenes.forEach((scene, index) => {
-    const length = Math.min(Number(scene.duration || 8), duration - cursor);
-    videoClips.push({
-      asset: { type: 'video', src: scene.publicUrl, volume: 1 },
-      start: cursor,
-      length,
-      fit: 'cover',
-      alias: `scene-${index + 1}`,
-      transition: {
-        in: index === 0 ? 'none' : 'fade',
-        out: index === record.scenes.length - 1 ? 'none' : 'fade',
-      },
-    });
-    cursor += length;
-  });
-
-  const captionClips = videoClips.map((clip, index) => ({
-    asset: {
-      type: 'rich-caption',
-      src: `alias://scene-${index + 1}`,
-      font: { family: 'Noto Sans Thai', size: 46, weight: 700, color: '#ffffff', opacity: 1 },
-      active: { font: { color: '#c8ff62', opacity: 1 } },
-      stroke: { width: 3, color: '#05070d', opacity: 0.95 },
-      animation: { style: 'highlight' },
-      align: { horizontal: 'center', vertical: 'bottom' },
-    },
-    start: clip.start,
-    length: clip.length,
-    position: 'bottom',
-    offset: { y: 0.12 },
-  }));
-
-  const payload = {
-    timeline: {
-      background: '#05070d',
-      fonts: [{
-        src: 'https://raw.githubusercontent.com/google/fonts/main/ofl/notosansthai/NotoSansThai%5Bwdth%2Cwght%5D.ttf',
-      }],
-      tracks: [
-        { clips: captionClips },
-        { clips: videoClips },
-      ],
-      cache: true,
-    },
-    output: {
-      format: 'mp4',
-      resolution: 'hd',
-      aspectRatio: '9:16',
-      fps: 30,
-      quality: 'high',
-      poster: { capture: 1 },
-      thumbnail: { capture: 1, scale: 0.3 },
-    },
-  };
-
-  const url = `${APP_CONFIG.API.SHOTSTACK_BASE_URL}/${getShotstackEnv_()}/render`;
-  const response = UrlFetchApp.fetch(url, {
-    method: 'post',
-    contentType: 'application/json',
-    headers: { 'x-api-key': apiKey, Accept: 'application/json' },
-    payload: JSON.stringify(payload),
-    muteHttpExceptions: true,
-  });
-  return parseResponse_(response, 'Shotstack');
 }
 
 function openRouterRequest_(path, body) {
@@ -710,9 +533,14 @@ function validateCampaignPayload_(input) {
     throw new Error('รูปพรีเซนเตอร์มีขนาดใหญ่เกิน 5 MB');
   }
 
-  const allowedDurations = [8, 16, 24, 32];
-  const duration = allowedDurations.indexOf(Number(input.duration)) >= 0 ? Number(input.duration) : 8;
-  const modelTier = getModelTier_(input.modelTier).id;
+  const requestedDuration = Number(input.duration);
+  const duration = APP_CONFIG.WORKFLOW.ALLOWED_DURATIONS.indexOf(requestedDuration) >= 0
+    ? requestedDuration
+    : APP_CONFIG.WORKFLOW.DEFAULT_DURATION_SECONDS;
+  const tier = getModelTier_(input.modelTier);
+  if (duration > Number(tier.video.maxDuration || 15)) {
+    throw new Error(`แพ็กเกจ${tier.shortLabel}รองรับวิดีโอสูงสุด ${tier.video.maxDuration} วินาที กรุณาเลือกความยาวใหม่หรือเปลี่ยนแพ็กเกจ`);
+  }
   return {
     productImage: String(input.productImage),
     presenterImage: input.presenterImage ? String(input.presenterImage) : '',
@@ -727,7 +555,7 @@ function validateCampaignPayload_(input) {
     tone: cleanText_(input.tone || 'มั่นใจ เป็นธรรมชาติ', 120),
     platform: cleanText_(input.platform || 'TikTok', 40),
     duration,
-    modelTier,
+    modelTier: tier.id,
     callToAction: cleanText_(input.callToAction || 'สั่งซื้อเลย', 120),
     acceptRights: true,
   };
@@ -741,7 +569,7 @@ function normalizePlan_(plan, payload, sceneCount) {
     scenes.push({
       index,
       title: index === 1 ? 'Hook' : index === sceneCount ? 'CTA' : `Product moment ${index}`,
-      duration: APP_CONFIG.WORKFLOW.SCENE_DURATION_SECONDS,
+      duration: payload.duration,
       voiceover: index === sceneCount
         ? `${payload.callToAction} ${payload.productName}`
         : `${payload.productName} ${payload.sellingPoints}`,
@@ -764,7 +592,7 @@ function normalizePlan_(plan, payload, sceneCount) {
   plan.scenes = scenes.map((scene, i) => ({
     index: i + 1,
     title: cleanText_(scene.title || `Scene ${i + 1}`, 120),
-    duration: Math.min(APP_CONFIG.WORKFLOW.SCENE_DURATION_SECONDS, Number(scene.duration) || APP_CONFIG.WORKFLOW.SCENE_DURATION_SECONDS),
+    duration: payload.duration,
     voiceover: cleanText_(scene.voiceover || '', 700),
     visualPrompt: cleanText_(scene.visualPrompt || '', 1400),
     camera: cleanText_(scene.camera || '', 300),
@@ -776,19 +604,17 @@ function normalizePlan_(plan, payload, sceneCount) {
 
 function estimateCampaignCost_(duration, tierInput) {
   const tier = typeof tierInput === 'object' && tierInput ? tierInput : getModelTier_(tierInput);
-  const seconds = Number(duration) || APP_CONFIG.WORKFLOW.SCENE_DURATION_SECONDS;
+  const seconds = Number(duration) || APP_CONFIG.WORKFLOW.DEFAULT_DURATION_SECONDS;
   const video = seconds * Number(tier.video.pricePerSecond || 0);
-  const shotstack = seconds > APP_CONFIG.WORKFLOW.SCENE_DURATION_SECONDS ? seconds * 0.005 : 0;
   return {
-    min: roundMoney_(video + Number(tier.otherMin || 0) + shotstack),
-    max: roundMoney_(video + Number(tier.otherMax || 0) + shotstack),
+    min: roundMoney_(video + Number(tier.otherMin || 0)),
+    max: roundMoney_(video + Number(tier.otherMax || 0)),
     video: roundMoney_(video),
     otherMin: roundMoney_(tier.otherMin || 0),
     otherMax: roundMoney_(tier.otherMax || 0),
-    shotstack: roundMoney_(shotstack),
     currency: 'USD',
     tier: tier.id,
-    note: 'ประมาณการก่อน retry; คลิปเกิน 8 วินาทีรวมค่า Shotstack PAYG โดยประมาณ',
+    note: 'ประมาณการ OpenRouter เท่านั้นก่อน retry; ราคาจริงอาจเปลี่ยนตาม provider และ usage',
   };
 }
 
@@ -813,11 +639,18 @@ function getPublicModelTiers_() {
       description: tier.description,
       planner: { id: tier.planner.id, name: tier.planner.name },
       image: { id: tier.image.id, name: tier.image.name, resolution: tier.image.resolution },
-      video: { id: tier.video.id, name: tier.video.name, pricePerSecond: tier.video.pricePerSecond, resolution: tier.video.resolution },
+      video: {
+        id: tier.video.id,
+        name: tier.video.name,
+        pricePerSecond: tier.video.pricePerSecond,
+        resolution: tier.video.resolution,
+        maxDuration: tier.video.maxDuration,
+        generateAudio: tier.video.generateAudio !== false,
+      },
       otherMin: tier.otherMin,
       otherMax: tier.otherMax,
-      estimates: [8, 16, 24, 32].reduce((result, seconds) => {
-        result[seconds] = estimateCampaignCost_(seconds, tier);
+      estimates: APP_CONFIG.WORKFLOW.ALLOWED_DURATIONS.reduce((result, seconds) => {
+        if (seconds <= tier.video.maxDuration) result[seconds] = estimateCampaignCost_(seconds, tier);
         return result;
       }, {}),
     };
@@ -826,13 +659,9 @@ function getPublicModelTiers_() {
 
 function getSettingsStatus_() {
   const openrouter = getSecret_('OPENROUTER');
-  const shotstack = getSecret_('SHOTSTACK');
   return {
     openrouterConfigured: Boolean(openrouter),
-    shotstackConfigured: Boolean(shotstack),
     openrouterMasked: maskKey_(openrouter),
-    shotstackMasked: maskKey_(shotstack),
-    shotstackEnv: getShotstackEnv_(),
     defaultModelTier: getDefaultModelTier_(),
     models: {
       planner: getModel_('PLANNER'),
@@ -844,10 +673,8 @@ function getSettingsStatus_() {
 
 function getSecret_(service) {
   const props = PropertiesService.getScriptProperties();
-  if (service === 'OPENROUTER') {
-    return String(APP_CONFIG.API_KEYS.OPENROUTER_API_KEY || props.getProperty(PROPERTY_KEYS.OPENROUTER) || '').trim();
-  }
-  return String(APP_CONFIG.API_KEYS.SHOTSTACK_API_KEY || props.getProperty(PROPERTY_KEYS.SHOTSTACK) || '').trim();
+  if (service !== 'OPENROUTER') return '';
+  return String(APP_CONFIG.API_KEYS.OPENROUTER_API_KEY || props.getProperty(PROPERTY_KEYS.OPENROUTER) || '').trim();
 }
 
 function getModel_(type) {
@@ -858,12 +685,6 @@ function getModel_(type) {
     VIDEO: PROPERTY_KEYS.MODEL_VIDEO,
   };
   return props.getProperty(keyMap[type]) || APP_CONFIG.MODELS[type];
-}
-
-function getShotstackEnv_() {
-  const value = PropertiesService.getScriptProperties().getProperty(PROPERTY_KEYS.SHOTSTACK_ENV)
-    || APP_CONFIG.WORKFLOW.DEFAULT_SHOTSTACK_ENV;
-  return String(value).toLowerCase() === 'v1' ? 'v1' : 'stage';
 }
 
 function createCampaignFolder_(productName, id) {
@@ -947,7 +768,6 @@ function publicCampaign_(record, compact) {
     error: record.error || '',
     estimatedCost: record.estimatedCost || null,
     actualCost: Number(record.actualCost || 0),
-    renderStatus: record.renderStatus || '',
   };
   if (!compact) {
     result.plan = record.plan || null;
@@ -963,7 +783,6 @@ function publicCampaign_(record, compact) {
       error: scene.error || '',
       cost: Number(scene.cost || 0),
     }));
-    result.sceneDownloads = record.sceneDownloads || [];
   }
   return result;
 }
