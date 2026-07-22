@@ -9,7 +9,7 @@
  */
 const APP_CONFIG = {
   APP_NAME: 'ADORA AI Studio',
-  VERSION: '1.3.2',
+  VERSION: '1.3.3',
 
   API_KEYS: {
     // Recommended: leave blank and save the key from the in-app Settings page.
