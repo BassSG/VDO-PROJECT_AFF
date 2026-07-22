@@ -13,4 +13,4 @@ Thumbs.db
 # Local previews and temporary artifacts
 *.tmp
 *.bak
-preview-*.png
+/preview-*.png
