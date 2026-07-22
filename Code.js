@@ -9,7 +9,7 @@
  */
 const APP_CONFIG = {
   APP_NAME: 'ADORA AI Studio',
-  VERSION: '1.5.1',
+  VERSION: '1.6.0',
 
   API_KEYS: {
     // Recommended: leave blank and save the key from the in-app Settings page.
@@ -17,48 +17,53 @@ const APP_CONFIG = {
   },
 
   MODELS: {
-    PLANNER: 'google/gemini-2.5-flash-lite',
+    PLANNER: 'google/gemini-3.1-flash-lite',
     IMAGE: 'google/gemini-3.1-flash-lite-image',
-    VIDEO: 'bytedance/seedance-1-5-pro',
+    VIDEO: 'google/veo-3.1-lite',
+    SPEECH_REVIEW: 'openai/whisper-large-v3',
+    SPEECH_RECHECK: 'openai/whisper-large-v3-turbo',
   },
 
   DEFAULT_MODEL_TIER: 'economy',
   MODEL_TIERS: {
     economy: {
       id: 'economy',
-      label: 'ประหยัด · เริ่มทดลอง',
-      shortLabel: 'ประหยัด',
-      badge: 'เริ่มต้นที่แนะนำ',
-      description: 'ต้นทุนต่ำ สร้างคลิปพร้อมเสียงผ่าน OpenRouter เหมาะสำหรับทดลองงาน สูงสุด 12 วินาที',
-      planner: { id: 'google/gemini-2.5-flash-lite', name: 'Gemini 2.5 Flash Lite' },
+      label: 'คุ้มค่า · ภาษาไทย',
+      shortLabel: 'คุ้มค่า',
+      badge: 'แนะนำสำหรับเริ่มขาย',
+      description: 'ราคาใกล้ Seedance 1.5 แต่เปลี่ยนเป็น Veo 3.1 Lite พร้อม Native Audio และตรวจเสียงไทยอัตโนมัติ',
+      planner: { id: 'google/gemini-3.1-flash-lite', name: 'Gemini 3.1 Flash Lite' },
       image: { id: 'google/gemini-3.1-flash-lite-image', name: 'Nano Banana 2 Lite', resolution: '1K' },
-      video: { id: 'bytedance/seedance-1-5-pro', name: 'Seedance 1.5 Pro', pricePerSecond: 0.05184, resolution: '720p', maxDuration: 12, generateAudio: true },
+      video: { id: 'google/veo-3.1-lite', name: 'Veo 3.1 Lite', pricePerSecond: 0.05, resolution: '720p', maxDuration: 8, supportedDurations: [4, 6, 8], generateAudio: true },
       otherMin: 0.04,
-      otherMax: 0.10,
+      otherMax: 0.11,
+      qaMax: 0.001,
     },
     balanced: {
       id: 'balanced',
-      label: 'สมดุล · งานมาตรฐาน',
+      label: 'สมดุล · เสียงและภาพดีขึ้น',
       shortLabel: 'สมดุล',
       badge: 'คุณภาพคุ้มราคา',
-      description: 'สมดุลด้านราคา ความเร็ว และคุณภาพ ใช้ Seedance 2.0 Fast สร้างคลิปเดียวสูงสุด 15 วินาที',
+      description: 'ใช้ Veo 3.1 Fast พร้อม Native Audio สำหรับงานลูกค้าที่ต้องการภาพและเสียงนิ่งขึ้น',
       planner: { id: 'google/gemini-3.6-flash', name: 'Gemini 3.6 Flash' },
       image: { id: 'google/gemini-3.1-flash-image', name: 'Nano Banana 2', resolution: '1K' },
-      video: { id: 'bytedance/seedance-2.0-fast', name: 'Seedance 2.0 Fast', pricePerSecond: 0.12096, resolution: '720p', maxDuration: 15, generateAudio: true },
+      video: { id: 'google/veo-3.1-fast', name: 'Veo 3.1 Fast', pricePerSecond: 0.10, resolution: '720p', maxDuration: 8, supportedDurations: [4, 6, 8], generateAudio: true },
       otherMin: 0.09,
-      otherMax: 0.20,
+      otherMax: 0.22,
+      qaMax: 0.001,
     },
     premium: {
       id: 'premium',
-      label: 'พรีเมียม · ดีที่สุด',
+      label: 'พรีเมียม · Final production',
       shortLabel: 'พรีเมียม',
       badge: 'Final production',
-      description: 'คุณภาพสูงสุด ใช้ Seedance 2.0 ที่ 1080p พร้อมเสียง สร้างคลิปเดียวสูงสุด 15 วินาที',
+      description: 'ใช้ Veo 3.1 ที่ 1080p พร้อม Native Audio สำหรับงาน Final ที่ให้ความสำคัญกับบทพูดและคุณภาพภาพสูงสุด',
       planner: { id: 'anthropic/claude-sonnet-5', name: 'Claude Sonnet 5' },
       image: { id: 'google/gemini-3-pro-image', name: 'Nano Banana Pro', resolution: '2K' },
-      video: { id: 'bytedance/seedance-2.0', name: 'Seedance 2.0', pricePerSecond: 0.3402, resolution: '1080p', maxDuration: 15, generateAudio: true },
+      video: { id: 'google/veo-3.1', name: 'Veo 3.1', pricePerSecond: 0.40, resolution: '1080p', maxDuration: 8, supportedDurations: [4, 6, 8], generateAudio: true },
       otherMin: 0.28,
       otherMax: 0.50,
+      qaMax: 0.001,
     },
   },
 
@@ -69,10 +74,13 @@ const APP_CONFIG = {
   WORKFLOW: {
     OUTPUT_FOLDER_NAME: 'ADORA AI Studio',
     DEFAULT_DURATION_SECONDS: 8,
-    ALLOWED_DURATIONS: [8, 10, 12, 15],
+    ALLOWED_DURATIONS: [4, 6, 8],
     MAX_IMAGE_BYTES: 5 * 1024 * 1024,
     MIN_VIDEO_BYTES: 100 * 1024,
     DRIVE_PREVIEW_DELAY_SECONDS: 75,
+    SPEECH_REVIEW_PASS_SCORE: 0.76,
+    SPEECH_REVIEW_MODELS: ['openai/whisper-large-v3', 'openai/whisper-large-v3-turbo'],
+    SPEECH_BUDGET_CHARS: { 4: 32, 6: 48, 8: 64 },
     HISTORY_LIMIT: 20,
     POLL_INTERVAL_SECONDS: 20,
   },
@@ -220,7 +228,7 @@ function testApiConnection(service) {
 
 /**
  * Starts the full asynchronous workflow:
- * plan -> key visual -> submit one OpenRouter Seedance video.
+ * plan -> key visual -> submit one OpenRouter native-audio video -> Thai speech QA.
  * The browser continues with pollCampaign() until a final MP4 is ready.
  */
 function startCampaign(payload) {
@@ -262,19 +270,27 @@ function startCampaign(payload) {
         planner: modelTier.planner.id,
         image: modelTier.image.id,
         video: modelTier.video.id,
+        speechReview: APP_CONFIG.WORKFLOW.SPEECH_REVIEW_MODELS[0],
+        speechRecheck: APP_CONFIG.WORKFLOW.SPEECH_REVIEW_MODELS[1],
       },
+      speechBudgetChars: getSpeechBudgetChars_(payload.duration),
       folderId: folder.getId(),
       folderUrl: folder.getUrl(),
       productFileId: productFile.getId(),
       presenterFileId: presenterFile ? presenterFile.getId() : '',
       estimatedCost: estimateCampaignCost_(payload.duration, modelTier),
+      costBreakdown: { planner: 0, image: 0, video: 0, speechReview: 0, speechRecheck: 0 },
+      actualCost: 0,
       scenes: [],
       error: '',
     };
     saveCampaign_(record, true);
 
     const sceneCount = 1;
-    const plan = generateCreativePlan_(payload, sceneCount, modelTier);
+    const planResult = generateCreativePlan_(payload, sceneCount, modelTier);
+    const plan = planResult.plan;
+    record.costBreakdown.planner = Number(planResult.cost || 0);
+    updateActualCost_(record);
     record.plan = plan;
     record.progress = 28;
     record.status = 'visual';
@@ -282,6 +298,8 @@ function startCampaign(payload) {
     saveCampaign_(record);
 
     const keyVisual = generateKeyVisual_(payload, plan, modelTier);
+    record.costBreakdown.image = Number(keyVisual.cost || 0);
+    updateActualCost_(record);
     const keyVisualFile = saveBase64File_(
       keyVisual.base64,
       keyVisual.mimeType || 'image/png',
@@ -296,7 +314,7 @@ function startCampaign(payload) {
     record.keyVisualDriveUrl = keyVisualFile.getUrl();
     record.progress = 42;
     record.status = 'submitting';
-    record.statusText = `กำลังส่งวิดีโอ Seedance ${payload.duration} วินาทีเข้าคิว OpenRouter`;
+    record.statusText = `กำลังส่ง ${modelTier.video.name} ${payload.duration} วินาที พร้อมเสียงเข้าคิว OpenRouter`;
     saveCampaign_(record);
 
     const scenePlan = plan.scenes[0];
@@ -316,7 +334,7 @@ function startCampaign(payload) {
     record.scenes = scenes;
     record.status = 'generating';
     record.progress = 50;
-    record.statusText = `Seedance กำลังสร้างวิดีโอพร้อมเสียง ${payload.duration} วินาที`;
+    record.statusText = `${modelTier.video.name} กำลังสร้างวิดีโอและเสียงพูดพร้อมกัน ${payload.duration} วินาที`;
     saveCampaign_(record);
     return publicCampaign_(record);
   } catch (error) {
@@ -336,10 +354,10 @@ function startCampaign(payload) {
 function pollCampaign(campaignId) {
   const record = getCampaignRecord_(campaignId);
   if (!record) throw new Error('ไม่พบแคมเปญนี้');
-  if (['completed', 'failed'].indexOf(record.status) >= 0) return publicCampaign_(record);
+  if (['completed', 'needs_review', 'failed'].indexOf(record.status) >= 0) return publicCampaign_(record);
 
   try {
-    if (['generating', 'submitting', 'finalizing'].indexOf(record.status) >= 0) {
+    if (['generating', 'submitting', 'reviewing', 'finalizing'].indexOf(record.status) >= 0) {
       advanceVideoJobs_(record);
     }
     saveCampaign_(record);
@@ -386,13 +404,27 @@ function advanceVideoJobs_(record) {
   const apiKey = getSecret_('OPENROUTER');
   const folder = DriveApp.getFolderById(record.folderId);
   let completed = 0;
+  let reviewing = 0;
   let finalizing = 0;
   let failed = 0;
   let totalCost = 0;
+  ensureCostBreakdown_(record);
 
   record.scenes.forEach((scene) => {
     if (scene.fileId) {
       totalCost += Number(scene.cost || 0);
+      if (!scene.qualityReview) {
+        scene.status = 'reviewing';
+        const reviewBlob = DriveApp.getFileById(scene.fileId).getBlob();
+        scene.qualityReview = reviewVideoSpeech_(reviewBlob, scene.voiceover, record.productName);
+        record.qualityReview = scene.qualityReview;
+        record.costBreakdown.speechReview += Number(scene.qualityReview.reviewCost || 0);
+        record.costBreakdown.speechRecheck += Number(scene.qualityReview.recheckCost || 0);
+        scene.driveReadyAfter = Date.now() + (APP_CONFIG.WORKFLOW.DRIVE_PREVIEW_DELAY_SECONDS * 1000);
+        scene.status = 'finalizing';
+        finalizing += 1;
+        return;
+      }
       if (scene.driveReadyAfter && Date.now() < Number(scene.driveReadyAfter)) {
         scene.status = 'finalizing';
         finalizing += 1;
@@ -428,26 +460,43 @@ function advanceVideoJobs_(record) {
       scene.previewUrl = drivePreviewUrl_(file.getId());
       scene.fileSize = blob.getBytes().length;
       scene.mimeType = 'video/mp4';
-      scene.status = 'finalizing';
-      scene.driveReadyAfter = Date.now() + (APP_CONFIG.WORKFLOW.DRIVE_PREVIEW_DELAY_SECONDS * 1000);
-      finalizing += 1;
+      scene.status = 'reviewing';
+      reviewing += 1;
     } else if (['failed', 'cancelled', 'expired'].indexOf(scene.status) >= 0) {
       failed += 1;
     }
   });
 
-  record.actualCost = totalCost;
+  record.costBreakdown.video = totalCost;
+  updateActualCost_(record);
   if (failed > 0) {
     const details = record.scenes.filter((s) => s.error).map((s) => `Scene ${s.index}: ${s.error}`).join(' | ');
     throw new Error(details || 'มีวิดีโอบางฉากสร้างไม่สำเร็จ');
   }
 
   const total = record.scenes.length;
+  if (reviewing > 0 && completed + reviewing === total) {
+    const video = record.scenes[0];
+    record.status = 'reviewing';
+    record.progress = 91;
+    record.statusText = 'Auto Review กำลังฟังเสียงภาษาไทยและตรวจว่าพูดตรงบทหรือไม่';
+    record.finalUrl = video.publicUrl;
+    record.finalPreviewUrl = video.previewUrl || drivePreviewUrl_(video.fileId);
+    record.finalDriveUrl = video.driveUrl;
+    record.finalFileId = video.fileId;
+    record.finalFileSize = Number(video.fileSize || 0);
+    record.finalMimeType = video.mimeType || 'video/mp4';
+    record.outputVerifiedAt = new Date().toISOString();
+    return;
+  }
+
   if (finalizing > 0 && completed + finalizing === total) {
     const video = record.scenes[0];
     record.status = 'finalizing';
-    record.progress = 96;
-    record.statusText = 'ไฟล์ MP4 พร้อมดาวน์โหลด · Google Drive กำลังเตรียม Preview';
+    record.progress = 97;
+    record.statusText = record.qualityReview && record.qualityReview.status === 'passed'
+      ? 'Auto Review ผ่านแล้ว · Google Drive กำลังเตรียม Preview'
+      : 'Auto Review พบจุดที่ควรตรวจ · Google Drive กำลังเตรียม Preview';
     record.finalUrl = video.publicUrl;
     record.finalPreviewUrl = video.previewUrl || drivePreviewUrl_(video.fileId);
     record.finalDriveUrl = video.driveUrl;
@@ -460,15 +509,18 @@ function advanceVideoJobs_(record) {
 
   record.progress = 50 + Math.round((completed / total) * 50);
   record.statusText = completed === total
-    ? 'สร้างวิดีโอ Seedance สำเร็จแล้ว'
-    : 'OpenRouter กำลังประมวลผลวิดีโอ Seedance';
+    ? 'สร้างวิดีโอพร้อมเสียงสำเร็จแล้ว'
+    : 'OpenRouter กำลังประมวลผลวิดีโอพร้อม Native Audio';
 
   if (completed !== total) return;
 
   const video = record.scenes[0];
-  record.status = 'completed';
+  const reviewPassed = record.qualityReview && record.qualityReview.status === 'passed';
+  record.status = reviewPassed ? 'completed' : 'needs_review';
   record.progress = 100;
-  record.statusText = 'โฆษณาพร้อมใช้งานแล้ว';
+  record.statusText = reviewPassed
+    ? 'โฆษณาผ่าน Auto Review ภาษาไทยและพร้อมใช้งานแล้ว'
+    : 'สร้างวิดีโอสำเร็จ แต่ Auto Review พบว่าเสียงไทยอาจพูดไม่ตรงบท · ระบบไม่สร้างซ้ำเพื่อป้องกันค่าใช้จ่าย';
   record.finalUrl = video.publicUrl;
   record.finalPreviewUrl = video.previewUrl || drivePreviewUrl_(video.fileId);
   record.finalDriveUrl = video.driveUrl;
@@ -479,11 +531,13 @@ function advanceVideoJobs_(record) {
 }
 
 function generateCreativePlan_(payload, sceneCount, modelTier) {
+  const speechBudget = getSpeechBudgetChars_(payload.duration);
   const systemPrompt = [
     'You are a senior Thai creative director and performance advertising strategist.',
     'Create a truthful, premium vertical social ad. Preserve the exact product identity, packaging, colors, and logo.',
     'Do not invent medical, financial, guaranteed, or unverifiable claims.',
-    'Return JSON only. Write consumer-facing copy and voiceover in Thai.',
+    'Return JSON only. Write consumer-facing copy and voiceover in natural Thai.',
+    'The voiceover will be spoken natively by a video model, so it must be one complete sentence and must not contain English transliteration.',
   ].join(' ');
 
   const brief = {
@@ -510,7 +564,8 @@ function generateCreativePlan_(payload, sceneCount, modelTier) {
     'JSON schema:',
     `{"title":"","angle":"","hook":"","audience":"","visualDirection":"","narrationStyle":"","caption":"","hashtags":[""],"safetyNotes":[""],"keyVisualPrompt":"","scenes":[{"index":1,"title":"Full advertisement","duration":${payload.duration},"voiceover":"","visualPrompt":"","camera":"","motion":"","overlay":""}]}`,
     'The single visualPrompt must describe the full clip from hook through product demonstration to CTA, with photorealistic product fidelity and vertical 9:16 composition.',
-    'Keep spoken Thai concise enough for the requested duration. Do not ask the video model to draw readable on-screen text.',
+    `The voiceover must be exactly one complete Thai sentence, no more than ${speechBudget} non-space characters, suitable for ${payload.duration} seconds.`,
+    'Include only the most important product benefit and a short CTA. Do not ask the video model to draw readable on-screen text.',
   ].join('\n');
 
   const content = [
@@ -533,9 +588,10 @@ function generateCreativePlan_(payload, sceneCount, modelTier) {
   };
 
   const firstResult = openRouterRequest_('/chat/completions', requestBody);
+  const firstCost = extractUsageCost_(firstResult);
   const firstRaw = extractAssistantContent_(firstResult);
   try {
-    return normalizePlan_(parseJsonContent_(firstRaw), payload, sceneCount);
+    return { plan: normalizePlan_(parseJsonContent_(firstRaw), payload, sceneCount), cost: firstCost };
   } catch (firstError) {
     const retryResult = openRouterRequest_('/chat/completions', {
       model: modelTier.planner.id,
@@ -547,12 +603,13 @@ function generateCreativePlan_(payload, sceneCount, modelTier) {
       temperature: 0.2,
       max_tokens: 3000,
     });
+    const totalCost = firstCost + extractUsageCost_(retryResult);
     const retryRaw = extractAssistantContent_(retryResult);
     try {
-      return normalizePlan_(parseJsonContent_(retryRaw), payload, sceneCount);
+      return { plan: normalizePlan_(parseJsonContent_(retryRaw), payload, sceneCount), cost: totalCost };
     } catch (retryError) {
       console.warn(`Creative Plan JSON fallback used: ${firstError.message}; ${retryError.message}`);
-      return normalizePlan_(buildFallbackPlan_(payload), payload, sceneCount);
+      return { plan: normalizePlan_(buildFallbackPlan_(payload), payload, sceneCount), cost: totalCost };
     }
   }
 }
@@ -629,7 +686,7 @@ function generateKeyVisual_(payload, plan, modelTier) {
 
   const image = result.data && result.data[0];
   if (!image || !image.b64_json) throw new Error('โมเดลไม่ได้ส่งภาพ Key Visual กลับมา');
-  return { base64: image.b64_json, mimeType: image.media_type || 'image/png' };
+  return { base64: image.b64_json, mimeType: image.media_type || 'image/png', cost: extractUsageCost_(result) };
 }
 
 function submitVideo_(payload, plan, scene, keyVisualUrl, modelTier) {
@@ -639,7 +696,9 @@ function submitVideo_(payload, plan, scene, keyVisualUrl, modelTier) {
     scene.visualPrompt || '',
     `Camera: ${scene.camera || 'natural handheld commercial shot'}.`,
     `Motion: ${scene.motion || 'subtle realistic motion and confident product interaction'}.`,
-    `Thai spoken dialogue: ${scene.voiceover || ''}`,
+    `The presenter is a native Thai speaker and must say this exact line once, word for word: "${scene.voiceover || ''}"`,
+    'Do not translate, paraphrase, add words, repeat words, sing, or switch languages. Keep the mouth clearly visible while speaking and match lip movement to every spoken Thai syllable.',
+    'Use subtle background ambience only. The dialogue must stay clear, centered and louder than music or sound effects.',
     `Overall direction: ${plan.visualDirection || ''}`,
     'Keep the presenter face, hands, product package, logo, colors and proportions consistent with the first frame.',
     'Natural physics, realistic fingers, clean commercial lighting. Do not generate any on-screen text, subtitles, logos or watermark.',
@@ -766,6 +825,145 @@ function readAtomType_(bytes, offset) {
   );
 }
 
+function reviewVideoSpeech_(videoBlob, expectedVoiceover, productName) {
+  const expected = cleanText_(expectedVoiceover || '', 300);
+  const encodedVideo = Utilities.base64Encode(videoBlob.getBytes());
+  const models = APP_CONFIG.WORKFLOW.SPEECH_REVIEW_MODELS;
+  const attempts = [];
+  let reviewCost = 0;
+  let recheckCost = 0;
+
+  for (let index = 0; index < models.length; index += 1) {
+    try {
+      const result = transcribeVideoForQa_(encodedVideo, models[index]);
+      const metrics = scoreSpeechTranscript_(expected, result.text, productName);
+      attempts.push({ model: models[index], transcript: result.text, cost: result.cost, metrics });
+      if (index === 0) reviewCost += result.cost; else recheckCost += result.cost;
+      if (metrics.passed) break;
+    } catch (error) {
+      attempts.push({ model: models[index], transcript: '', cost: 0, error: cleanError_(error), metrics: null });
+    }
+  }
+
+  const successful = attempts.filter((attempt) => attempt.metrics)
+    .sort((a, b) => b.metrics.score - a.metrics.score);
+  if (!successful.length) {
+    return {
+      status: 'unavailable',
+      score: 0,
+      expected,
+      transcript: '',
+      thaiRatio: 0,
+      autoRechecked: attempts.length > 1,
+      reviewCost,
+      recheckCost,
+      attempts,
+      issues: ['ระบบถอดเสียงไม่สำเร็จ จึงยังยืนยันภาษาไทยไม่ได้'],
+      reviewedAt: new Date().toISOString(),
+    };
+  }
+
+  const best = successful[0];
+  return {
+    status: best.metrics.passed ? 'passed' : 'needs_review',
+    score: Math.round(best.metrics.score * 100),
+    expected,
+    transcript: best.transcript,
+    thaiRatio: Math.round(best.metrics.thaiRatio * 100),
+    autoRechecked: attempts.length > 1,
+    reviewCost,
+    recheckCost,
+    attempts,
+    issues: best.metrics.issues,
+    reviewedAt: new Date().toISOString(),
+  };
+}
+
+function transcribeVideoForQa_(encodedVideo, model) {
+  const result = openRouterRequest_('/audio/transcriptions', {
+    model,
+    input_audio: { data: encodedVideo, format: 'mp4' },
+    language: 'th',
+    temperature: 0,
+  });
+  return {
+    text: cleanText_(result.text || '', 1000),
+    cost: extractUsageCost_(result),
+  };
+}
+
+function scoreSpeechTranscript_(expected, transcript, productName) {
+  const expectedNormalized = normalizeSpeechText_(expected);
+  const transcriptNormalized = normalizeSpeechText_(transcript);
+  const score = diceSimilarity_(expectedNormalized, transcriptNormalized);
+  const thaiCount = (transcriptNormalized.match(/[ก-๙]/g) || []).length;
+  const thaiRatio = transcriptNormalized.length ? thaiCount / transcriptNormalized.length : 0;
+  const productNormalized = normalizeSpeechText_(productName);
+  const productPresent = !productNormalized
+    || transcriptNormalized.indexOf(productNormalized) >= 0
+    || diceSimilarity_(productNormalized, transcriptNormalized) >= 0.35;
+  const needsThai = /[ก-๙]/.test(expectedNormalized);
+  const passed = Boolean(
+    transcriptNormalized
+    && score >= APP_CONFIG.WORKFLOW.SPEECH_REVIEW_PASS_SCORE
+    && (!needsThai || thaiRatio >= 0.55)
+    && productPresent
+  );
+  const issues = [];
+  if (!transcriptNormalized) issues.push('ตรวจไม่พบคำพูดในวิดีโอ');
+  if (transcriptNormalized && score < APP_CONFIG.WORKFLOW.SPEECH_REVIEW_PASS_SCORE) issues.push('คำพูดไม่ครบหรือไม่ตรงกับบทที่กำหนด');
+  if (needsThai && transcriptNormalized && thaiRatio < 0.55) issues.push('สัดส่วนภาษาไทยในเสียงต่ำกว่ามาตรฐาน');
+  if (!productPresent) issues.push('ตรวจไม่พบชื่อสินค้าอย่างชัดเจน');
+  return { score, thaiRatio, productPresent, passed, issues };
+}
+
+function normalizeSpeechText_(value) {
+  return String(value || '').toLowerCase().replace(/[^a-z0-9ก-๙]/g, '');
+}
+
+function diceSimilarity_(left, right) {
+  if (left === right) return left ? 1 : 0;
+  if (!left || !right) return 0;
+  if (left.length < 2 || right.length < 2) return left === right ? 1 : 0;
+  const counts = {};
+  for (let index = 0; index < left.length - 1; index += 1) {
+    const pair = left.slice(index, index + 2);
+    counts[pair] = (counts[pair] || 0) + 1;
+  }
+  let overlap = 0;
+  for (let index = 0; index < right.length - 1; index += 1) {
+    const pair = right.slice(index, index + 2);
+    if (counts[pair]) {
+      counts[pair] -= 1;
+      overlap += 1;
+    }
+  }
+  return (2 * overlap) / ((left.length - 1) + (right.length - 1));
+}
+
+function extractUsageCost_(result) {
+  const usage = result && result.usage ? result.usage : {};
+  return Number(usage.cost || usage.total_cost || result && result.cost || 0) || 0;
+}
+
+function ensureCostBreakdown_(record) {
+  const current = record.costBreakdown || {};
+  record.costBreakdown = {
+    planner: Number(current.planner || 0),
+    image: Number(current.image || 0),
+    video: Number(current.video || 0),
+    speechReview: Number(current.speechReview || 0),
+    speechRecheck: Number(current.speechRecheck || 0),
+  };
+  return record.costBreakdown;
+}
+
+function updateActualCost_(record) {
+  const costs = ensureCostBreakdown_(record);
+  record.actualCost = Object.keys(costs).reduce((total, key) => total + Number(costs[key] || 0), 0);
+  return record.actualCost;
+}
+
 function validateCampaignPayload_(input) {
   input = input || {};
   const promptMode = String(input.promptMode || 'set').toLowerCase() === 'custom' ? 'custom' : 'set';
@@ -848,7 +1046,7 @@ function normalizePlan_(plan, payload, sceneCount) {
     index: i + 1,
     title: cleanText_(scene.title || `Scene ${i + 1}`, 120),
     duration: payload.duration,
-    voiceover: cleanText_(scene.voiceover || '', 700),
+    voiceover: fitThaiVoiceover_(scene.voiceover || '', payload, payload.duration),
     visualPrompt: cleanText_(scene.visualPrompt || '', 1400),
     camera: cleanText_(scene.camera || '', 300),
     motion: cleanText_(scene.motion || '', 300),
@@ -857,19 +1055,50 @@ function normalizePlan_(plan, payload, sceneCount) {
   return plan;
 }
 
+function getSpeechBudgetChars_(duration) {
+  const seconds = Number(duration) || APP_CONFIG.WORKFLOW.DEFAULT_DURATION_SECONDS;
+  return Number(APP_CONFIG.WORKFLOW.SPEECH_BUDGET_CHARS[seconds] || Math.max(24, seconds * 8));
+}
+
+function countSpeechChars_(value) {
+  return String(value || '').replace(/[\s.,!?…:;"'“”‘’()\-–—]/g, '').length;
+}
+
+function fitThaiVoiceover_(voiceover, payload, duration) {
+  const budget = getSpeechBudgetChars_(duration);
+  const original = cleanText_(voiceover || '', 300);
+  if (original && /[ก-๙]/.test(original) && countSpeechChars_(original) <= budget) return original;
+
+  const product = cleanText_(payload.productName || '', 100);
+  const point = cleanText_(String(payload.sellingPoints || '').split(/[\n,|•]/)[0], 120);
+  const cta = cleanText_(payload.callToAction || 'สั่งซื้อเลยวันนี้', 80);
+  const candidates = [
+    `${product} ${point} ${cta}`,
+    `${product} ${point}`,
+    `${product} ${cta}`,
+    product,
+  ].map((item) => item.replace(/\s+/g, ' ').trim()).filter(Boolean);
+  const fitting = candidates.filter((item) => countSpeechChars_(item) <= budget)
+    .sort((a, b) => countSpeechChars_(b) - countSpeechChars_(a));
+  return fitting[0] || product || original;
+}
+
 function estimateCampaignCost_(duration, tierInput) {
   const tier = typeof tierInput === 'object' && tierInput ? tierInput : getModelTier_(tierInput);
   const seconds = Number(duration) || APP_CONFIG.WORKFLOW.DEFAULT_DURATION_SECONDS;
   const video = seconds * Number(tier.video.pricePerSecond || 0);
+  const qaMax = Number(tier.qaMax || 0.001);
   return {
     min: roundMoney_(video + Number(tier.otherMin || 0)),
-    max: roundMoney_(video + Number(tier.otherMax || 0)),
+    max: roundMoney_(video + Number(tier.otherMax || 0) + qaMax),
     video: roundMoney_(video),
     otherMin: roundMoney_(tier.otherMin || 0),
     otherMax: roundMoney_(tier.otherMax || 0),
+    qaMax,
     currency: 'USD',
     tier: tier.id,
-    note: 'ประมาณการ OpenRouter เท่านั้นก่อน retry; ราคาจริงอาจเปลี่ยนตาม provider และ usage',
+    pricingCheckedAt: '2026-07-23',
+    note: 'รวมวางแผน สร้างภาพ วิดีโอพร้อมเสียง Auto Review และ Auto Recheck สูงสุด 1 ครั้ง โดยไม่รวมการกดสร้างวิดีโอใหม่',
   };
 }
 
@@ -900,10 +1129,12 @@ function getPublicModelTiers_() {
         pricePerSecond: tier.video.pricePerSecond,
         resolution: tier.video.resolution,
         maxDuration: tier.video.maxDuration,
+        supportedDurations: tier.video.supportedDurations || APP_CONFIG.WORKFLOW.ALLOWED_DURATIONS,
         generateAudio: tier.video.generateAudio !== false,
       },
       otherMin: tier.otherMin,
       otherMax: tier.otherMax,
+      qaMax: tier.qaMax,
       estimates: APP_CONFIG.WORKFLOW.ALLOWED_DURATIONS.reduce((result, seconds) => {
         if (seconds <= tier.video.maxDuration) result[seconds] = estimateCampaignCost_(seconds, tier);
         return result;
@@ -1049,6 +1280,9 @@ function publicCampaign_(record, compact) {
     error: record.error || '',
     estimatedCost: record.estimatedCost || null,
     actualCost: Number(record.actualCost || 0),
+    costBreakdown: record.costBreakdown || null,
+    qualityReview: record.qualityReview || null,
+    speechBudgetChars: Number(record.speechBudgetChars || getSpeechBudgetChars_(record.duration)),
   };
   if (!compact) {
     result.plan = record.plan || null;
@@ -1066,6 +1300,7 @@ function publicCampaign_(record, compact) {
       mimeType: scene.mimeType || '',
       error: scene.error || '',
       cost: Number(scene.cost || 0),
+      qualityReview: scene.qualityReview || null,
     }));
   }
   return result;
