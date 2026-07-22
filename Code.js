@@ -9,7 +9,7 @@
  */
 const APP_CONFIG = {
   APP_NAME: 'ADORA AI Studio',
-  VERSION: '1.5.0',
+  VERSION: '1.5.1',
 
   API_KEYS: {
     // Recommended: leave blank and save the key from the in-app Settings page.
@@ -71,6 +71,8 @@ const APP_CONFIG = {
     DEFAULT_DURATION_SECONDS: 8,
     ALLOWED_DURATIONS: [8, 10, 12, 15],
     MAX_IMAGE_BYTES: 5 * 1024 * 1024,
+    MIN_VIDEO_BYTES: 100 * 1024,
+    DRIVE_PREVIEW_DELAY_SECONDS: 75,
     HISTORY_LIMIT: 20,
     POLL_INTERVAL_SECONDS: 20,
   },
@@ -337,7 +339,7 @@ function pollCampaign(campaignId) {
   if (['completed', 'failed'].indexOf(record.status) >= 0) return publicCampaign_(record);
 
   try {
-    if (record.status === 'generating' || record.status === 'submitting') {
+    if (['generating', 'submitting', 'finalizing'].indexOf(record.status) >= 0) {
       advanceVideoJobs_(record);
     }
     saveCampaign_(record);
@@ -354,20 +356,50 @@ function pollCampaign(campaignId) {
 function getCampaign(campaignId) {
   const record = getCampaignRecord_(campaignId);
   if (!record) throw new Error('ไม่พบแคมเปญนี้');
+  if (refreshCampaignOutputMetadata_(record)) saveCampaign_(record);
   return publicCampaign_(record);
+}
+
+function refreshCampaignOutputMetadata_(record) {
+  if (!record || !record.finalFileId || record.outputVerifiedAt) return false;
+  try {
+    const file = DriveApp.getFileById(record.finalFileId);
+    const blob = file.getBlob();
+    const bytes = blob.getBytes();
+    validateMp4Bytes_(bytes, file.getMimeType());
+    record.finalFileSize = bytes.length;
+    record.finalMimeType = 'video/mp4';
+    record.outputVerifiedAt = new Date().toISOString();
+    record.finalUrl = driveDirectUrl_(record.finalFileId);
+    record.finalPreviewUrl = drivePreviewUrl_(record.finalFileId);
+    return true;
+  } catch (error) {
+    record.status = 'failed';
+    record.progress = Math.min(Number(record.progress || 0), 95);
+    record.error = `ตรวจสอบไฟล์ MP4 ไม่ผ่าน: ${cleanError_(error)}`;
+    record.statusText = 'ไฟล์วิดีโอไม่สมบูรณ์ กรุณาสร้างใหม่';
+    return true;
+  }
 }
 
 function advanceVideoJobs_(record) {
   const apiKey = getSecret_('OPENROUTER');
   const folder = DriveApp.getFolderById(record.folderId);
   let completed = 0;
+  let finalizing = 0;
   let failed = 0;
   let totalCost = 0;
 
   record.scenes.forEach((scene) => {
-    if (scene.status === 'completed' && scene.fileId) {
-      completed += 1;
+    if (scene.fileId) {
       totalCost += Number(scene.cost || 0);
+      if (scene.driveReadyAfter && Date.now() < Number(scene.driveReadyAfter)) {
+        scene.status = 'finalizing';
+        finalizing += 1;
+      } else {
+        scene.status = 'completed';
+        completed += 1;
+      }
       return;
     }
 
@@ -393,7 +425,12 @@ function advanceVideoJobs_(record) {
       scene.fileId = file.getId();
       scene.driveUrl = file.getUrl();
       scene.publicUrl = driveDirectUrl_(file.getId());
-      completed += 1;
+      scene.previewUrl = drivePreviewUrl_(file.getId());
+      scene.fileSize = blob.getBytes().length;
+      scene.mimeType = 'video/mp4';
+      scene.status = 'finalizing';
+      scene.driveReadyAfter = Date.now() + (APP_CONFIG.WORKFLOW.DRIVE_PREVIEW_DELAY_SECONDS * 1000);
+      finalizing += 1;
     } else if (['failed', 'cancelled', 'expired'].indexOf(scene.status) >= 0) {
       failed += 1;
     }
@@ -406,6 +443,21 @@ function advanceVideoJobs_(record) {
   }
 
   const total = record.scenes.length;
+  if (finalizing > 0 && completed + finalizing === total) {
+    const video = record.scenes[0];
+    record.status = 'finalizing';
+    record.progress = 96;
+    record.statusText = 'ไฟล์ MP4 พร้อมดาวน์โหลด · Google Drive กำลังเตรียม Preview';
+    record.finalUrl = video.publicUrl;
+    record.finalPreviewUrl = video.previewUrl || drivePreviewUrl_(video.fileId);
+    record.finalDriveUrl = video.driveUrl;
+    record.finalFileId = video.fileId;
+    record.finalFileSize = Number(video.fileSize || 0);
+    record.finalMimeType = video.mimeType || 'video/mp4';
+    record.outputVerifiedAt = new Date().toISOString();
+    return;
+  }
+
   record.progress = 50 + Math.round((completed / total) * 50);
   record.statusText = completed === total
     ? 'สร้างวิดีโอ Seedance สำเร็จแล้ว'
@@ -418,8 +470,11 @@ function advanceVideoJobs_(record) {
   record.progress = 100;
   record.statusText = 'โฆษณาพร้อมใช้งานแล้ว';
   record.finalUrl = video.publicUrl;
+  record.finalPreviewUrl = video.previewUrl || drivePreviewUrl_(video.fileId);
   record.finalDriveUrl = video.driveUrl;
   record.finalFileId = video.fileId;
+  record.finalFileSize = Number(video.fileSize || record.finalFileSize || 0);
+  record.finalMimeType = video.mimeType || record.finalMimeType || 'video/mp4';
   record.completedAt = new Date().toISOString();
 }
 
@@ -642,11 +697,73 @@ function downloadOpenRouterVideo_(url, apiKey) {
   const headers = String(url).indexOf('openrouter.ai/api/') >= 0
     ? { Authorization: `Bearer ${apiKey}` }
     : {};
-  const response = UrlFetchApp.fetch(url, { method: 'get', headers, muteHttpExceptions: true });
-  if (response.getResponseCode() >= 300) {
-    throw new Error(`ดาวน์โหลด Scene ไม่สำเร็จ (HTTP ${response.getResponseCode()})`);
+  let lastError = null;
+  for (let attempt = 1; attempt <= 2; attempt += 1) {
+    try {
+      const response = UrlFetchApp.fetch(url, { method: 'get', headers, muteHttpExceptions: true });
+      if (response.getResponseCode() >= 300) {
+        throw new Error(`ดาวน์โหลด Scene ไม่สำเร็จ (HTTP ${response.getResponseCode()})`);
+      }
+      const sourceBlob = response.getBlob();
+      const bytes = sourceBlob.getBytes();
+      validateMp4Bytes_(bytes, sourceBlob.getContentType());
+      return Utilities.newBlob(bytes, 'video/mp4');
+    } catch (error) {
+      lastError = error;
+      if (attempt < 2) Utilities.sleep(1500);
+    }
   }
-  return response.getBlob();
+  throw lastError || new Error('ดาวน์โหลด Scene ไม่สำเร็จ');
+}
+
+function validateMp4Bytes_(bytes, contentType) {
+  const size = bytes && bytes.length ? bytes.length : 0;
+  if (size < APP_CONFIG.WORKFLOW.MIN_VIDEO_BYTES) {
+    throw new Error(`ไฟล์วิดีโอที่ดาวน์โหลดไม่สมบูรณ์ (${size} bytes)`);
+  }
+
+  let offset = 0;
+  let atomCount = 0;
+  const atoms = {};
+  while (offset + 8 <= size && atomCount < 1000) {
+    let atomSize = readUint32_(bytes, offset);
+    const atomType = readAtomType_(bytes, offset + 4);
+    let headerSize = 8;
+    if (atomSize === 1) {
+      if (offset + 16 > size) throw new Error('โครงสร้าง MP4 แบบ extended size ไม่สมบูรณ์');
+      atomSize = (readUint32_(bytes, offset + 8) * 4294967296) + readUint32_(bytes, offset + 12);
+      headerSize = 16;
+    } else if (atomSize === 0) {
+      atomSize = size - offset;
+    }
+    if (!Number.isSafeInteger(atomSize) || atomSize < headerSize || offset + atomSize > size) {
+      throw new Error(`โครงสร้าง MP4 เสียหายที่ตำแหน่ง ${offset}`);
+    }
+    atoms[atomType] = true;
+    offset += atomSize;
+    atomCount += 1;
+  }
+
+  if (!atoms.ftyp || !atoms.mdat || !atoms.moov || offset !== size) {
+    const type = String(contentType || 'unknown');
+    throw new Error(`ไฟล์ที่ provider ส่งกลับมาไม่ใช่ MP4 ที่สมบูรณ์ (Content-Type: ${type})`);
+  }
+}
+
+function readUint32_(bytes, offset) {
+  return (((bytes[offset] & 255) * 16777216)
+    + ((bytes[offset + 1] & 255) * 65536)
+    + ((bytes[offset + 2] & 255) * 256)
+    + (bytes[offset + 3] & 255));
+}
+
+function readAtomType_(bytes, offset) {
+  return String.fromCharCode(
+    bytes[offset] & 255,
+    bytes[offset + 1] & 255,
+    bytes[offset + 2] & 255,
+    bytes[offset + 3] & 255
+  );
 }
 
 function validateCampaignPayload_(input) {
@@ -921,9 +1038,14 @@ function publicCampaign_(record, compact) {
     aspectRatio: record.aspectRatio,
     folderUrl: record.folderUrl,
     keyVisualUrl: record.keyVisualUrl || '',
+    keyVisualPreviewUrl: record.keyVisualFileId ? driveThumbnailUrl_(record.keyVisualFileId) : (record.keyVisualUrl || ''),
     keyVisualDriveUrl: record.keyVisualDriveUrl || '',
     finalUrl: record.finalUrl || '',
+    downloadUrl: record.finalFileId ? driveDirectUrl_(record.finalFileId) : (record.finalUrl || ''),
+    finalPreviewUrl: record.finalFileId ? drivePreviewUrl_(record.finalFileId) : (record.finalPreviewUrl || ''),
     finalDriveUrl: record.finalDriveUrl || '',
+    finalFileSize: Number(record.finalFileSize || 0),
+    finalMimeType: record.finalMimeType || '',
     error: record.error || '',
     estimatedCost: record.estimatedCost || null,
     actualCost: Number(record.actualCost || 0),
@@ -939,6 +1061,9 @@ function publicCampaign_(record, compact) {
       status: scene.status,
       driveUrl: scene.driveUrl || '',
       publicUrl: scene.publicUrl || '',
+      previewUrl: scene.fileId ? drivePreviewUrl_(scene.fileId) : (scene.previewUrl || ''),
+      fileSize: Number(scene.fileSize || 0),
+      mimeType: scene.mimeType || '',
       error: scene.error || '',
       cost: Number(scene.cost || 0),
     }));
@@ -1005,6 +1130,14 @@ function normalizeOpenRouterUrl_(url) {
 
 function driveDirectUrl_(fileId) {
   return `https://drive.google.com/uc?export=download&id=${encodeURIComponent(fileId)}`;
+}
+
+function driveThumbnailUrl_(fileId) {
+  return `https://drive.google.com/thumbnail?id=${encodeURIComponent(fileId)}&sz=w1600`;
+}
+
+function drivePreviewUrl_(fileId) {
+  return `https://drive.google.com/file/d/${encodeURIComponent(fileId)}/preview`;
 }
 
 function setOptionalProperty_(props, key, value) {

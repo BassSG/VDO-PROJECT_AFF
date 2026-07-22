@@ -397,6 +397,8 @@
     .project-body { padding: 17px; }
     .project-title { font-size: 13px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .project-meta { margin-top: 8px; display: flex; flex-wrap: wrap; gap: 6px; color: var(--muted); font-size: 9px; }
+    .project-actions { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 13px; }
+    .project-actions .btn { flex: 1 1 auto; min-height: 36px; padding: 8px 10px; font-size: 9px; }
     .tag { padding: 5px 7px; border-radius: 8px; border: 1px solid var(--line); background: rgba(255,255,255,.025); }
     .project-progress { height: 4px; border-radius: 99px; background: rgba(255,255,255,.06); margin-top: 14px; overflow: hidden; }
     .project-progress span { display: block; height: 100%; background: linear-gradient(90deg, var(--lime), var(--cyan)); border-radius: inherit; }
@@ -442,7 +444,7 @@
     .stage.done { color: var(--success); }
     .result-grid { display: grid; grid-template-columns: 330px minmax(0, 1fr); gap: 18px; margin-top: 18px; }
     .visual-box { min-height: 470px; border: 1px solid var(--line); border-radius: 20px; overflow: hidden; background: rgba(255,255,255,.02); position: relative; }
-    .visual-box img, .visual-box video { width: 100%; height: 100%; min-height: 470px; object-fit: cover; display: block; }
+    .visual-box img, .visual-box video, .visual-box iframe { width: 100%; height: 100%; min-height: 470px; object-fit: cover; display: block; border: 0; }
     .visual-empty { position: absolute; inset: 0; display: grid; place-items: center; color: var(--subtle); text-align: center; padding: 25px; }
     .visual-loader { width: 42px; height: 42px; margin: 0 auto 13px; border: 3px solid rgba(255,255,255,.08); border-top-color: var(--lime); border-radius: 50%; animation: spin .85s linear infinite; }
     @keyframes spin { to { transform: rotate(360deg); } }
@@ -505,7 +507,7 @@
       .stage-list { grid-template-columns: repeat(3, 1fr); }
       .generation-modal { max-height: calc(100vh - 20px); }
       .overlay { padding: 10px; }
-      .visual-box, .visual-box img, .visual-box video { min-height: 420px; max-height: 65vh; }
+      .visual-box, .visual-box img, .visual-box video, .visual-box iframe { min-height: 420px; max-height: 65vh; }
       .wizard-footer { gap: 10px; }
       .wizard-header { align-items: flex-start; flex-wrap: wrap; gap: 8px; }
       .wizard-header > div:first-child { min-width: 0; }
@@ -533,7 +535,7 @@
       .upload-zone { min-height: 205px; padding: 16px; }
       .stage-list { grid-template-columns: 1fr; }
       .generation-modal { border-radius: 20px; }
-      .visual-box, .visual-box img, .visual-box video { min-height: 360px; }
+      .visual-box, .visual-box img, .visual-box video, .visual-box iframe { min-height: 360px; }
       .toast-stack { right: 10px; bottom: calc(10px + env(safe-area-inset-bottom)); width: calc(100vw - 20px); }
     }
   </style>
@@ -562,7 +564,7 @@
           <div class="api-mini-head"><span>System health</span><span id="systemPct">0/1</span></div>
           <div class="api-row"><span>OpenRouter</span><i class="status-dot" id="openrouterDot"></i></div>
         </div>
-        <div class="sidebar-note">ADORA v<span id="sideVersion">1.5.0</span><br>OpenRouter-only creative pipeline</div>
+        <div class="sidebar-note">ADORA v<span id="sideVersion">1.5.1</span><br>OpenRouter-only creative pipeline</div>
       </div>
     </aside>
 
@@ -937,7 +939,7 @@
     function notifyParentHostReady() {
       try {
         if (window.top !== window) {
-          window.top.postMessage({ type: 'ADORA_APP_READY', release: '1.5.0' }, '*');
+          window.top.postMessage({ type: 'ADORA_APP_READY', release: '1.5.1' }, '*');
         }
       } catch (error) { /* parent communication is optional */ }
     }
@@ -953,7 +955,7 @@
     function buildLiveAppUrl(source) {
       const target = new URL(LIVE_APP_URL);
       target.searchParams.set('source', source || 'github-embed');
-      target.searchParams.set('release', '1.5.0');
+      target.searchParams.set('release', '1.5.1');
       target.searchParams.set('embedded', '1');
       return target.toString();
     }
@@ -1049,7 +1051,7 @@
       return {
         app: {
           name: 'ADORA AI Studio',
-          version: '1.5.0',
+          version: '1.5.1',
           limits: { maxImageBytes: 5 * 1024 * 1024, maxScenes: 1, allowedDurations: [8, 10, 12, 15], pollInterval: 20 },
           defaults: {
             plannerModel: 'google/gemini-2.5-flash-lite',
@@ -1475,10 +1477,13 @@
       $('#progressBar').style.width = progress + '%';
       renderStages(campaign.status, progress);
 
-      if (campaign.finalUrl) {
-        $('#visualBox').innerHTML = `<video controls playsinline poster="${escapeAttr(campaign.keyVisualUrl || '')}" src="${escapeAttr(campaign.finalUrl)}"></video>`;
-      } else if (campaign.keyVisualUrl) {
-        $('#visualBox').innerHTML = `<img src="${escapeAttr(campaign.keyVisualUrl)}" alt="AI key visual">`;
+      const keyVisualPreview = campaign.keyVisualPreviewUrl || campaign.keyVisualUrl || '';
+      if (campaign.status === 'completed' && campaign.finalPreviewUrl) {
+        $('#visualBox').innerHTML = `<iframe src="${escapeAttr(campaign.finalPreviewUrl)}" title="Video preview" allow="autoplay; fullscreen" allowfullscreen></iframe>`;
+      } else if (campaign.status === 'completed' && campaign.finalUrl) {
+        $('#visualBox').innerHTML = `<video controls playsinline poster="${escapeAttr(keyVisualPreview)}" src="${escapeAttr(campaign.finalUrl)}"></video>`;
+      } else if (keyVisualPreview) {
+        $('#visualBox').innerHTML = `<img src="${escapeAttr(keyVisualPreview)}" alt="AI key visual">`;
       }
 
       if (campaign.plan) {
@@ -1501,10 +1506,17 @@
       $('#generationError').hidden = !campaign.error;
       if (campaign.error) $('#generationError').textContent = campaign.error;
 
-      if (campaign.status === 'completed') {
+      const downloadUrl = campaign.downloadUrl || campaign.finalUrl || '';
+      const watchUrl = campaign.finalPreviewUrl || campaign.finalDriveUrl || '';
+      if (['completed', 'finalizing'].includes(campaign.status) && (downloadUrl || watchUrl)) {
         actions.hidden = false;
-        actions.innerHTML = `${campaign.finalUrl ? `<a class="btn btn-primary" href="${escapeAttr(campaign.finalUrl)}" target="_blank" rel="noopener">↓ ดาวน์โหลด MP4</a>` : ''}<a class="btn" href="${escapeAttr(campaign.finalDriveUrl || campaign.folderUrl)}" target="_blank" rel="noopener">เปิดใน Google Drive</a>`;
-        toast('สร้างโฆษณาสำเร็จแล้ว', 'success');
+        actions.innerHTML = `${campaign.status === 'finalizing' ? '<div class="note" style="width:100%">ไฟล์ MP4 พร้อมดาวน์โหลดแล้ว ส่วนการเล่นบน Google Drive อาจใช้เวลาสักครู่</div>' : ''}${watchUrl ? `<a class="btn" href="${escapeAttr(watchUrl)}" target="_blank" rel="noopener">▶ ดูวิดีโอ</a>` : ''}${downloadUrl ? `<a class="btn btn-primary" href="${escapeAttr(downloadUrl)}" target="_blank" rel="noopener">↓ ดาวน์โหลด MP4</a>` : ''}<a class="btn" href="${escapeAttr(campaign.finalDriveUrl || campaign.folderUrl)}" target="_blank" rel="noopener">เปิดใน Google Drive</a>`;
+      }
+      if (campaign.status === 'completed') {
+        if (state.lastCompletedToastId !== campaign.id) {
+          toast('สร้างโฆษณาสำเร็จแล้ว', 'success');
+          state.lastCompletedToastId = campaign.id;
+        }
         clearTimeout(state.pollTimer);
       }
       if (campaign.status === 'failed') clearTimeout(state.pollTimer);
@@ -1512,7 +1524,7 @@
 
     function renderStages(status, progress) {
       const order = ['planning','visual','generating','completed'];
-      const map = { submitting: 'generating' };
+      const map = { submitting: 'generating', finalizing: 'generating' };
       const current = map[status] || status;
       const currentIndex = order.indexOf(current);
       $$('.stage').forEach((item, index) => {
@@ -1555,12 +1567,20 @@
         grid.innerHTML = '<div class="empty"><div class="empty-icon">◇</div><strong>ยังไม่มีโปรเจกต์</strong><br><small>เริ่มสร้างโฆษณาแรกของคุณได้เลย</small></div>';
         return;
       }
-      grid.innerHTML = campaigns.map((campaign) => `
-        <article class="card project-card" data-campaign-id="${escapeAttr(campaign.id)}">
-          <div class="project-cover">${campaign.keyVisualUrl ? `<img src="${escapeAttr(campaign.keyVisualUrl)}" alt="">` : '<div class="project-placeholder">✦</div>'}<span class="project-status">${escapeHtml(campaign.status)}</span></div>
-          <div class="project-body"><div class="project-title">${escapeHtml(campaign.productName)}</div><div class="project-meta"><span class="tag">${escapeHtml(campaign.platform || 'Vertical')}</span><span class="tag">${campaign.duration || 8}s</span><span class="tag">${escapeHtml(campaign.modelTierLabel || 'ประหยัด')}</span><span class="tag">${escapeHtml(campaign.promptSetLabel || campaign.style || 'AI Ad')}</span></div><div class="project-progress"><span style="width:${Number(campaign.progress || 0)}%"></span></div></div>
-        </article>`).join('');
+      grid.innerHTML = campaigns.map((campaign) => {
+        const coverUrl = campaign.keyVisualPreviewUrl || campaign.keyVisualUrl || '';
+        const watchUrl = campaign.finalPreviewUrl || campaign.finalDriveUrl || '';
+        const downloadUrl = campaign.downloadUrl || campaign.finalUrl || '';
+        const outputReady = ['completed', 'finalizing'].includes(campaign.status) && (watchUrl || downloadUrl);
+        const outputActions = outputReady ? `<div class="project-actions">${watchUrl ? `<a class="btn" data-project-action href="${escapeAttr(watchUrl)}" target="_blank" rel="noopener">▶ ดู</a>` : ''}${downloadUrl ? `<a class="btn btn-primary" data-project-action href="${escapeAttr(downloadUrl)}" target="_blank" rel="noopener">↓ ดาวน์โหลด</a>` : ''}</div>` : '';
+        return `
+          <article class="card project-card" data-campaign-id="${escapeAttr(campaign.id)}">
+            <div class="project-cover">${coverUrl ? `<img src="${escapeAttr(coverUrl)}" alt="ภาพปก ${escapeAttr(campaign.productName || '')}">` : '<div class="project-placeholder">✦</div>'}<span class="project-status">${escapeHtml(campaign.status)}</span></div>
+            <div class="project-body"><div class="project-title">${escapeHtml(campaign.productName)}</div><div class="project-meta"><span class="tag">${escapeHtml(campaign.platform || 'Vertical')}</span><span class="tag">${campaign.duration || 8}s</span><span class="tag">${escapeHtml(campaign.modelTierLabel || 'ประหยัด')}</span><span class="tag">${escapeHtml(campaign.promptSetLabel || campaign.style || 'AI Ad')}</span></div><div class="project-progress"><span style="width:${Number(campaign.progress || 0)}%"></span></div>${outputActions}</div>
+          </article>`;
+      }).join('');
       $$('[data-campaign-id]', grid).forEach((card) => card.addEventListener('click', () => openExistingCampaign(card.dataset.campaignId)));
+      $$('[data-project-action]', grid).forEach((link) => link.addEventListener('click', (event) => event.stopPropagation()));
     }
 
     async function openExistingCampaign(id) {
