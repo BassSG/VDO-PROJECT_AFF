@@ -9,7 +9,7 @@
  */
 const APP_CONFIG = {
   APP_NAME: 'ADORA AI Studio',
-  VERSION: '1.3.4',
+  VERSION: '1.4.0',
 
   API_KEYS: {
     // Recommended: leave blank and save the key from the in-app Settings page.
@@ -75,6 +75,63 @@ const APP_CONFIG = {
     POLL_INTERVAL_SECONDS: 20,
   },
 
+  PROMPT_SETS: {
+    sales_boost: {
+      id: 'sales_boost',
+      label: 'ขายไว กระตุ้นยอด',
+      style: 'UGC Review',
+      tone: 'สนุก มั่นใจ และกระชับ',
+      audience: 'นักช้อปออนไลน์ที่ต้องการเห็นประโยชน์ของสินค้าอย่างรวดเร็ว',
+      callToAction: 'กดสั่งซื้อเลยวันนี้',
+      instruction: 'เปิดด้วยปัญหาที่ตรงใจ โชว์สินค้าและประโยชน์ที่มองเห็นได้อย่างรวดเร็ว ปิดด้วยข้อเสนอและ CTA ชัดเจน',
+    },
+    trusted_review: {
+      id: 'trusted_review',
+      label: 'รีวิวจริง น่าเชื่อถือ',
+      style: 'UGC Review',
+      tone: 'จริงใจ เป็นธรรมชาติ และน่าเชื่อถือ',
+      audience: 'ผู้ซื้อที่อ่านรีวิวและต้องการข้อมูลก่อนตัดสินใจ',
+      callToAction: 'ดูรายละเอียดและลองด้วยตัวคุณเอง',
+      instruction: 'เล่าเหมือนผู้ใช้จริง เริ่มจากเหตุผลที่ลองใช้ สาธิตสินค้าอย่างเป็นธรรมชาติ และสรุปความประทับใจโดยไม่กล่าวอ้างเกินจริง',
+    },
+    luxury_launch: {
+      id: 'luxury_launch',
+      label: 'เปิดตัวหรู พรีเมียม',
+      style: 'Luxury',
+      tone: 'หรู สุขุม และมั่นใจ',
+      audience: 'ลูกค้าที่ให้ความสำคัญกับคุณภาพ งานออกแบบ และภาพลักษณ์',
+      callToAction: 'สัมผัสประสบการณ์ระดับพรีเมียมได้แล้ววันนี้',
+      instruction: 'เปิดตัวสินค้าแบบ cinematic ใช้แสงสตูดิโอและภาพ close-up เน้นวัสดุ รายละเอียด และคุณค่าของแบรนด์',
+    },
+    problem_solution: {
+      id: 'problem_solution',
+      label: 'ปัญหา → ทางออก',
+      style: 'Product Focus',
+      tone: 'เข้าใจง่าย ชัดเจน และช่วยแก้ปัญหา',
+      audience: 'ผู้ชมที่กำลังพบปัญหาซึ่งสินค้านี้ช่วยตอบโจทย์ได้',
+      callToAction: 'ลองทางเลือกที่ง่ายกว่าตั้งแต่วันนี้',
+      instruction: 'แสดง pain point ที่พบได้จริงก่อน จากนั้นให้สินค้าเป็นทางเลือก สาธิตวิธีใช้และผลลัพธ์ที่สังเกตได้โดยไม่รับประกันเกินจริง',
+    },
+    lifestyle_story: {
+      id: 'lifestyle_story',
+      label: 'Lifestyle ใช้ในชีวิตจริง',
+      style: 'Lifestyle',
+      tone: 'อบอุ่น เป็นกันเอง และสร้างแรงบันดาลใจ',
+      audience: 'ผู้ชมที่ชอบคอนเทนต์ชีวิตประจำวันและสินค้าที่เข้ากับไลฟ์สไตล์',
+      callToAction: 'เพิ่มสิ่งนี้ให้วันของคุณได้เลย',
+      instruction: 'เล่าเรื่องสั้นในชีวิตประจำวัน ให้สินค้าเข้ามาเป็นส่วนหนึ่งของกิจวัตรอย่างเป็นธรรมชาติ เน้นอารมณ์และประสบการณ์',
+    },
+    product_demo: {
+      id: 'product_demo',
+      label: 'สาธิตสินค้า เข้าใจทันที',
+      style: 'Product Focus',
+      tone: 'กระชับ ชัดเจน และเป็นมืออาชีพ',
+      audience: 'ผู้ชมที่ต้องการเห็นวิธีใช้และจุดเด่นของสินค้าก่อนซื้อ',
+      callToAction: 'ดูวิธีใช้แล้วเลือกสินค้าที่เหมาะกับคุณ',
+      instruction: 'ให้สินค้าชัดที่สุด สาธิตขั้นตอนการใช้จากต้นจนจบ ใช้ close-up กับรายละเอียดที่มองเห็นได้ และจบด้วย CTA',
+    },
+  },
+
 };
 
 const PROPERTY_KEYS = {
@@ -114,6 +171,7 @@ function getBootstrapData() {
         modelTier: getDefaultModelTier_(),
       },
       modelTiers: getPublicModelTiers_(),
+      promptSets: getPublicPromptSets_(),
     },
     settings: getSettingsStatus_(),
     campaigns: listCampaigns_(),
@@ -191,6 +249,9 @@ function startCampaign(payload) {
       productName: payload.productName,
       platform: payload.platform,
       style: payload.style,
+      promptMode: payload.promptMode,
+      promptSet: payload.promptSet,
+      promptSetLabel: payload.promptSetLabel,
       duration: payload.duration,
       aspectRatio: '9:16',
       modelTier: modelTier.id,
@@ -384,6 +445,9 @@ function generateCreativePlan_(payload, sceneCount, modelTier) {
     durationSeconds: payload.duration,
     sceneCount,
     callToAction: payload.callToAction,
+    creativeMode: payload.promptMode,
+    selectedPromptSet: payload.promptSetLabel,
+    creativeInstruction: payload.promptMode === 'custom' ? payload.customPrompt : payload.promptInstruction,
   };
 
   const schemaInstruction = [
@@ -402,7 +466,7 @@ function generateCreativePlan_(payload, sceneCount, modelTier) {
     content.push({ type: 'image_url', image_url: { url: payload.presenterImage } });
   }
 
-  const result = openRouterRequest_('/chat/completions', {
+  const requestBody = {
     model: modelTier.planner.id,
     messages: [
       { role: 'system', content: systemPrompt },
@@ -411,13 +475,75 @@ function generateCreativePlan_(payload, sceneCount, modelTier) {
     response_format: { type: 'json_object' },
     temperature: 0.65,
     max_tokens: 3000,
-  });
+  };
 
-  const raw = result.choices && result.choices[0] && result.choices[0].message
-    ? result.choices[0].message.content
-    : '';
-  const parsed = parseJsonContent_(raw);
-  return normalizePlan_(parsed, payload, sceneCount);
+  const firstResult = openRouterRequest_('/chat/completions', requestBody);
+  const firstRaw = extractAssistantContent_(firstResult);
+  try {
+    return normalizePlan_(parseJsonContent_(firstRaw), payload, sceneCount);
+  } catch (firstError) {
+    const retryResult = openRouterRequest_('/chat/completions', {
+      model: modelTier.planner.id,
+      messages: [
+        { role: 'system', content: `${systemPrompt} Output one minified JSON object and no markdown.` },
+        { role: 'user', content: `Campaign brief:\n${JSON.stringify(brief)}\n\n${schemaInstruction}` },
+      ],
+      response_format: { type: 'json_object' },
+      temperature: 0.2,
+      max_tokens: 3000,
+    });
+    const retryRaw = extractAssistantContent_(retryResult);
+    try {
+      return normalizePlan_(parseJsonContent_(retryRaw), payload, sceneCount);
+    } catch (retryError) {
+      console.warn(`Creative Plan JSON fallback used: ${firstError.message}; ${retryError.message}`);
+      return normalizePlan_(buildFallbackPlan_(payload), payload, sceneCount);
+    }
+  }
+}
+
+function extractAssistantContent_(result) {
+  const message = result && result.choices && result.choices[0] && result.choices[0].message;
+  const content = message ? message.content : (result && (result.output_text || result.content));
+  if (content && typeof content === 'object' && !Array.isArray(content)) {
+    return content.text || content.output_text || content.value || content;
+  }
+  if (Array.isArray(content)) {
+    return content.map((part) => {
+      if (typeof part === 'string') return part;
+      if (!part || typeof part !== 'object') return '';
+      return part.text || part.content || part.output_text || part.value || '';
+    }).join('\n').trim();
+  }
+  return String(content || '').trim();
+}
+
+function buildFallbackPlan_(payload) {
+  const direction = payload.promptMode === 'custom' && payload.customPrompt
+    ? payload.customPrompt
+    : payload.promptInstruction;
+  return {
+    title: `${payload.productName} — ${payload.style}`,
+    angle: direction || payload.sellingPoints,
+    hook: `หยุดก่อน ถ้าคุณกำลังมองหา ${payload.productName}`,
+    audience: payload.audience,
+    visualDirection: `${direction || payload.style} เน้นสินค้าเหมือนภาพอ้างอิงทุกจุด ภาพโฆษณาแนวตั้งสมจริง`,
+    narrationStyle: payload.tone,
+    caption: `${payload.productName} ${payload.callToAction}`,
+    hashtags: ['#รีวิวสินค้า', '#สินค้าแนะนำ'],
+    safetyNotes: ['ใช้เฉพาะข้อมูลสินค้าและคำกล่าวอ้างที่ผู้ใช้ให้มา'],
+    keyVisualPrompt: `${direction || payload.style}. Premium vertical product advertisement, exact product identity, photorealistic commercial lighting.`,
+    scenes: [{
+      index: 1,
+      title: 'Full advertisement',
+      duration: payload.duration,
+      voiceover: `${payload.productName} ${payload.sellingPoints} ${payload.callToAction}`,
+      visualPrompt: `${direction || payload.style}. Open with a strong visual hook, demonstrate the exact supplied product naturally, then finish with a clear call to action. Vertical 9:16, photorealistic, no generated text.`,
+      camera: 'dynamic opening push-in followed by clean commercial close-ups',
+      motion: 'natural presenter and product movement with smooth transitions',
+      overlay: payload.callToAction,
+    }],
+  };
 }
 
 function generateKeyVisual_(payload, plan, modelTier) {
@@ -428,6 +554,7 @@ function generateKeyVisual_(payload, plan, modelTier) {
 
   const prompt = [
     plan.keyVisualPrompt || plan.visualDirection,
+    payload.promptMode === 'custom' ? payload.customPrompt : payload.promptInstruction,
     `Premium ${payload.style} advertising key visual for ${payload.productName}.`,
     payload.presenterImage
       ? 'Use the supplied presenter reference with consistent identity and natural anatomy.'
@@ -453,6 +580,7 @@ function generateKeyVisual_(payload, plan, modelTier) {
 function submitVideo_(payload, plan, scene, keyVisualUrl, modelTier) {
   const prompt = [
     `Create one cohesive ${payload.duration}-second vertical premium social advertisement.`,
+    payload.promptMode === 'custom' ? payload.customPrompt : payload.promptInstruction,
     scene.visualPrompt || '',
     `Camera: ${scene.camera || 'natural handheld commercial shot'}.`,
     `Motion: ${scene.motion || 'subtle realistic motion and confident product interaction'}.`,
@@ -522,9 +650,14 @@ function downloadOpenRouterVideo_(url, apiKey) {
 }
 
 function validateCampaignPayload_(input) {
+  input = input || {};
+  const promptMode = String(input.promptMode || 'set').toLowerCase() === 'custom' ? 'custom' : 'set';
+  const promptSet = getPromptSet_(input.promptSet);
   if (!input.productImage) throw new Error('กรุณาอัปโหลดรูปสินค้า');
   if (!input.productName || String(input.productName).trim().length < 2) throw new Error('กรุณาใส่ชื่อสินค้า');
-  if (!input.sellingPoints || String(input.sellingPoints).trim().length < 5) throw new Error('กรุณาใส่จุดขายของสินค้า');
+  if (promptMode === 'custom' && (!input.sellingPoints || String(input.sellingPoints).trim().length < 5)) {
+    throw new Error('กรุณาใส่จุดขายของสินค้าในโหมดกำหนดเอง');
+  }
   if (input.acceptRights !== true) throw new Error('กรุณายืนยันสิทธิ์การใช้รูปภาพและความถูกต้องของข้อมูลสินค้า');
   if (String(input.productImage).length > APP_CONFIG.WORKFLOW.MAX_IMAGE_BYTES * 1.45) {
     throw new Error('รูปสินค้ามีขนาดใหญ่เกิน 5 MB');
@@ -546,17 +679,22 @@ function validateCampaignPayload_(input) {
     presenterImage: input.presenterImage ? String(input.presenterImage) : '',
     productName: cleanText_(input.productName, 120),
     category: cleanText_(input.category || 'สินค้าอุปโภคบริโภค', 120),
-    sellingPoints: cleanText_(input.sellingPoints, 1200),
-    audience: cleanText_(input.audience || 'ผู้บริโภคออนไลน์ในประเทศไทย', 400),
+    sellingPoints: cleanText_(input.sellingPoints || 'วิเคราะห์เฉพาะคุณสมบัติที่มองเห็นได้จากภาพสินค้า โดยไม่สร้างคำกล่าวอ้างที่ตรวจสอบไม่ได้', 1200),
+    audience: cleanText_(promptMode === 'set' ? promptSet.audience : (input.audience || 'ผู้บริโภคออนไลน์ในประเทศไทย'), 400),
     offer: cleanText_(input.offer || '', 400),
     forbiddenClaims: cleanText_(input.forbiddenClaims || '', 500),
     presenterDescription: cleanText_(input.presenterDescription || 'พรีเซนเตอร์ไทย บุคลิกเป็นมิตร ดูน่าเชื่อถือ', 400),
-    style: cleanText_(input.style || 'ugc', 60),
-    tone: cleanText_(input.tone || 'มั่นใจ เป็นธรรมชาติ', 120),
+    style: cleanText_(promptMode === 'set' ? promptSet.style : (input.style || 'ugc'), 60),
+    tone: cleanText_(promptMode === 'set' ? promptSet.tone : (input.tone || 'มั่นใจ เป็นธรรมชาติ'), 120),
     platform: cleanText_(input.platform || 'TikTok', 40),
     duration,
     modelTier: tier.id,
-    callToAction: cleanText_(input.callToAction || 'สั่งซื้อเลย', 120),
+    callToAction: cleanText_(promptMode === 'set' ? promptSet.callToAction : (input.callToAction || 'สั่งซื้อเลย'), 120),
+    promptMode,
+    promptSet: promptSet.id,
+    promptSetLabel: promptSet.label,
+    promptInstruction: cleanText_(promptMode === 'set' ? promptSet.instruction : '', 1200),
+    customPrompt: cleanText_(promptMode === 'custom' ? (input.customPrompt || '') : '', 2000),
     acceptRights: true,
   };
 }
@@ -653,6 +791,24 @@ function getPublicModelTiers_() {
         if (seconds <= tier.video.maxDuration) result[seconds] = estimateCampaignCost_(seconds, tier);
         return result;
       }, {}),
+    };
+  });
+}
+
+function getPromptSet_(promptSetId) {
+  const id = String(promptSetId || 'sales_boost').toLowerCase();
+  return APP_CONFIG.PROMPT_SETS[id] || APP_CONFIG.PROMPT_SETS.sales_boost;
+}
+
+function getPublicPromptSets_() {
+  return Object.keys(APP_CONFIG.PROMPT_SETS).map((id) => {
+    const set = APP_CONFIG.PROMPT_SETS[id];
+    return {
+      id: set.id,
+      label: set.label,
+      style: set.style,
+      tone: set.tone,
+      description: set.instruction,
     };
   });
 }
@@ -755,6 +911,9 @@ function publicCampaign_(record, compact) {
     productName: record.productName,
     platform: record.platform,
     style: record.style,
+    promptMode: record.promptMode || 'custom',
+    promptSet: record.promptSet || '',
+    promptSetLabel: record.promptSetLabel || '',
     duration: record.duration,
     modelTier: record.modelTier || APP_CONFIG.DEFAULT_MODEL_TIER,
     modelTierLabel: record.modelTierLabel || getModelTier_(record.modelTier).shortLabel,
@@ -789,13 +948,50 @@ function publicCampaign_(record, compact) {
 
 function parseJsonContent_(raw) {
   if (raw && typeof raw === 'object') return raw;
-  const text = String(raw || '').trim().replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/, '');
-  try { return JSON.parse(text); } catch (error) {
-    const start = text.indexOf('{');
-    const end = text.lastIndexOf('}');
-    if (start >= 0 && end > start) return JSON.parse(text.slice(start, end + 1));
-    throw new Error('AI ส่ง Creative Plan กลับมาในรูปแบบที่อ่านไม่ได้');
+  const text = String(raw || '')
+    .replace(/^\uFEFF/, '')
+    .trim()
+    .replace(/^```(?:json|javascript)?\s*/i, '')
+    .replace(/\s*```\s*$/i, '')
+    .trim();
+  if (!text) throw new Error('AI ไม่ได้ส่งเนื้อหา Creative Plan กลับมา');
+
+  const candidates = [text];
+  const objectText = extractBalancedJsonObject_(text);
+  if (objectText && objectText !== text) candidates.push(objectText);
+  for (let i = 0; i < candidates.length; i += 1) {
+    const candidate = candidates[i]
+      .replace(/[“”]/g, '"')
+      .replace(/[‘’]/g, "'")
+      .replace(/,\s*([}\]])/g, '$1');
+    try { return JSON.parse(candidate); } catch (error) { /* try next candidate */ }
   }
+  throw new Error('AI ส่ง Creative Plan กลับมาในรูปแบบที่อ่านไม่ได้');
+}
+
+function extractBalancedJsonObject_(text) {
+  const source = String(text || '');
+  const start = source.indexOf('{');
+  if (start < 0) return '';
+  let depth = 0;
+  let inString = false;
+  let escaped = false;
+  for (let i = start; i < source.length; i += 1) {
+    const char = source[i];
+    if (inString) {
+      if (escaped) escaped = false;
+      else if (char === '\\') escaped = true;
+      else if (char === '"') inString = false;
+      continue;
+    }
+    if (char === '"') inString = true;
+    else if (char === '{') depth += 1;
+    else if (char === '}') {
+      depth -= 1;
+      if (depth === 0) return source.slice(start, i + 1);
+    }
+  }
+  return '';
 }
 
 function parseJsonSafe_(value, fallback) {
