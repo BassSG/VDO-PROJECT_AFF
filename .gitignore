@@ -1,0 +1,16 @@
+# Local credentials and environment files
+.clasprc.json
+.env
+.env.*
+!.env.example
+
+# Local tooling
+node_modules/
+*.log
+.DS_Store
+Thumbs.db
+
+# Local previews and temporary artifacts
+*.tmp
+*.bak
+preview-*.png
