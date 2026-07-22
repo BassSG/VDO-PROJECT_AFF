@@ -26,13 +26,14 @@
 - Responsive สำหรับ desktop, tablet และ mobile พร้อม touch target และ safe area
 - API keys เก็บฝั่ง server ใน Apps Script Script Properties ไม่ถูกส่งกลับมาที่ browser
 - มี cost estimate ก่อนเริ่มงาน และหน้าติดตามสถานะระหว่างสร้าง
+- มี Dropdown เลือกชุดโมเดล 3 ระดับ โดยเปลี่ยนพร้อมกันทั้ง AI วิเคราะห์ สร้างภาพ และสร้างวิดีโอ
 
 ## Workflow
 
 1. อัปโหลดรูปสินค้า และเลือกรูปพรีเซนเตอร์ถ้าต้องการ
 2. ระบุชื่อสินค้า จุดขาย กลุ่มเป้าหมาย และคำกระตุ้นการซื้อ
 3. เลือกสไตล์ เช่น UGC, Unboxing, Luxury, Lifestyle, Cinematic หรือ Product Focus
-4. เลือกความยาว/แพลตฟอร์ม ตรวจค่าใช้จ่ายโดยประมาณ แล้วสั่งสร้าง
+4. เลือกความยาว/แพลตฟอร์ม และชุดคุณภาพ AI แบบประหยัด สมดุล หรือพรีเมียม
 5. ระบบวาง storyboard, สร้างภาพ, สร้างวิดีโอแต่ละ scene และรวมไฟล์โดยอัตโนมัติ
 
 ## API keys ที่ต้องใช้
@@ -69,13 +70,15 @@ const APP_CONFIG = {
 - `stage`: sandbox สำหรับทดสอบ วิดีโอมี watermark; AI assets บางประเภทอาจยังมีค่าใช้จ่ายตามเงื่อนไขของผู้ให้บริการ
 - `v1`: สำหรับงานจริง ไม่มี watermark และคิดค่า render ตามแพ็กเกจ
 
-## โมเดลเริ่มต้น
+## ชุดโมเดล
 
-- Planner: `google/gemini-3.6-flash`
-- Image: `google/gemini-3.1-flash-image`
-- Video: `google/veo-3.1-fast`
+| ชุด | AI วิเคราะห์ | สร้างภาพ | สร้างวิดีโอ | ประมาณการ 8 วินาที |
+|---|---|---|---|---:|
+| ประหยัด | `google/gemini-2.5-flash-lite` | `google/gemini-3.1-flash-lite-image` (1K) | `google/veo-3.1-lite` (720p) | `$0.44–$0.50` |
+| สมดุล | `google/gemini-3.6-flash` | `google/gemini-3.1-flash-image` (1K) | `google/veo-3.1-fast` (720p) | `$0.89–$1.00` |
+| พรีเมียม | `anthropic/claude-sonnet-5` | `google/gemini-3-pro-image` (2K) | `google/veo-3.1` (1080p) | `$3.48–$3.70` |
 
-ชื่อโมเดลแก้ได้จากหน้า Settings หรือ `APP_CONFIG.MODELS` หาก OpenRouter เปลี่ยนชื่อ/ความพร้อมใช้งานของโมเดล
+ค่าเริ่มต้นเป็นชุด **ประหยัด** เพื่อทดลอง Prompt และแนวทางงานก่อน ผู้ใช้เปลี่ยนชุดได้จาก Dropdown ใน Step 4 โดยระบบจะบันทึกชุดที่เลือกไว้กับแคมเปญนั้น ชื่อโมเดลและราคาเป็น snapshot ณ วันที่พัฒนาและควรตรวจสอบกับ OpenRouter ก่อนเปิดขายจริง
 
 ## โครงสร้างโปรเจกต์
 
@@ -109,7 +112,7 @@ clasp deploy --deploymentId AKfycbz0N9eDGVPJRM89kEEfVZxqdGN8e5K1BY1E3LevfV7mCv3j
 
 ## ค่าใช้จ่ายโดยประมาณ
 
-ตัวแอปตั้งค่าประเมินเบื้องต้นที่ประมาณ `$0.10/วินาที` สำหรับวิดีโอ บวกงาน planner/image ประมาณ `$0.30–$1.00` ต่อรอบ ตัวเลขจริงขึ้นกับโมเดล ราคา provider จำนวน retry และค่า render ของ Shotstack ณ เวลาที่ใช้งาน
+ตัวแอปคำนวณราคาตามชุดโมเดล ความยาววิดีโอ และค่า Shotstack โดยประมาณสำหรับงานเกิน 8 วินาที ตัวเลขจริงขึ้นกับราคา provider ความละเอียด จำนวน retry และค่าธรรมเนียม OpenRouter/Shotstack ณ เวลาที่ใช้งาน การกดสร้างใหม่จะคิดค่า AI ใหม่ทุกครั้ง
 
 ## ก่อนนำไปขายเป็น SaaS สาธารณะ
 

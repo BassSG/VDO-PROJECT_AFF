@@ -9,7 +9,7 @@
  */
 const APP_CONFIG = {
   APP_NAME: 'ADORA AI Studio',
-  VERSION: '1.1.0',
+  VERSION: '1.2.0',
 
   API_KEYS: {
     // Recommended: leave blank and save the key from the in-app Settings page.
@@ -18,9 +18,49 @@ const APP_CONFIG = {
   },
 
   MODELS: {
-    PLANNER: 'google/gemini-3.6-flash',
-    IMAGE: 'google/gemini-3.1-flash-image',
-    VIDEO: 'google/veo-3.1-fast',
+    PLANNER: 'google/gemini-2.5-flash-lite',
+    IMAGE: 'google/gemini-3.1-flash-lite-image',
+    VIDEO: 'google/veo-3.1-lite',
+  },
+
+  DEFAULT_MODEL_TIER: 'economy',
+  MODEL_TIERS: {
+    economy: {
+      id: 'economy',
+      label: 'ประหยัด · เริ่มทดลอง',
+      shortLabel: 'ประหยัด',
+      badge: 'เริ่มต้นที่แนะนำ',
+      description: 'ต้นทุนต่ำ เหมาะสำหรับทดลอง Prompt และตรวจแนวทางงานก่อน',
+      planner: { id: 'google/gemini-2.5-flash-lite', name: 'Gemini 2.5 Flash Lite' },
+      image: { id: 'google/gemini-3.1-flash-lite-image', name: 'Nano Banana 2 Lite', resolution: '1K' },
+      video: { id: 'google/veo-3.1-lite', name: 'Veo 3.1 Lite', pricePerSecond: 0.05, resolution: '720p' },
+      otherMin: 0.04,
+      otherMax: 0.10,
+    },
+    balanced: {
+      id: 'balanced',
+      label: 'สมดุล · งานมาตรฐาน',
+      shortLabel: 'สมดุล',
+      badge: 'คุณภาพคุ้มราคา',
+      description: 'วิเคราะห์ละเอียดขึ้น ภาพคมขึ้น และวิดีโอคุณภาพสูงสำหรับงานใช้งานจริง',
+      planner: { id: 'google/gemini-3.6-flash', name: 'Gemini 3.6 Flash' },
+      image: { id: 'google/gemini-3.1-flash-image', name: 'Nano Banana 2', resolution: '1K' },
+      video: { id: 'google/veo-3.1-fast', name: 'Veo 3.1 Fast', pricePerSecond: 0.10, resolution: '720p' },
+      otherMin: 0.09,
+      otherMax: 0.20,
+    },
+    premium: {
+      id: 'premium',
+      label: 'พรีเมียม · ดีที่สุด',
+      shortLabel: 'พรีเมียม',
+      badge: 'Final production',
+      description: 'ใช้โมเดลระดับสูงสำหรับวิเคราะห์แบรนด์ ภาพโฆษณา และวิดีโอคุณภาพสูงสุด',
+      planner: { id: 'anthropic/claude-sonnet-5', name: 'Claude Sonnet 5' },
+      image: { id: 'google/gemini-3-pro-image', name: 'Nano Banana Pro', resolution: '2K' },
+      video: { id: 'google/veo-3.1', name: 'Veo 3.1', pricePerSecond: 0.40, resolution: '1080p' },
+      otherMin: 0.28,
+      otherMax: 0.50,
+    },
   },
 
   API: {
@@ -38,11 +78,6 @@ const APP_CONFIG = {
     DEFAULT_SHOTSTACK_ENV: 'stage', // stage = watermarked sandbox; v1 = live production
   },
 
-  COST_GUIDE_USD: {
-    VIDEO_PER_SECOND: 0.10,
-    OTHER_MIN: 0.30,
-    OTHER_MAX: 1.00,
-  },
 };
 
 const PROPERTY_KEYS = {
@@ -52,6 +87,7 @@ const PROPERTY_KEYS = {
   MODEL_PLANNER: 'ADORA_MODEL_PLANNER',
   MODEL_IMAGE: 'ADORA_MODEL_IMAGE',
   MODEL_VIDEO: 'ADORA_MODEL_VIDEO',
+  DEFAULT_MODEL_TIER: 'ADORA_DEFAULT_MODEL_TIER',
   ROOT_FOLDER_ID: 'ADORA_ROOT_FOLDER_ID',
   CAMPAIGN_INDEX: 'ADORA_CAMPAIGN_INDEX',
   CAMPAIGN_PREFIX: 'ADORA_CAMPAIGN_',
@@ -81,7 +117,9 @@ function getBootstrapData() {
         imageModel: getModel_('IMAGE'),
         videoModel: getModel_('VIDEO'),
         shotstackEnv: getShotstackEnv_(),
+        modelTier: getDefaultModelTier_(),
       },
+      modelTiers: getPublicModelTiers_(),
     },
     settings: getSettingsStatus_(),
     campaigns: listCampaigns_(),
@@ -105,6 +143,10 @@ function saveApiSettings(input) {
   if (input.shotstackEnv) {
     const env = String(input.shotstackEnv).toLowerCase() === 'v1' ? 'v1' : 'stage';
     props.setProperty(PROPERTY_KEYS.SHOTSTACK_ENV, env);
+  }
+
+  if (input.modelTier) {
+    props.setProperty(PROPERTY_KEYS.DEFAULT_MODEL_TIER, getModelTier_(input.modelTier).id);
   }
 
   const models = input.models || {};
@@ -153,6 +195,7 @@ function testApiConnection(service) {
  */
 function startCampaign(payload) {
   payload = validateCampaignPayload_(payload || {});
+  const modelTier = getModelTier_(payload.modelTier);
   if (!getSecret_('OPENROUTER')) {
     throw new Error('กรุณาใส่ OpenRouter API key ที่เมนู Settings ก่อนเริ่มสร้าง');
   }
@@ -180,11 +223,18 @@ function startCampaign(payload) {
       style: payload.style,
       duration: payload.duration,
       aspectRatio: '9:16',
+      modelTier: modelTier.id,
+      modelTierLabel: modelTier.shortLabel,
+      models: {
+        planner: modelTier.planner.id,
+        image: modelTier.image.id,
+        video: modelTier.video.id,
+      },
       folderId: folder.getId(),
       folderUrl: folder.getUrl(),
       productFileId: productFile.getId(),
       presenterFileId: presenterFile ? presenterFile.getId() : '',
-      estimatedCost: estimateCampaignCost_(payload.duration),
+      estimatedCost: estimateCampaignCost_(payload.duration, modelTier),
       scenes: [],
       error: '',
     };
@@ -194,14 +244,14 @@ function startCampaign(payload) {
       APP_CONFIG.WORKFLOW.MAX_SCENES,
       Math.max(1, Math.ceil(payload.duration / APP_CONFIG.WORKFLOW.SCENE_DURATION_SECONDS))
     );
-    const plan = generateCreativePlan_(payload, sceneCount);
+    const plan = generateCreativePlan_(payload, sceneCount, modelTier);
     record.plan = plan;
     record.progress = 28;
     record.status = 'visual';
     record.statusText = 'กำลังสร้าง Key Visual ให้สินค้าและพรีเซนเตอร์';
     saveCampaign_(record);
 
-    const keyVisual = generateKeyVisual_(payload, plan);
+    const keyVisual = generateKeyVisual_(payload, plan, modelTier);
     const keyVisualFile = saveBase64File_(
       keyVisual.base64,
       keyVisual.mimeType || 'image/png',
@@ -226,7 +276,7 @@ function startCampaign(payload) {
         APP_CONFIG.WORKFLOW.SCENE_DURATION_SECONDS,
         payload.duration - i * APP_CONFIG.WORKFLOW.SCENE_DURATION_SECONDS
       );
-      const job = submitVideoScene_(payload, plan, scenePlan, keyVisualDirectUrl, sceneDuration, i);
+      const job = submitVideoScene_(payload, plan, scenePlan, keyVisualDirectUrl, sceneDuration, i, modelTier);
       scenes.push({
         index: i + 1,
         title: scenePlan.title || `Scene ${i + 1}`,
@@ -419,7 +469,7 @@ function advanceShotstackRender_(record) {
   record.completedAt = new Date().toISOString();
 }
 
-function generateCreativePlan_(payload, sceneCount) {
+function generateCreativePlan_(payload, sceneCount, modelTier) {
   const systemPrompt = [
     'You are a senior Thai creative director and performance advertising strategist.',
     'Create a truthful, premium vertical social ad. Preserve the exact product identity, packaging, colors, and logo.',
@@ -460,7 +510,7 @@ function generateCreativePlan_(payload, sceneCount) {
   }
 
   const result = openRouterRequest_('/chat/completions', {
-    model: getModel_('PLANNER'),
+    model: modelTier.planner.id,
     messages: [
       { role: 'system', content: systemPrompt },
       { role: 'user', content },
@@ -477,7 +527,7 @@ function generateCreativePlan_(payload, sceneCount) {
   return normalizePlan_(parsed, payload, sceneCount);
 }
 
-function generateKeyVisual_(payload, plan) {
+function generateKeyVisual_(payload, plan, modelTier) {
   const references = [
     { type: 'image_url', image_url: { url: payload.productImage } },
   ];
@@ -494,10 +544,10 @@ function generateKeyVisual_(payload, plan) {
   ].join(' ');
 
   const result = openRouterRequest_('/images', {
-    model: getModel_('IMAGE'),
+    model: modelTier.image.id,
     prompt,
     aspect_ratio: '9:16',
-    resolution: '1K',
+    resolution: modelTier.image.resolution || '1K',
     n: 1,
     input_references: references,
   });
@@ -507,7 +557,7 @@ function generateKeyVisual_(payload, plan) {
   return { base64: image.b64_json, mimeType: image.media_type || 'image/png' };
 }
 
-function submitVideoScene_(payload, plan, scene, keyVisualUrl, duration, sceneIndex) {
+function submitVideoScene_(payload, plan, scene, keyVisualUrl, duration, sceneIndex, modelTier) {
   const prompt = [
     `Vertical premium social advertisement, scene ${sceneIndex + 1}.`,
     scene.visualPrompt || '',
@@ -520,10 +570,10 @@ function submitVideoScene_(payload, plan, scene, keyVisualUrl, duration, sceneIn
   ].join(' ');
 
   return openRouterRequest_('/videos', {
-    model: getModel_('VIDEO'),
+    model: modelTier.video.id,
     prompt,
     duration: Math.max(4, Number(duration) || APP_CONFIG.WORKFLOW.SCENE_DURATION_SECONDS),
-    resolution: '720p',
+    resolution: modelTier.video.resolution || '720p',
     aspect_ratio: '9:16',
     generate_audio: true,
     frame_images: [{
@@ -662,6 +712,7 @@ function validateCampaignPayload_(input) {
 
   const allowedDurations = [8, 16, 24, 32];
   const duration = allowedDurations.indexOf(Number(input.duration)) >= 0 ? Number(input.duration) : 8;
+  const modelTier = getModelTier_(input.modelTier).id;
   return {
     productImage: String(input.productImage),
     presenterImage: input.presenterImage ? String(input.presenterImage) : '',
@@ -676,6 +727,7 @@ function validateCampaignPayload_(input) {
     tone: cleanText_(input.tone || 'มั่นใจ เป็นธรรมชาติ', 120),
     platform: cleanText_(input.platform || 'TikTok', 40),
     duration,
+    modelTier,
     callToAction: cleanText_(input.callToAction || 'สั่งซื้อเลย', 120),
     acceptRights: true,
   };
@@ -722,14 +774,54 @@ function normalizePlan_(plan, payload, sceneCount) {
   return plan;
 }
 
-function estimateCampaignCost_(duration) {
-  const video = Number(duration) * APP_CONFIG.COST_GUIDE_USD.VIDEO_PER_SECOND;
+function estimateCampaignCost_(duration, tierInput) {
+  const tier = typeof tierInput === 'object' && tierInput ? tierInput : getModelTier_(tierInput);
+  const seconds = Number(duration) || APP_CONFIG.WORKFLOW.SCENE_DURATION_SECONDS;
+  const video = seconds * Number(tier.video.pricePerSecond || 0);
+  const shotstack = seconds > APP_CONFIG.WORKFLOW.SCENE_DURATION_SECONDS ? seconds * 0.005 : 0;
   return {
-    min: roundMoney_(video + APP_CONFIG.COST_GUIDE_USD.OTHER_MIN),
-    max: roundMoney_(video + APP_CONFIG.COST_GUIDE_USD.OTHER_MAX),
+    min: roundMoney_(video + Number(tier.otherMin || 0) + shotstack),
+    max: roundMoney_(video + Number(tier.otherMax || 0) + shotstack),
+    video: roundMoney_(video),
+    otherMin: roundMoney_(tier.otherMin || 0),
+    otherMax: roundMoney_(tier.otherMax || 0),
+    shotstack: roundMoney_(shotstack),
     currency: 'USD',
-    note: 'ประมาณการก่อน retry และไม่รวมค่าบริการ Shotstack',
+    tier: tier.id,
+    note: 'ประมาณการก่อน retry; คลิปเกิน 8 วินาทีรวมค่า Shotstack PAYG โดยประมาณ',
   };
+}
+
+function getModelTier_(tierId) {
+  const id = String(tierId || APP_CONFIG.DEFAULT_MODEL_TIER).toLowerCase();
+  return APP_CONFIG.MODEL_TIERS[id] || APP_CONFIG.MODEL_TIERS[APP_CONFIG.DEFAULT_MODEL_TIER];
+}
+
+function getDefaultModelTier_() {
+  const value = PropertiesService.getScriptProperties().getProperty(PROPERTY_KEYS.DEFAULT_MODEL_TIER);
+  return getModelTier_(value).id;
+}
+
+function getPublicModelTiers_() {
+  return Object.keys(APP_CONFIG.MODEL_TIERS).map((id) => {
+    const tier = APP_CONFIG.MODEL_TIERS[id];
+    return {
+      id: tier.id,
+      label: tier.label,
+      shortLabel: tier.shortLabel,
+      badge: tier.badge,
+      description: tier.description,
+      planner: { id: tier.planner.id, name: tier.planner.name },
+      image: { id: tier.image.id, name: tier.image.name, resolution: tier.image.resolution },
+      video: { id: tier.video.id, name: tier.video.name, pricePerSecond: tier.video.pricePerSecond, resolution: tier.video.resolution },
+      otherMin: tier.otherMin,
+      otherMax: tier.otherMax,
+      estimates: [8, 16, 24, 32].reduce((result, seconds) => {
+        result[seconds] = estimateCampaignCost_(seconds, tier);
+        return result;
+      }, {}),
+    };
+  });
 }
 
 function getSettingsStatus_() {
@@ -741,6 +833,7 @@ function getSettingsStatus_() {
     openrouterMasked: maskKey_(openrouter),
     shotstackMasked: maskKey_(shotstack),
     shotstackEnv: getShotstackEnv_(),
+    defaultModelTier: getDefaultModelTier_(),
     models: {
       planner: getModel_('PLANNER'),
       image: getModel_('IMAGE'),
@@ -842,6 +935,9 @@ function publicCampaign_(record, compact) {
     platform: record.platform,
     style: record.style,
     duration: record.duration,
+    modelTier: record.modelTier || APP_CONFIG.DEFAULT_MODEL_TIER,
+    modelTierLabel: record.modelTierLabel || getModelTier_(record.modelTier).shortLabel,
+    models: record.models || null,
     aspectRatio: record.aspectRatio,
     folderUrl: record.folderUrl,
     keyVisualUrl: record.keyVisualUrl || '',

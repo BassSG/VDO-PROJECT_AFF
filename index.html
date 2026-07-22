@@ -315,6 +315,20 @@
     .cost-box { margin-top: 14px; padding: 16px; border-radius: 15px; background: linear-gradient(135deg, rgba(201,255,99,.10), rgba(147,112,255,.08)); border: 1px solid rgba(201,255,99,.15); }
     .cost-value { margin-top: 4px; font: 800 27px "Manrope", sans-serif; }
     .cost-value small { color: var(--muted); font-size: 10px; font-weight: 500; }
+    .tier-picker { margin-top: 18px; padding: 16px; border: 1px solid rgba(101,220,255,.18); border-radius: 16px; background: linear-gradient(145deg, rgba(101,220,255,.06), rgba(147,112,255,.05)); }
+    .tier-picker .select { margin-top: 8px; border-color: rgba(101,220,255,.28); font-weight: 700; }
+    .tier-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+    .tier-badge { padding: 5px 8px; border-radius: 999px; color: var(--lime); background: rgba(201,255,99,.08); border: 1px solid rgba(201,255,99,.16); font: 700 8px "Manrope", sans-serif; letter-spacing: .08em; text-transform: uppercase; }
+    .tier-description { margin-top: 9px; color: var(--muted); font-size: 10px; line-height: 1.7; }
+    .model-stack { margin-top: 12px; display: grid; gap: 7px; }
+    .model-row { display: grid; grid-template-columns: 76px minmax(0, 1fr); align-items: center; gap: 9px; padding: 9px 10px; border-radius: 10px; background: rgba(4,7,13,.45); border: 1px solid rgba(255,255,255,.05); }
+    .model-role { color: var(--subtle); font: 700 8px "Manrope", sans-serif; letter-spacing: .08em; text-transform: uppercase; }
+    .model-name { color: var(--text); font-size: 10px; font-weight: 700; overflow-wrap: anywhere; }
+    .cost-breakdown { margin-top: 7px; color: var(--muted); font-size: 9px; line-height: 1.6; }
+    .tier-mini-list { display: grid; gap: 9px; margin-top: 12px; }
+    .tier-mini { padding: 12px; border-radius: 12px; background: rgba(255,255,255,.025); border: 1px solid var(--line); }
+    .tier-mini strong { display: block; color: var(--text); font-size: 11px; }
+    .tier-mini span { display: block; margin-top: 4px; color: var(--muted); font-size: 9px; line-height: 1.55; }
     .check-row { display: flex; align-items: flex-start; gap: 11px; padding: 14px; border: 1px solid var(--line); border-radius: 14px; margin-top: 14px; color: var(--muted); font-size: 10px; line-height: 1.6; cursor: pointer; }
     .check-row input { accent-color: var(--lime); margin-top: 2px; }
 
@@ -558,8 +572,8 @@
             <aside class="hero-side">
               <div>
                 <div class="stat-label">Estimated production</div>
-                <div class="big-stat"><span>$</span><b id="heroCost">1.10–1.80</b></div>
-                <div class="cost-note">ประมาณการสำหรับ 8 วินาที ก่อน regenerate</div>
+                <div class="big-stat"><span>$</span><b id="heroCost">0.44–0.50</b></div>
+                <div class="cost-note" id="heroCostNote">แพ็กเกจประหยัด · 8 วินาที · ก่อน regenerate</div>
               </div>
               <div class="flow-mini">
                 <div class="flow-row"><span class="flow-num">01</span><span>รับภาพและวิเคราะห์สินค้า</span></div>
@@ -651,6 +665,20 @@
                       <button type="button" class="option-card" data-duration="24"><div class="option-title">24 sec</div><div class="option-sub">3 ฉาก · เล่าเรื่องครบขึ้น</div></button>
                       <button type="button" class="option-card" data-duration="32"><div class="option-title">32 sec</div><div class="option-sub">4 ฉาก · Full campaign</div></button>
                     </div>
+                    <div class="tier-picker">
+                      <div class="tier-head"><label class="field-label" for="modelTier" style="margin:0"><span>ชุดคุณภาพ AI</span></label><span class="tier-badge" id="tierBadge">เริ่มต้นที่แนะนำ</span></div>
+                      <select class="select" id="modelTier" aria-describedby="tierDescription">
+                        <option value="economy">ประหยัด · เริ่มทดลอง</option>
+                        <option value="balanced">สมดุล · งานมาตรฐาน</option>
+                        <option value="premium">พรีเมียม · ดีที่สุด</option>
+                      </select>
+                      <div class="tier-description" id="tierDescription">ต้นทุนต่ำ เหมาะสำหรับทดลอง Prompt และตรวจแนวทางงานก่อน</div>
+                      <div class="model-stack" aria-live="polite">
+                        <div class="model-row"><span class="model-role">วิเคราะห์</span><span class="model-name" id="tierPlanner">Gemini 2.5 Flash Lite</span></div>
+                        <div class="model-row"><span class="model-role">สร้างภาพ</span><span class="model-name" id="tierImage">Nano Banana 2 Lite</span></div>
+                        <div class="model-row"><span class="model-role">สร้างวิดีโอ</span><span class="model-name" id="tierVideo">Veo 3.1 Lite</span></div>
+                      </div>
+                    </div>
                     <div class="field" style="margin-top:18px"><label class="field-label" for="callToAction"><span>Call to Action</span></label><input class="input" id="callToAction" value="สั่งซื้อเลยวันนี้" placeholder="เช่น กดสั่งซื้อที่ตะกร้าได้เลย"></div>
                   </div>
                   <aside class="summary-card">
@@ -660,9 +688,9 @@
                       <div class="summary-row"><span>Creative style</span><strong id="sumStyle">UGC Review</strong></div>
                       <div class="summary-row"><span>Platform</span><strong id="sumPlatform">TikTok</strong></div>
                       <div class="summary-row"><span>Duration</span><strong id="sumDuration">8 sec / 1 scene</strong></div>
-                      <div class="summary-row"><span>AI stack</span><strong>Planner + Image + Video</strong></div>
+                      <div class="summary-row"><span>AI package</span><strong id="sumTier">ประหยัด</strong></div>
                     </div>
-                    <div class="cost-box"><div class="stat-label">Estimated API cost</div><div class="cost-value" id="sumCost">$1.10–1.80 <small>USD</small></div><div class="cost-note">ไม่รวมการสร้างซ้ำและ Shotstack production render</div></div>
+                    <div class="cost-box"><div class="stat-label">Estimated API cost</div><div class="cost-value" id="sumCost">$0.44–0.50 <small>USD</small></div><div class="cost-breakdown" id="sumCostBreakdown">วิเคราะห์ + ภาพ $0.04–0.10 · วิดีโอ $0.40</div><div class="cost-note">ราคาประมาณก่อน regenerate และอาจเปลี่ยนตามผู้ให้บริการ</div></div>
                     <label class="check-row"><input type="checkbox" id="acceptRights"><span>ฉันมีสิทธิ์ใช้รูปบุคคลและรูปสินค้า ข้อมูลโฆษณาเป็นความจริง และยินยอมให้ส่งไฟล์ไปยังผู้ให้บริการ AI/วิดีโอที่ตั้งค่าไว้</span></label>
                   </aside>
                 </div>
@@ -706,10 +734,13 @@
 
             <aside>
               <article class="card settings-card">
-                <div class="settings-title"><h3>AI models</h3><span class="chip">Advanced</span></div>
-                <div class="field"><label class="field-label" for="plannerModel"><span>Planner / Vision</span></label><input class="input" id="plannerModel"></div>
-                <div class="field"><label class="field-label" for="imageModel"><span>Image generation</span></label><input class="input" id="imageModel"></div>
-                <div class="field"><label class="field-label" for="videoModel"><span>Video generation</span></label><input class="input" id="videoModel"></div>
+                <div class="settings-title"><h3>ชุดโมเดลเริ่มต้น</h3><span class="chip">3 ระดับ</span></div>
+                <div class="field"><label class="field-label" for="defaultModelTier"><span>Default AI package</span><span class="field-hint">เปลี่ยนได้ทุกแคมเปญ</span></label><select class="select" id="defaultModelTier"><option value="economy">ประหยัด · เริ่มทดลอง</option><option value="balanced">สมดุล · งานมาตรฐาน</option><option value="premium">พรีเมียม · ดีที่สุด</option></select></div>
+                <div class="tier-mini-list">
+                  <div class="tier-mini"><strong>ประหยัด</strong><span>Gemini 2.5 Flash Lite · Nano Banana 2 Lite · Veo 3.1 Lite</span></div>
+                  <div class="tier-mini"><strong>สมดุล</strong><span>Gemini 3.6 Flash · Nano Banana 2 · Veo 3.1 Fast</span></div>
+                  <div class="tier-mini"><strong>พรีเมียม</strong><span>Claude Sonnet 5 · Nano Banana Pro · Veo 3.1</span></div>
+                </div>
               </article>
               <article class="card settings-card">
                 <div class="settings-title"><h3>ก่อนเปิดขาย</h3><span class="chip">Checklist</span></div>
@@ -758,6 +789,32 @@
 
   <script>
     const LIVE_APP_URL = 'https://script.google.com/macros/s/AKfycbz0N9eDGVPJRM89kEEfVZxqdGN8e5K1BY1E3LevfV7mCv3jbMdxJsqlx4OpTaNRi8l70g/exec';
+    const PREVIEW_MODEL_TIERS = [
+      {
+        id: 'economy', label: 'ประหยัด · เริ่มทดลอง', shortLabel: 'ประหยัด', badge: 'เริ่มต้นที่แนะนำ',
+        description: 'ต้นทุนต่ำ เหมาะสำหรับทดลอง Prompt และตรวจแนวทางงานก่อน',
+        planner: { id: 'google/gemini-2.5-flash-lite', name: 'Gemini 2.5 Flash Lite' },
+        image: { id: 'google/gemini-3.1-flash-lite-image', name: 'Nano Banana 2 Lite', resolution: '1K' },
+        video: { id: 'google/veo-3.1-lite', name: 'Veo 3.1 Lite', pricePerSecond: .05, resolution: '720p' },
+        otherMin: .04, otherMax: .10,
+      },
+      {
+        id: 'balanced', label: 'สมดุล · งานมาตรฐาน', shortLabel: 'สมดุล', badge: 'คุณภาพคุ้มราคา',
+        description: 'วิเคราะห์ละเอียดขึ้น ภาพคมขึ้น และวิดีโอคุณภาพสูงสำหรับงานใช้งานจริง',
+        planner: { id: 'google/gemini-3.6-flash', name: 'Gemini 3.6 Flash' },
+        image: { id: 'google/gemini-3.1-flash-image', name: 'Nano Banana 2', resolution: '1K' },
+        video: { id: 'google/veo-3.1-fast', name: 'Veo 3.1 Fast', pricePerSecond: .10, resolution: '720p' },
+        otherMin: .09, otherMax: .20,
+      },
+      {
+        id: 'premium', label: 'พรีเมียม · ดีที่สุด', shortLabel: 'พรีเมียม', badge: 'Final production',
+        description: 'ใช้โมเดลระดับสูงสำหรับวิเคราะห์แบรนด์ ภาพโฆษณา และวิดีโอคุณภาพสูงสุด',
+        planner: { id: 'anthropic/claude-sonnet-5', name: 'Claude Sonnet 5' },
+        image: { id: 'google/gemini-3-pro-image', name: 'Nano Banana Pro', resolution: '2K' },
+        video: { id: 'google/veo-3.1', name: 'Veo 3.1', pricePerSecond: .40, resolution: '1080p' },
+        otherMin: .28, otherMax: .50,
+      },
+    ];
     const state = {
       bootstrap: null,
       step: 1,
@@ -770,6 +827,7 @@
         style: 'UGC Review',
         platform: 'TikTok',
         duration: 8,
+        modelTier: '',
       },
     };
 
@@ -816,14 +874,16 @@
       return {
         app: {
           name: 'ADORA AI Studio',
-          version: '1.1.0',
+          version: '1.2.0',
           limits: { maxImageBytes: 5 * 1024 * 1024, maxScenes: 4, sceneDuration: 8, pollInterval: 20 },
           defaults: {
-            plannerModel: 'google/gemini-3.6-flash',
-            imageModel: 'google/gemini-3.1-flash-image',
-            videoModel: 'google/veo-3.1-fast',
+            plannerModel: 'google/gemini-2.5-flash-lite',
+            imageModel: 'google/gemini-3.1-flash-lite-image',
+            videoModel: 'google/veo-3.1-lite',
             shotstackEnv: 'stage',
+            modelTier: 'economy',
           },
+          modelTiers: PREVIEW_MODEL_TIERS,
         },
         settings: {
           openrouterConfigured: false,
@@ -831,6 +891,7 @@
           openrouterMasked: '',
           shotstackMasked: '',
           shotstackEnv: 'stage',
+          defaultModelTier: 'economy',
           models: {
             planner: 'google/gemini-3.6-flash',
             image: 'google/gemini-3.1-flash-image',
@@ -862,6 +923,11 @@
       $$('.style-card').forEach((button) => button.addEventListener('click', () => selectCard('.style-card', button, 'style', button.dataset.style)));
       $$('.option-card[data-platform]').forEach((button) => button.addEventListener('click', () => selectCard('.option-card[data-platform]', button, 'platform', button.dataset.platform)));
       $$('.option-card[data-duration]').forEach((button) => button.addEventListener('click', () => selectCard('.option-card[data-duration]', button, 'duration', Number(button.dataset.duration))));
+      $('#modelTier').addEventListener('change', (event) => {
+        state.form.modelTier = event.target.value;
+        updateSummary();
+        saveDraft();
+      });
       ['productName','category','sellingPoints','audience','offer','forbiddenClaims','presenterDescription','tone','callToAction'].forEach((id) => {
         $('#' + id).addEventListener('input', saveDraft);
       });
@@ -875,14 +941,22 @@
     function hydrateBootstrap() {
       const { app, settings, campaigns } = state.bootstrap;
       $('#sideVersion').textContent = app.version;
-      $('#plannerModel').value = settings.models.planner;
-      $('#imageModel').value = settings.models.image;
-      $('#videoModel').value = settings.models.video;
+      populateModelTierSelects(app.modelTiers || PREVIEW_MODEL_TIERS);
+      state.form.modelTier = state.form.modelTier || settings.defaultModelTier || app.defaults.modelTier || 'economy';
+      $('#modelTier').value = state.form.modelTier;
+      $('#defaultModelTier').value = settings.defaultModelTier || app.defaults.modelTier || 'economy';
       $('#shotstackEnv').value = settings.shotstackEnv;
       $('#openrouterKey').placeholder = settings.openrouterMasked || 'sk-or-v1-...';
       $('#shotstackKey').placeholder = settings.shotstackMasked || 'ใส่ Stage หรือ Production key';
       renderSettingsStatus(settings);
       renderProjects(campaigns || []);
+      updateSummary();
+    }
+
+    function populateModelTierSelects(tiers) {
+      const options = tiers.map((tier) => `<option value="${escapeAttr(tier.id)}">${escapeHtml(tier.label)}</option>`).join('');
+      $('#modelTier').innerHTML = options;
+      $('#defaultModelTier').innerHTML = options;
     }
 
     function renderSettingsStatus(settings) {
@@ -1007,6 +1081,7 @@
         tone: $('#tone').value,
         platform: state.form.platform,
         duration: state.form.duration,
+        modelTier: state.form.modelTier || 'economy',
         callToAction: $('#callToAction').value.trim(),
         acceptRights: $('#acceptRights').checked,
       };
@@ -1015,14 +1090,31 @@
     function updateSummary() {
       const seconds = Number(state.form.duration || 8);
       const scenes = Math.ceil(seconds / 8);
-      const min = seconds * .10 + .30;
-      const max = seconds * .10 + 1;
+      const tier = getSelectedTier();
+      const video = seconds * Number(tier.video.pricePerSecond || 0);
+      const shotstack = seconds > 8 ? seconds * .005 : 0;
+      const min = video + Number(tier.otherMin || 0) + shotstack;
+      const max = video + Number(tier.otherMax || 0) + shotstack;
       $('#heroCost').textContent = `${min.toFixed(2)}–${max.toFixed(2)}`;
+      $('#heroCostNote').textContent = `แพ็กเกจ${tier.shortLabel} · ${seconds} วินาที · ก่อน regenerate`;
       $('#sumProduct').textContent = $('#productName').value.trim() || '—';
       $('#sumStyle').textContent = state.form.style;
       $('#sumPlatform').textContent = state.form.platform;
       $('#sumDuration').textContent = `${seconds} sec / ${scenes} scene${scenes > 1 ? 's' : ''}`;
+      $('#sumTier').textContent = tier.label;
       $('#sumCost').innerHTML = `$${min.toFixed(2)}–${max.toFixed(2)} <small>USD</small>`;
+      $('#sumCostBreakdown').textContent = `วิเคราะห์ + ภาพ $${Number(tier.otherMin).toFixed(2)}–${Number(tier.otherMax).toFixed(2)} · วิดีโอ $${video.toFixed(2)}${shotstack ? ` · Shotstack $${shotstack.toFixed(2)}` : ''}`;
+      $('#tierBadge').textContent = tier.badge;
+      $('#tierDescription').textContent = tier.description;
+      $('#tierPlanner').textContent = `${tier.planner.name} · ${tier.planner.id}`;
+      $('#tierImage').textContent = `${tier.image.name} · ${tier.image.resolution || '1K'}`;
+      $('#tierVideo').textContent = `${tier.video.name} · ${tier.video.resolution || '720p'} · $${Number(tier.video.pricePerSecond).toFixed(2)}/วินาที`;
+    }
+
+    function getSelectedTier() {
+      const tiers = state.bootstrap?.app?.modelTiers || PREVIEW_MODEL_TIERS;
+      const id = state.form.modelTier || $('#modelTier')?.value || 'economy';
+      return tiers.find((tier) => tier.id === id) || tiers[0] || PREVIEW_MODEL_TIERS[0];
     }
 
     async function startGeneration() {
@@ -1075,7 +1167,7 @@
       if (!campaign) return;
       const progress = Number(campaign.progress || 0);
       $('#genTitle').textContent = campaign.productName || 'กำลังสร้างแคมเปญ';
-      $('#genStatus').textContent = `${campaign.platform || 'Vertical'} · ${campaign.duration || 8} sec · ${campaign.style || 'AI Ad'}`;
+      $('#genStatus').textContent = `${campaign.platform || 'Vertical'} · ${campaign.duration || 8} sec · ${campaign.modelTierLabel || 'ประหยัด'} · ${campaign.style || 'AI Ad'}`;
       $('#progressStatus').textContent = campaign.statusText || 'กำลังประมวลผล';
       $('#progressNumber').textContent = progress + '%';
       $('#progressBar').style.width = progress + '%';
@@ -1179,7 +1271,7 @@
       grid.innerHTML = campaigns.map((campaign) => `
         <article class="card project-card" data-campaign-id="${escapeAttr(campaign.id)}">
           <div class="project-cover">${campaign.keyVisualUrl ? `<img src="${escapeAttr(campaign.keyVisualUrl)}" alt="">` : '<div class="project-placeholder">✦</div>'}<span class="project-status">${escapeHtml(campaign.status)}</span></div>
-          <div class="project-body"><div class="project-title">${escapeHtml(campaign.productName)}</div><div class="project-meta"><span class="tag">${escapeHtml(campaign.platform || 'Vertical')}</span><span class="tag">${campaign.duration || 8}s</span><span class="tag">${escapeHtml(campaign.style || 'AI Ad')}</span></div><div class="project-progress"><span style="width:${Number(campaign.progress || 0)}%"></span></div></div>
+          <div class="project-body"><div class="project-title">${escapeHtml(campaign.productName)}</div><div class="project-meta"><span class="tag">${escapeHtml(campaign.platform || 'Vertical')}</span><span class="tag">${campaign.duration || 8}s</span><span class="tag">${escapeHtml(campaign.modelTierLabel || 'ประหยัด')}</span><span class="tag">${escapeHtml(campaign.style || 'AI Ad')}</span></div><div class="project-progress"><span style="width:${Number(campaign.progress || 0)}%"></span></div></div>
         </article>`).join('');
       $$('[data-campaign-id]', grid).forEach((card) => card.addEventListener('click', () => openExistingCampaign(card.dataset.campaignId)));
     }
@@ -1203,7 +1295,7 @@
           openrouterKey: $('#openrouterKey').value.trim(),
           shotstackKey: $('#shotstackKey').value.trim(),
           shotstackEnv: $('#shotstackEnv').value,
-          models: { planner: $('#plannerModel').value.trim(), image: $('#imageModel').value.trim(), video: $('#videoModel').value.trim() },
+          modelTier: $('#defaultModelTier').value,
         });
         state.bootstrap.settings = settings;
         $('#openrouterKey').value = '';
@@ -1245,6 +1337,7 @@
         style: state.form.style,
         platform: state.form.platform,
         duration: state.form.duration,
+        modelTier: state.form.modelTier || 'economy',
       };
       localStorage.setItem('adora-draft', JSON.stringify(draft));
       updateSummary();
@@ -1257,6 +1350,10 @@
         if (draft.style) { const button = $(`[data-style="${cssEscape(draft.style)}"]`); if (button) selectCard('.style-card', button, 'style', draft.style); }
         if (draft.platform) { const button = $(`[data-platform="${cssEscape(draft.platform)}"]`); if (button) selectCard('.option-card[data-platform]', button, 'platform', draft.platform); }
         if (draft.duration) { const button = $(`[data-duration="${Number(draft.duration)}"]`); if (button) selectCard('.option-card[data-duration]', button, 'duration', Number(draft.duration)); }
+        if (draft.modelTier && ['economy','balanced','premium'].includes(draft.modelTier)) {
+          state.form.modelTier = draft.modelTier;
+          $('#modelTier').value = draft.modelTier;
+        }
       } catch (error) { /* ignore malformed local draft */ }
     }
 
