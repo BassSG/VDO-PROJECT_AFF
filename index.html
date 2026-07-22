@@ -1,0 +1,1231 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <base target="_top">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#070910">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="color-scheme" content="dark">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Noto+Sans+Thai:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #070910;
+      --panel: rgba(16, 19, 31, .82);
+      --panel-strong: #111523;
+      --panel-soft: rgba(255, 255, 255, .045);
+      --line: rgba(255, 255, 255, .10);
+      --line-strong: rgba(255, 255, 255, .17);
+      --text: #f5f7fb;
+      --muted: #949aab;
+      --subtle: #686f82;
+      --lime: #c9ff63;
+      --lime-2: #93f062;
+      --violet: #9370ff;
+      --pink: #ff66b3;
+      --cyan: #65dcff;
+      --danger: #ff6f7d;
+      --success: #65e5a1;
+      --warning: #ffc761;
+      --shadow: 0 30px 80px rgba(0, 0, 0, .34);
+      --radius-xl: 28px;
+      --radius-lg: 20px;
+      --radius-md: 14px;
+      --sidebar: 258px;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 7% 3%, rgba(147, 112, 255, .16), transparent 30%),
+        radial-gradient(circle at 95% 5%, rgba(201, 255, 99, .09), transparent 26%),
+        radial-gradient(circle at 65% 95%, rgba(255, 102, 179, .07), transparent 28%),
+        var(--bg);
+      font-family: "Noto Sans Thai", "Manrope", sans-serif;
+      overflow-x: hidden;
+    }
+
+    button, input, textarea, select { font: inherit; }
+    button { color: inherit; }
+    a { color: inherit; text-decoration: none; }
+    [hidden] { display: none !important; }
+
+    .noise {
+      position: fixed;
+      inset: 0;
+      opacity: .026;
+      pointer-events: none;
+      z-index: 99;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.48'/%3E%3C/svg%3E");
+    }
+
+    .app-shell { min-height: 100vh; }
+    .sidebar {
+      position: fixed;
+      inset: 0 auto 0 0;
+      width: var(--sidebar);
+      padding: 26px 18px 20px;
+      border-right: 1px solid var(--line);
+      background: rgba(8, 10, 17, .78);
+      backdrop-filter: blur(28px);
+      z-index: 20;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .brand {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      padding: 0 8px 28px;
+    }
+
+    .brand-mark {
+      width: 42px;
+      height: 42px;
+      border-radius: 14px;
+      display: grid;
+      place-items: center;
+      font-family: "Manrope", sans-serif;
+      font-weight: 800;
+      font-size: 19px;
+      color: #0a0d12;
+      background: linear-gradient(135deg, var(--lime), #fff8a5 55%, #b5ffeb);
+      box-shadow: 0 10px 30px rgba(201, 255, 99, .18);
+    }
+
+    .brand-copy strong { display: block; font: 800 15px/1.15 "Manrope", sans-serif; letter-spacing: .12em; }
+    .brand-copy span { display: block; margin-top: 4px; color: var(--muted); font: 600 9px/1 "Manrope", sans-serif; letter-spacing: .18em; }
+    .nav-label { color: var(--subtle); padding: 8px 12px; font-size: 10px; font-weight: 700; letter-spacing: .13em; text-transform: uppercase; }
+    .side-nav { display: grid; gap: 7px; }
+
+    .nav-item {
+      appearance: none;
+      border: 1px solid transparent;
+      background: transparent;
+      padding: 12px 13px;
+      border-radius: 13px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      width: 100%;
+      color: var(--muted);
+      cursor: pointer;
+      transition: .2s ease;
+      text-align: left;
+      font-weight: 600;
+      font-size: 14px;
+    }
+
+    .nav-item:hover { color: var(--text); background: var(--panel-soft); }
+    .nav-item.active { color: var(--text); background: rgba(201, 255, 99, .09); border-color: rgba(201, 255, 99, .17); }
+    .nav-icon { width: 28px; height: 28px; border-radius: 9px; display: grid; place-items: center; background: rgba(255,255,255,.045); font-size: 14px; }
+    .nav-item.active .nav-icon { background: var(--lime); color: #080b10; }
+
+    .sidebar-bottom { margin-top: auto; }
+    .api-mini {
+      margin: 18px 2px;
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: rgba(255,255,255,.025);
+    }
+    .api-mini-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; font-size: 12px; font-weight: 700; }
+    .api-row { display: flex; justify-content: space-between; align-items: center; color: var(--muted); font-size: 11px; padding: 4px 0; }
+    .status-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--danger); box-shadow: 0 0 0 4px rgba(255,111,125,.08); }
+    .status-dot.ok { background: var(--success); box-shadow: 0 0 0 4px rgba(101,229,161,.08); }
+    .sidebar-note { color: var(--subtle); padding: 0 8px; font: 500 10px/1.5 "Manrope", sans-serif; }
+
+    .sidebar-backdrop { display: none; }
+    .main { margin-left: var(--sidebar); min-width: 0; min-height: 100vh; }
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 15;
+      height: 76px;
+      padding: 0 34px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid rgba(255,255,255,.06);
+      background: rgba(7, 9, 16, .7);
+      backdrop-filter: blur(24px);
+    }
+    .eyebrow { color: var(--lime); font: 700 10px/1.2 "Manrope", sans-serif; text-transform: uppercase; letter-spacing: .18em; }
+    .top-title { margin: 5px 0 0; font-size: 15px; font-weight: 600; }
+    .top-actions { display: flex; gap: 10px; align-items: center; }
+    .top-pill { display: flex; align-items: center; gap: 8px; color: var(--muted); border: 1px solid var(--line); border-radius: 999px; padding: 8px 12px; font-size: 11px; background: rgba(255,255,255,.025); }
+
+    .content { width: min(1380px, 100%); min-width: 0; margin: 0 auto; padding: 32px 34px 70px; }
+    .view { min-width: 0; animation: fadeUp .32s ease both; }
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1.5fr) minmax(300px, .65fr);
+      gap: 18px;
+      margin-bottom: 20px;
+    }
+
+    .hero-main, .hero-side, .card {
+      border: 1px solid var(--line);
+      background: var(--panel);
+      backdrop-filter: blur(20px);
+      box-shadow: var(--shadow);
+    }
+    .hero-main {
+      min-height: 248px;
+      padding: 34px;
+      border-radius: var(--radius-xl);
+      position: relative;
+      overflow: hidden;
+    }
+    .hero-main::before {
+      content: "";
+      position: absolute;
+      width: 330px;
+      height: 330px;
+      border-radius: 50%;
+      right: -90px;
+      top: -115px;
+      background: conic-gradient(from 180deg, var(--lime), var(--violet), var(--pink), var(--lime));
+      filter: blur(60px);
+      opacity: .14;
+    }
+    .hero-kicker { display: inline-flex; gap: 8px; align-items: center; padding: 7px 10px; border-radius: 999px; border: 1px solid rgba(201,255,99,.2); background: rgba(201,255,99,.07); color: var(--lime); font-size: 11px; font-weight: 700; }
+    .spark { animation: sparkle 2.3s ease-in-out infinite; }
+    @keyframes sparkle { 50% { transform: rotate(20deg) scale(1.15); } }
+    h1 { margin: 20px 0 12px; max-width: 760px; font-size: clamp(30px, 4vw, 54px); line-height: 1.08; letter-spacing: -.045em; overflow-wrap: anywhere; }
+    h1 .gradient { background: linear-gradient(100deg, var(--lime), #e3ffae 35%, var(--cyan)); color: transparent; background-clip: text; -webkit-background-clip: text; }
+    .hero-desc { max-width: 700px; color: var(--muted); font-size: 14px; line-height: 1.8; margin: 0; }
+    .hero-side { border-radius: var(--radius-xl); padding: 24px; display: flex; flex-direction: column; justify-content: space-between; min-height: 248px; }
+    .stat-label { color: var(--muted); font-size: 11px; font-weight: 600; }
+    .big-stat { margin: 5px 0 2px; font: 800 42px/1 "Manrope", sans-serif; letter-spacing: -.05em; }
+    .big-stat span { color: var(--lime); }
+    .cost-note { color: var(--subtle); font-size: 10px; }
+    .flow-mini { display: grid; gap: 9px; margin-top: 20px; }
+    .flow-row { display: flex; align-items: center; gap: 9px; font-size: 11px; color: var(--muted); }
+    .flow-num { width: 22px; height: 22px; display: grid; place-items: center; flex: 0 0 22px; border-radius: 8px; background: var(--panel-soft); color: var(--lime); font: 700 10px "Manrope", sans-serif; }
+
+    .wizard-card { min-width: 0; max-width: 100%; border-radius: var(--radius-xl); overflow: hidden; }
+    .wizard-header { display: flex; align-items: center; justify-content: space-between; padding: 23px 26px; border-bottom: 1px solid var(--line); }
+    .section-title { margin: 0; font-size: 18px; letter-spacing: -.02em; }
+    .section-desc { margin: 5px 0 0; color: var(--muted); font-size: 12px; }
+    .save-state { color: var(--subtle); font-size: 10px; }
+    .stepper { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; padding: 20px 26px; border-bottom: 1px solid var(--line); background: rgba(255,255,255,.016); }
+    .stepper-item { position: relative; display: flex; align-items: center; gap: 10px; color: var(--subtle); font-size: 11px; font-weight: 600; }
+    .stepper-item:not(:last-child)::after { content: ""; position: absolute; height: 1px; left: 43px; right: 12px; top: 17px; background: var(--line); }
+    .step-num { position: relative; z-index: 2; width: 34px; height: 34px; display: grid; place-items: center; flex: 0 0 34px; border: 1px solid var(--line); border-radius: 12px; background: #10131d; color: var(--muted); font: 700 11px "Manrope", sans-serif; transition: .2s ease; }
+    .stepper-item.active { color: var(--text); }
+    .stepper-item.active .step-num { background: var(--lime); color: #070a0f; border-color: var(--lime); box-shadow: 0 0 0 5px rgba(201,255,99,.07); }
+    .stepper-item.done .step-num { border-color: rgba(101,229,161,.4); color: var(--success); }
+    .stepper-item.done:not(:last-child)::after { background: linear-gradient(90deg, var(--success), var(--line)); }
+    .wizard-body { padding: 28px 26px 24px; }
+    .wizard-step { animation: fadeUp .28s ease both; }
+
+    .grid-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+    .field { min-width: 0; }
+    .field + .field { margin-top: 16px; }
+    .field-label { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 8px; font-size: 11px; font-weight: 700; }
+    .field-hint { color: var(--subtle); font-size: 9px; font-weight: 500; }
+    .input, .textarea, .select {
+      width: 100%;
+      color: var(--text);
+      border: 1px solid var(--line);
+      outline: none;
+      background: rgba(255,255,255,.035);
+      border-radius: 13px;
+      padding: 13px 14px;
+      transition: .2s ease;
+      font-size: 12px;
+    }
+    .textarea { resize: vertical; min-height: 105px; line-height: 1.7; }
+    .input:focus, .textarea:focus, .select:focus { border-color: rgba(201,255,99,.55); box-shadow: 0 0 0 4px rgba(201,255,99,.06); }
+    .input::placeholder, .textarea::placeholder { color: #555c6e; }
+    .select { appearance: none; background-image: linear-gradient(45deg, transparent 50%, var(--muted) 50%), linear-gradient(135deg, var(--muted) 50%, transparent 50%); background-position: calc(100% - 18px) 51%, calc(100% - 13px) 51%; background-size: 5px 5px; background-repeat: no-repeat; }
+    .select option { background: #111523; }
+
+    .upload-zone {
+      min-height: 282px;
+      border: 1px dashed rgba(255,255,255,.18);
+      border-radius: 18px;
+      background: linear-gradient(145deg, rgba(255,255,255,.035), rgba(255,255,255,.012));
+      display: grid;
+      place-items: center;
+      text-align: center;
+      padding: 22px;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      transition: .25s ease;
+    }
+    .upload-zone:hover, .upload-zone.drag { border-color: rgba(201,255,99,.55); background: rgba(201,255,99,.035); transform: translateY(-1px); }
+    .upload-zone input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+    .upload-icon { width: 52px; height: 52px; display: grid; place-items: center; margin: 0 auto 14px; border-radius: 17px; color: var(--lime); background: rgba(201,255,99,.08); border: 1px solid rgba(201,255,99,.14); font-size: 22px; }
+    .upload-title { font-size: 13px; font-weight: 700; }
+    .upload-copy { margin-top: 6px; color: var(--muted); font-size: 10px; line-height: 1.6; }
+    .upload-preview { position: absolute; inset: 0; background: #0c0f18; }
+    .upload-preview img { width: 100%; height: 100%; object-fit: cover; }
+    .upload-badge { position: absolute; top: 12px; left: 12px; padding: 7px 9px; border: 1px solid rgba(255,255,255,.14); border-radius: 999px; background: rgba(7,9,16,.75); backdrop-filter: blur(10px); font-size: 9px; font-weight: 700; }
+    .remove-image { position: absolute; top: 12px; right: 12px; width: 31px; height: 31px; border: 1px solid rgba(255,255,255,.15); border-radius: 10px; background: rgba(7,9,16,.75); cursor: pointer; z-index: 3; }
+    .privacy-note { display: flex; gap: 10px; align-items: flex-start; margin-top: 14px; padding: 12px 13px; border: 1px solid var(--line); border-radius: 13px; color: var(--muted); font-size: 10px; line-height: 1.55; background: rgba(255,255,255,.018); }
+
+    .style-card, .option-card {
+      appearance: none;
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: rgba(255,255,255,.025);
+      padding: 17px;
+      cursor: pointer;
+      text-align: left;
+      transition: .22s ease;
+    }
+    .style-card:hover, .option-card:hover { transform: translateY(-2px); border-color: var(--line-strong); background: rgba(255,255,255,.045); }
+    .style-card.selected, .option-card.selected { border-color: rgba(201,255,99,.5); background: linear-gradient(145deg, rgba(201,255,99,.09), rgba(147,112,255,.05)); box-shadow: inset 0 0 0 1px rgba(201,255,99,.05); }
+    .style-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 13px; }
+    .style-icon { width: 38px; height: 38px; display: grid; place-items: center; border-radius: 13px; background: rgba(255,255,255,.05); font-size: 17px; }
+    .select-check { width: 20px; height: 20px; display: grid; place-items: center; border: 1px solid var(--line); border-radius: 7px; color: transparent; font-size: 10px; }
+    .selected .select-check { color: #070a0e; background: var(--lime); border-color: var(--lime); }
+    .style-name { font-size: 12px; font-weight: 700; }
+    .style-desc { margin-top: 4px; color: var(--muted); font-size: 9px; line-height: 1.55; }
+    .option-card { padding: 13px 14px; }
+    .option-title { font: 700 12px "Manrope", sans-serif; }
+    .option-sub { margin-top: 4px; color: var(--muted); font-size: 9px; }
+
+    .summary-card { padding: 20px; border-radius: 18px; border: 1px solid var(--line); background: rgba(255,255,255,.025); }
+    .summary-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+    .summary-list { display: grid; gap: 10px; }
+    .summary-row { display: flex; justify-content: space-between; gap: 14px; padding-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,.055); font-size: 10px; }
+    .summary-row:last-child { border: 0; padding-bottom: 0; }
+    .summary-row span:first-child { color: var(--muted); }
+    .summary-row strong { text-align: right; }
+    .cost-box { margin-top: 14px; padding: 16px; border-radius: 15px; background: linear-gradient(135deg, rgba(201,255,99,.10), rgba(147,112,255,.08)); border: 1px solid rgba(201,255,99,.15); }
+    .cost-value { margin-top: 4px; font: 800 27px "Manrope", sans-serif; }
+    .cost-value small { color: var(--muted); font-size: 10px; font-weight: 500; }
+    .check-row { display: flex; align-items: flex-start; gap: 11px; padding: 14px; border: 1px solid var(--line); border-radius: 14px; margin-top: 14px; color: var(--muted); font-size: 10px; line-height: 1.6; cursor: pointer; }
+    .check-row input { accent-color: var(--lime); margin-top: 2px; }
+
+    .wizard-footer { display: flex; align-items: center; justify-content: space-between; padding: 20px 26px; border-top: 1px solid var(--line); background: rgba(255,255,255,.012); }
+    .btn {
+      appearance: none;
+      border: 1px solid var(--line);
+      border-radius: 13px;
+      padding: 11px 16px;
+      background: rgba(255,255,255,.035);
+      color: var(--text);
+      cursor: pointer;
+      font-size: 11px;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: .2s ease;
+    }
+    .btn:hover { transform: translateY(-1px); border-color: var(--line-strong); background: rgba(255,255,255,.06); }
+    .btn:disabled { opacity: .45; cursor: not-allowed; transform: none; }
+    .btn-primary { border-color: var(--lime); background: var(--lime); color: #080b10; box-shadow: 0 10px 30px rgba(201,255,99,.13); }
+    .btn-primary:hover { background: #d8ff8f; border-color: #d8ff8f; }
+    .btn-danger { color: var(--danger); }
+    .btn-icon { width: 38px; height: 38px; padding: 0; border-radius: 12px; }
+    .btn-wide { min-width: 180px; }
+
+    .page-head { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 20px; }
+    .page-head h2 { margin: 0 0 6px; font-size: 26px; letter-spacing: -.035em; }
+    .page-head p { margin: 0; color: var(--muted); font-size: 12px; }
+    .projects-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+    .project-card { border-radius: 20px; overflow: hidden; transition: .22s ease; cursor: pointer; }
+    .project-card:hover { transform: translateY(-3px); border-color: var(--line-strong); }
+    .project-cover { height: 176px; background: linear-gradient(145deg, rgba(147,112,255,.18), rgba(201,255,99,.08)); position: relative; overflow: hidden; }
+    .project-cover img { width: 100%; height: 100%; object-fit: cover; }
+    .project-placeholder { width: 100%; height: 100%; display: grid; place-items: center; font-size: 36px; color: rgba(255,255,255,.18); }
+    .project-status { position: absolute; top: 12px; left: 12px; padding: 6px 9px; border-radius: 999px; background: rgba(7,9,16,.75); border: 1px solid rgba(255,255,255,.12); backdrop-filter: blur(9px); font-size: 8px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; }
+    .project-body { padding: 17px; }
+    .project-title { font-size: 13px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .project-meta { margin-top: 8px; display: flex; flex-wrap: wrap; gap: 6px; color: var(--muted); font-size: 9px; }
+    .tag { padding: 5px 7px; border-radius: 8px; border: 1px solid var(--line); background: rgba(255,255,255,.025); }
+    .project-progress { height: 4px; border-radius: 99px; background: rgba(255,255,255,.06); margin-top: 14px; overflow: hidden; }
+    .project-progress span { display: block; height: 100%; background: linear-gradient(90deg, var(--lime), var(--cyan)); border-radius: inherit; }
+    .empty { grid-column: 1 / -1; padding: 70px 20px; text-align: center; color: var(--muted); border: 1px dashed var(--line); border-radius: 22px; }
+    .empty-icon { font-size: 34px; margin-bottom: 12px; opacity: .55; }
+
+    .settings-layout { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(300px, .7fr); gap: 18px; }
+    .settings-card { border-radius: 22px; padding: 24px; }
+    .settings-card + .settings-card { margin-top: 18px; }
+    .settings-title { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; }
+    .settings-title h3 { margin: 0; font-size: 15px; }
+    .chip { padding: 6px 8px; border-radius: 999px; color: var(--muted); border: 1px solid var(--line); font: 700 8px "Manrope", sans-serif; text-transform: uppercase; letter-spacing: .08em; }
+    .chip.ok { color: var(--success); border-color: rgba(101,229,161,.24); background: rgba(101,229,161,.06); }
+    .info-box { padding: 16px; border: 1px solid var(--line); border-radius: 15px; background: rgba(255,255,255,.022); color: var(--muted); font-size: 10px; line-height: 1.7; }
+    .info-box strong { color: var(--text); }
+    .settings-actions { display: flex; flex-wrap: wrap; gap: 9px; margin-top: 18px; }
+
+    .overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 60;
+      background: rgba(3, 5, 10, .82);
+      backdrop-filter: blur(18px);
+      padding: 22px;
+      display: grid;
+      place-items: center;
+    }
+    .generation-modal { width: min(1140px, 100%); max-height: calc(100vh - 44px); overflow: auto; border-radius: 28px; border: 1px solid var(--line-strong); background: #0d101a; box-shadow: 0 40px 120px rgba(0,0,0,.55); }
+    .generation-head { position: sticky; top: 0; z-index: 3; display: flex; justify-content: space-between; align-items: center; padding: 20px 23px; border-bottom: 1px solid var(--line); background: rgba(13,16,26,.93); backdrop-filter: blur(16px); }
+    .gen-title { font-size: 15px; font-weight: 700; }
+    .gen-status { margin-top: 4px; color: var(--muted); font-size: 10px; }
+    .generation-body { padding: 24px; }
+    .progress-panel { padding: 22px; border: 1px solid var(--line); border-radius: 20px; background: linear-gradient(135deg, rgba(147,112,255,.08), rgba(201,255,99,.035)); }
+    .progress-top { display: flex; justify-content: space-between; align-items: end; gap: 15px; }
+    .progress-num { font: 800 34px "Manrope", sans-serif; }
+    .progress-track { height: 9px; background: rgba(255,255,255,.07); border-radius: 99px; margin-top: 14px; overflow: hidden; }
+    .progress-track span { display: block; width: 0; height: 100%; border-radius: inherit; background: linear-gradient(90deg, var(--violet), var(--lime)); transition: width .65s ease; position: relative; }
+    .progress-track span::after { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, transparent, rgba(255,255,255,.35), transparent); transform: translateX(-100%); animation: shine 1.8s linear infinite; }
+    @keyframes shine { to { transform: translateX(100%); } }
+    .stage-list { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-top: 18px; }
+    .stage { padding: 10px; border: 1px solid var(--line); border-radius: 12px; color: var(--subtle); font-size: 8px; text-align: center; }
+    .stage.active { color: var(--lime); border-color: rgba(201,255,99,.25); background: rgba(201,255,99,.04); }
+    .stage.done { color: var(--success); }
+    .result-grid { display: grid; grid-template-columns: 330px minmax(0, 1fr); gap: 18px; margin-top: 18px; }
+    .visual-box { min-height: 470px; border: 1px solid var(--line); border-radius: 20px; overflow: hidden; background: rgba(255,255,255,.02); position: relative; }
+    .visual-box img, .visual-box video { width: 100%; height: 100%; min-height: 470px; object-fit: cover; display: block; }
+    .visual-empty { position: absolute; inset: 0; display: grid; place-items: center; color: var(--subtle); text-align: center; padding: 25px; }
+    .visual-loader { width: 42px; height: 42px; margin: 0 auto 13px; border: 3px solid rgba(255,255,255,.08); border-top-color: var(--lime); border-radius: 50%; animation: spin .85s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .plan-panel { min-width: 0; }
+    .plan-card { padding: 18px; border: 1px solid var(--line); border-radius: 18px; background: rgba(255,255,255,.02); }
+    .plan-card + .plan-card { margin-top: 13px; }
+    .plan-label { color: var(--lime); font: 700 8px "Manrope", sans-serif; letter-spacing: .12em; text-transform: uppercase; }
+    .plan-value { margin-top: 7px; color: var(--text); font-size: 11px; line-height: 1.7; }
+    .scene-list { display: grid; gap: 8px; margin-top: 12px; }
+    .scene-row { display: grid; grid-template-columns: 34px minmax(0, 1fr) auto; gap: 10px; align-items: center; padding: 10px; border: 1px solid var(--line); border-radius: 12px; background: rgba(255,255,255,.02); }
+    .scene-index { width: 34px; height: 34px; border-radius: 10px; display: grid; place-items: center; background: rgba(147,112,255,.1); color: #b9a8ff; font: 700 10px "Manrope", sans-serif; }
+    .scene-name { font-size: 10px; font-weight: 700; }
+    .scene-copy { margin-top: 3px; color: var(--muted); font-size: 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .scene-state { padding: 5px 7px; border-radius: 999px; border: 1px solid var(--line); color: var(--muted); font-size: 7px; text-transform: uppercase; }
+    .scene-state.completed { color: var(--success); border-color: rgba(101,229,161,.2); }
+    .final-actions { display: flex; flex-wrap: wrap; gap: 9px; margin-top: 16px; }
+    .error-box { margin-top: 15px; padding: 14px; color: #ffc3c9; border: 1px solid rgba(255,111,125,.25); border-radius: 14px; background: rgba(255,111,125,.07); font-size: 10px; line-height: 1.6; }
+
+    .toast-stack { position: fixed; right: 20px; bottom: 20px; z-index: 90; display: grid; gap: 9px; width: min(360px, calc(100vw - 40px)); }
+    .toast { padding: 13px 14px; border: 1px solid var(--line-strong); border-radius: 14px; background: rgba(17,21,35,.95); box-shadow: 0 15px 45px rgba(0,0,0,.3); display: flex; gap: 10px; align-items: flex-start; animation: toastIn .25s ease both; color: var(--muted); font-size: 10px; line-height: 1.5; }
+    .toast.success { border-color: rgba(101,229,161,.25); }
+    .toast.error { border-color: rgba(255,111,125,.28); }
+    @keyframes toastIn { from { opacity: 0; transform: translateX(14px); } }
+
+    .mobile-menu { display: none; }
+    @media (max-width: 1050px) {
+      :root { --sidebar: 82px; }
+      .brand-copy, .nav-item span:not(.nav-icon), .nav-label, .api-mini, .sidebar-note { display: none; }
+      .brand { justify-content: center; padding-inline: 0; }
+      .nav-item { justify-content: center; padding: 10px; }
+      .hero { grid-template-columns: 1fr; }
+      .hero-side { min-height: auto; display: grid; grid-template-columns: 1fr 1.5fr; gap: 15px; }
+      .flow-mini { margin-top: 0; }
+      .projects-grid { grid-template-columns: repeat(2, minmax(0,1fr)); }
+    }
+    @media (max-width: 760px) {
+      :root { --sidebar: 0px; }
+      .sidebar { transform: translateX(-100%); width: 250px; transition: transform .25s ease; }
+      .sidebar.open { transform: none; }
+      .sidebar-backdrop { position: fixed; inset: 0; z-index: 19; display: block; border: 0; padding: 0; background: rgba(0, 0, 0, .56); opacity: 0; pointer-events: none; transition: opacity .25s ease; }
+      .sidebar.open + .sidebar-backdrop { opacity: 1; pointer-events: auto; }
+      .brand-copy, .nav-item span:not(.nav-icon), .nav-label, .api-mini, .sidebar-note { display: block; }
+      .nav-item { justify-content: flex-start; padding: 12px 13px; }
+      .mobile-menu { display: inline-flex; }
+      .topbar { padding: 0 18px; }
+      .top-pill { display: none; }
+      .content { padding: 22px 14px 55px; }
+      .hero-main { padding: 25px 20px; min-height: auto; }
+      .hero, .hero-side { grid-template-columns: minmax(0, 1fr); }
+      .hero-main, .hero-side, .card { min-width: 0; max-width: 100%; }
+      .stepper { padding: 15px; }
+      .stepper-item { justify-content: center; }
+      .stepper-item span:last-child { display: none; }
+      .stepper-item:not(:last-child)::after { left: calc(50% + 20px); right: calc(-50% + 20px); }
+      .wizard-header, .wizard-body, .wizard-footer { padding-left: 16px; padding-right: 16px; }
+      .grid-2, .grid-3, .projects-grid, .settings-layout, .result-grid { grid-template-columns: 1fr; }
+      .upload-zone { min-height: 230px; }
+      .stage-list { grid-template-columns: repeat(3, 1fr); }
+      .generation-modal { max-height: calc(100vh - 20px); }
+      .overlay { padding: 10px; }
+      .visual-box, .visual-box img, .visual-box video { min-height: 420px; max-height: 65vh; }
+      .wizard-footer { gap: 10px; }
+      .wizard-header { align-items: flex-start; flex-wrap: wrap; gap: 8px; }
+      .wizard-header > div:first-child { min-width: 0; }
+      .save-state { width: 100%; }
+      .btn-wide { min-width: 0; }
+      .input, .textarea, .select { font-size: 16px; }
+      .btn, .nav-item, .icon-btn { min-height: 44px; }
+      .sidebar { padding-bottom: calc(20px + env(safe-area-inset-bottom)); }
+      .content { padding-bottom: calc(55px + env(safe-area-inset-bottom)); }
+    }
+    @media (max-width: 480px) {
+      .topbar { height: 68px; padding-inline: 12px; }
+      .top-title { max-width: 190px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+      .content { padding: 16px 10px calc(40px + env(safe-area-inset-bottom)); }
+      .hero-main { padding: 22px 16px; border-radius: 22px; }
+      .hero-main h1 { font-size: clamp(27px, 9vw, 38px); word-break: break-word; }
+      .hero-actions, .final-actions { display: grid; grid-template-columns: 1fr; }
+      .hero-actions .btn, .final-actions .btn { width: 100%; }
+      .wizard-card { border-radius: 20px; }
+      .wizard-header, .wizard-body, .wizard-footer { padding-left: 13px; padding-right: 13px; }
+      .wizard-footer { flex-wrap: wrap; }
+      #stepHint { order: 3; width: 100%; text-align: center; }
+      .stepper { padding-inline: 8px; }
+      .stepper-dot { width: 34px; height: 34px; }
+      .upload-zone { min-height: 205px; padding: 16px; }
+      .stage-list { grid-template-columns: 1fr; }
+      .generation-modal { border-radius: 20px; }
+      .visual-box, .visual-box img, .visual-box video { min-height: 360px; }
+      .toast-stack { right: 10px; bottom: calc(10px + env(safe-area-inset-bottom)); width: calc(100vw - 20px); }
+    }
+  </style>
+</head>
+<body>
+  <div class="noise"></div>
+  <div class="app-shell">
+    <aside class="sidebar" id="sidebar">
+      <div class="brand">
+        <div class="brand-mark">A</div>
+        <div class="brand-copy">
+          <strong>ADORA</strong>
+          <span>AI CREATIVE STUDIO</span>
+        </div>
+      </div>
+
+      <div class="nav-label">Workspace</div>
+      <nav class="side-nav">
+        <button class="nav-item active" data-view="studio"><span class="nav-icon">✦</span><span>สร้างโฆษณา</span></button>
+        <button class="nav-item" data-view="projects"><span class="nav-icon">▦</span><span>โปรเจกต์ของฉัน</span></button>
+        <button class="nav-item" data-view="settings"><span class="nav-icon">⚙</span><span>ตั้งค่าระบบ</span></button>
+      </nav>
+
+      <div class="sidebar-bottom">
+        <div class="api-mini">
+          <div class="api-mini-head"><span>System health</span><span id="systemPct">0/2</span></div>
+          <div class="api-row"><span>OpenRouter</span><i class="status-dot" id="openrouterDot"></i></div>
+          <div class="api-row"><span>Shotstack</span><i class="status-dot" id="shotstackDot"></i></div>
+        </div>
+        <div class="sidebar-note">ADORA v<span id="sideVersion">1.1.0</span><br>Built for premium social ads</div>
+      </div>
+    </aside>
+
+    <button class="sidebar-backdrop" id="sidebarBackdrop" type="button" aria-label="ปิดเมนู"></button>
+
+    <main class="main">
+      <header class="topbar">
+        <div style="display:flex; align-items:center; gap:12px">
+          <button class="btn btn-icon mobile-menu" id="mobileMenuBtn" type="button" aria-controls="sidebar" aria-expanded="false" aria-label="เปิดเมนู">☰</button>
+          <div>
+            <div class="eyebrow">Creative workspace</div>
+            <div class="top-title" id="topTitle">สร้างโฆษณาใหม่</div>
+          </div>
+        </div>
+        <div class="top-actions">
+          <div class="top-pill"><i class="status-dot" id="topStatusDot"></i><span id="topStatusText">กำลังตรวจระบบ</span></div>
+          <button class="btn btn-icon" id="quickSettings" title="Settings">⚙</button>
+        </div>
+      </header>
+
+      <div class="content">
+        <section class="view" id="view-studio">
+          <div class="hero">
+            <article class="hero-main">
+              <div class="hero-kicker"><span class="spark">✦</span> ONE-BRIEF AI PRODUCTION</div>
+              <h1>จากรูปสินค้า สู่<span class="gradient">โฆษณาพร้อมขาย</span><br>ใน Workflow เดียว</h1>
+              <p class="hero-desc">AI วางกลยุทธ์ เขียนบท สร้างพรีเซนเตอร์ สร้างวิดีโอ พากย์เสียง ใส่ซับ และ Export พร้อมใช้งาน — คุณดูแลเพียงสิ่งที่สำคัญที่สุด: แบรนด์ของคุณ</p>
+            </article>
+            <aside class="hero-side">
+              <div>
+                <div class="stat-label">Estimated production</div>
+                <div class="big-stat"><span>$</span><b id="heroCost">1.10–1.80</b></div>
+                <div class="cost-note">ประมาณการสำหรับ 8 วินาที ก่อน regenerate</div>
+              </div>
+              <div class="flow-mini">
+                <div class="flow-row"><span class="flow-num">01</span><span>รับภาพและวิเคราะห์สินค้า</span></div>
+                <div class="flow-row"><span class="flow-num">02</span><span>สร้าง Creative Plan + Key Visual</span></div>
+                <div class="flow-row"><span class="flow-num">03</span><span>สร้างเสียง วิดีโอ ซับ และไฟล์ MP4</span></div>
+              </div>
+            </aside>
+          </div>
+
+          <article class="card wizard-card">
+            <div class="wizard-header">
+              <div><h2 class="section-title">Campaign Builder</h2><p class="section-desc">ตอบเพียง 4 ขั้นตอน แล้วปล่อยให้ระบบผลิตงานต่อให้ทั้งหมด</p></div>
+              <div class="save-state">● Draft saved locally</div>
+            </div>
+            <div class="stepper" id="stepper">
+              <div class="stepper-item active" data-step-indicator="1"><span class="step-num">01</span><span>Assets</span></div>
+              <div class="stepper-item" data-step-indicator="2"><span class="step-num">02</span><span>Product</span></div>
+              <div class="stepper-item" data-step-indicator="3"><span class="step-num">03</span><span>Direction</span></div>
+              <div class="stepper-item" data-step-indicator="4"><span class="step-num">04</span><span>Output</span></div>
+            </div>
+
+            <div class="wizard-body">
+              <section class="wizard-step" data-step="1">
+                <div class="grid-2">
+                  <div>
+                    <div class="field-label"><span>รูปสินค้า <b style="color:var(--danger)">*</b></span><span class="field-hint">ภาพชัด พื้นหลังเรียบดีที่สุด</span></div>
+                    <label class="upload-zone" id="productDrop">
+                      <input type="file" id="productImage" accept="image/jpeg,image/png,image/webp">
+                      <div><div class="upload-icon">↥</div><div class="upload-title">วางรูปสินค้าที่นี่ หรือคลิกเพื่อเลือก</div><div class="upload-copy">JPG, PNG, WEBP · ไม่เกิน 5 MB<br>ระบบจะรักษารูปทรง สี และแพ็กเกจเดิม</div></div>
+                      <div class="upload-preview" id="productPreview" hidden><img alt="Product preview"><span class="upload-badge">PRODUCT REFERENCE</span><button type="button" class="remove-image" data-remove="product">×</button></div>
+                    </label>
+                  </div>
+                  <div>
+                    <div class="field-label"><span>รูปพรีเซนเตอร์</span><span class="field-hint">ไม่ใส่ก็ให้ AI สร้างได้</span></div>
+                    <label class="upload-zone" id="presenterDrop">
+                      <input type="file" id="presenterImage" accept="image/jpeg,image/png,image/webp">
+                      <div><div class="upload-icon">◎</div><div class="upload-title">อัปโหลดพรีเซนเตอร์ของคุณ</div><div class="upload-copy">ใช้รูปหน้าตรง แสงชัด และได้รับอนุญาต<br>หรือข้ามเพื่อสร้าง AI Presenter ใหม่</div></div>
+                      <div class="upload-preview" id="presenterPreview" hidden><img alt="Presenter preview"><span class="upload-badge">PRESENTER REFERENCE</span><button type="button" class="remove-image" data-remove="presenter">×</button></div>
+                    </label>
+                  </div>
+                </div>
+                <div class="privacy-note"><span>◈</span><span>รูปภาพจะถูกส่งไปยังโมเดล AI ที่คุณเลือกเพื่อสร้างงาน และไฟล์ Key Visual/วิดีโออาจถูกแชร์แบบ “ผู้ที่มีลิงก์” ชั่วคราวเพื่อให้ระบบวิดีโอประมวลผลได้</span></div>
+              </section>
+
+              <section class="wizard-step" data-step="2" hidden>
+                <div class="grid-2">
+                  <div>
+                    <div class="field"><label class="field-label" for="productName"><span>ชื่อสินค้า <b style="color:var(--danger)">*</b></span></label><input class="input" id="productName" placeholder="เช่น LUMI Glow Serum"></div>
+                    <div class="field"><label class="field-label" for="category"><span>หมวดหมู่สินค้า</span></label><input class="input" id="category" placeholder="เช่น สกินแคร์, อาหาร, แฟชั่น"></div>
+                    <div class="field"><label class="field-label" for="sellingPoints"><span>จุดขายสำคัญ <b style="color:var(--danger)">*</b></span><span class="field-hint">ใส่ได้หลายข้อ</span></label><textarea class="textarea" id="sellingPoints" placeholder="เช่น เนื้อบางเบา ซึมไว, แพ็กเกจพกพาง่าย, เหมาะกับผิวแพ้ง่าย"></textarea></div>
+                  </div>
+                  <div>
+                    <div class="field"><label class="field-label" for="audience"><span>กลุ่มเป้าหมาย</span></label><textarea class="textarea" id="audience" placeholder="เช่น ผู้หญิงวัยทำงาน 25–40 ปี ชอบดูรีวิวสินค้าใน TikTok"></textarea></div>
+                    <div class="field"><label class="field-label" for="offer"><span>ราคา / โปรโมชั่น</span></label><input class="input" id="offer" placeholder="เช่น วันนี้ 590 บาท ส่งฟรี"></div>
+                    <div class="field"><label class="field-label" for="forbiddenClaims"><span>สิ่งที่ห้าม AI กล่าว</span><span class="field-hint">ช่วยลดโฆษณาเกินจริง</span></label><textarea class="textarea" id="forbiddenClaims" placeholder="เช่น ห้ามกล่าวว่ารักษาโรค, ห้ามรับประกันผล 100%"></textarea></div>
+                  </div>
+                </div>
+              </section>
+
+              <section class="wizard-step" data-step="3" hidden>
+                <div class="field-label"><span>เลือกรูปแบบงานโฆษณา</span><span class="field-hint">เลือก 1 รูปแบบ</span></div>
+                <div class="grid-3" id="styleGrid">
+                  <button type="button" class="style-card selected" data-style="UGC Review"><div class="style-top"><span class="style-icon">◉</span><span class="select-check">✓</span></div><div class="style-name">UGC Review</div><div class="style-desc">รีวิวจริงใจ ดูเป็นธรรมชาติ เหมาะกับ TikTok</div></button>
+                  <button type="button" class="style-card" data-style="Unboxing"><div class="style-top"><span class="style-icon">▣</span><span class="select-check">✓</span></div><div class="style-name">Unboxing</div><div class="style-desc">แกะกล่อง โชว์สินค้า และสร้างความอยากได้</div></button>
+                  <button type="button" class="style-card" data-style="Luxury"><div class="style-top"><span class="style-icon">✧</span><span class="select-check">✓</span></div><div class="style-name">Luxury</div><div class="style-desc">หรู พรีเมียม แสงสตูดิโอ เน้นภาพลักษณ์</div></button>
+                  <button type="button" class="style-card" data-style="Lifestyle"><div class="style-top"><span class="style-icon">☼</span><span class="select-check">✓</span></div><div class="style-name">Lifestyle</div><div class="style-desc">วางสินค้าในชีวิตจริง เข้าถึงง่ายและอบอุ่น</div></button>
+                  <button type="button" class="style-card" data-style="Cinematic"><div class="style-top"><span class="style-icon">▶</span><span class="select-check">✓</span></div><div class="style-name">Cinematic</div><div class="style-desc">ภาพเล่าเรื่อง มีอารมณ์ และกล้องแบบภาพยนตร์</div></button>
+                  <button type="button" class="style-card" data-style="Product Focus"><div class="style-top"><span class="style-icon">◇</span><span class="select-check">✓</span></div><div class="style-name">Product Focus</div><div class="style-desc">สินค้าเด่นที่สุด เหมาะกับการโชว์ฟีเจอร์</div></button>
+                </div>
+                <div class="grid-2" style="margin-top:18px">
+                  <div class="field"><label class="field-label" for="presenterDescription"><span>บุคลิกพรีเซนเตอร์</span></label><input class="input" id="presenterDescription" value="พรีเซนเตอร์ไทย บุคลิกเป็นมิตร ทันสมัย ดูน่าเชื่อถือ" placeholder="อายุ บุคลิก สไตล์การแต่งตัว"></div>
+                  <div class="field"><label class="field-label" for="tone"><span>น้ำเสียงของแบรนด์</span></label><select class="select" id="tone"><option>มั่นใจ เป็นธรรมชาติ</option><option>สนุก สดใส</option><option>หรู สุขุม</option><option>อบอุ่น จริงใจ</option><option>เร่งด่วน กระตุ้นยอดขาย</option></select></div>
+                </div>
+              </section>
+
+              <section class="wizard-step" data-step="4" hidden>
+                <div class="grid-2">
+                  <div>
+                    <div class="field-label"><span>แพลตฟอร์ม</span></div>
+                    <div class="grid-3" id="platformGrid">
+                      <button type="button" class="option-card selected" data-platform="TikTok"><div class="option-title">TikTok</div><div class="option-sub">9:16 · Social commerce</div></button>
+                      <button type="button" class="option-card" data-platform="Instagram Reels"><div class="option-title">Reels</div><div class="option-sub">9:16 · Brand discovery</div></button>
+                      <button type="button" class="option-card" data-platform="YouTube Shorts"><div class="option-title">Shorts</div><div class="option-sub">9:16 · Reach</div></button>
+                    </div>
+                    <div class="field-label" style="margin-top:18px"><span>ความยาววิดีโอ</span><span class="field-hint">8 วินาทีต่อ 1 AI scene</span></div>
+                    <div class="grid-2" id="durationGrid">
+                      <button type="button" class="option-card selected" data-duration="8"><div class="option-title">8 sec</div><div class="option-sub">1 ฉาก · ไม่ต้องใช้ Shotstack</div></button>
+                      <button type="button" class="option-card" data-duration="16"><div class="option-title">16 sec</div><div class="option-sub">2 ฉาก · ต้องรวมคลิป</div></button>
+                      <button type="button" class="option-card" data-duration="24"><div class="option-title">24 sec</div><div class="option-sub">3 ฉาก · เล่าเรื่องครบขึ้น</div></button>
+                      <button type="button" class="option-card" data-duration="32"><div class="option-title">32 sec</div><div class="option-sub">4 ฉาก · Full campaign</div></button>
+                    </div>
+                    <div class="field" style="margin-top:18px"><label class="field-label" for="callToAction"><span>Call to Action</span></label><input class="input" id="callToAction" value="สั่งซื้อเลยวันนี้" placeholder="เช่น กดสั่งซื้อที่ตะกร้าได้เลย"></div>
+                  </div>
+                  <aside class="summary-card">
+                    <div class="summary-head"><strong>Campaign summary</strong><span class="chip">9:16 HD</span></div>
+                    <div class="summary-list">
+                      <div class="summary-row"><span>สินค้า</span><strong id="sumProduct">—</strong></div>
+                      <div class="summary-row"><span>Creative style</span><strong id="sumStyle">UGC Review</strong></div>
+                      <div class="summary-row"><span>Platform</span><strong id="sumPlatform">TikTok</strong></div>
+                      <div class="summary-row"><span>Duration</span><strong id="sumDuration">8 sec / 1 scene</strong></div>
+                      <div class="summary-row"><span>AI stack</span><strong>Planner + Image + Video</strong></div>
+                    </div>
+                    <div class="cost-box"><div class="stat-label">Estimated API cost</div><div class="cost-value" id="sumCost">$1.10–1.80 <small>USD</small></div><div class="cost-note">ไม่รวมการสร้างซ้ำและ Shotstack production render</div></div>
+                    <label class="check-row"><input type="checkbox" id="acceptRights"><span>ฉันมีสิทธิ์ใช้รูปบุคคลและรูปสินค้า ข้อมูลโฆษณาเป็นความจริง และยินยอมให้ส่งไฟล์ไปยังผู้ให้บริการ AI/วิดีโอที่ตั้งค่าไว้</span></label>
+                  </aside>
+                </div>
+              </section>
+            </div>
+
+            <div class="wizard-footer">
+              <button class="btn" id="prevBtn" disabled>← ย้อนกลับ</button>
+              <div style="color:var(--subtle);font-size:9px" id="stepHint">Step 1 of 4 · อัปโหลดรูปสินค้า</div>
+              <button class="btn btn-primary btn-wide" id="nextBtn">ถัดไป →</button>
+            </div>
+          </article>
+        </section>
+
+        <section class="view" id="view-projects" hidden>
+          <div class="page-head"><div><h2>โปรเจกต์ของฉัน</h2><p>เปิดดูสถานะ Creative Plan และไฟล์งานล่าสุด</p></div><button class="btn btn-primary" id="newCampaignBtn">✦ สร้างงานใหม่</button></div>
+          <div class="projects-grid" id="projectsGrid"><div class="empty"><div class="empty-icon">◇</div>กำลังโหลดโปรเจกต์...</div></div>
+        </section>
+
+        <section class="view" id="view-settings" hidden>
+          <div class="page-head"><div><h2>ตั้งค่าระบบ</h2><p>API keys ถูกเก็บใน Script Properties ฝั่งเซิร์ฟเวอร์และไม่แสดงใน Browser</p></div><button class="btn btn-primary" id="saveSettingsBtn">บันทึกการตั้งค่า</button></div>
+          <div class="settings-layout">
+            <div>
+              <article class="card settings-card">
+                <div class="settings-title"><h3>OpenRouter</h3><span class="chip" id="openrouterChip">Not configured</span></div>
+                <div class="field"><label class="field-label" for="openrouterKey"><span>OpenRouter API key</span><span class="field-hint">Required</span></label><input class="input" type="password" id="openrouterKey" autocomplete="new-password" placeholder="sk-or-v1-..."></div>
+                <div class="info-box" style="margin-top:14px">ใช้สำหรับวิเคราะห์รูป เขียน Creative Plan สร้าง Key Visual และสร้างวิดีโอ กรุณาตั้ง Budget limit ใน OpenRouter เพื่อควบคุมค่าใช้จ่าย</div>
+                <div class="settings-actions"><button class="btn" data-test-api="openrouter">ทดสอบการเชื่อมต่อ</button><button class="btn btn-danger" id="clearOpenrouter">ล้าง Key</button></div>
+              </article>
+
+              <article class="card settings-card">
+                <div class="settings-title"><h3>Shotstack</h3><span class="chip" id="shotstackChip">Optional for 8 sec</span></div>
+                <div class="grid-2">
+                  <div class="field"><label class="field-label" for="shotstackKey"><span>Shotstack API key</span><span class="field-hint">Required for 16–32 sec</span></label><input class="input" type="password" id="shotstackKey" autocomplete="new-password" placeholder="ใส่ Stage หรือ Production key"></div>
+                  <div class="field"><label class="field-label" for="shotstackEnv"><span>Environment</span></label><select class="select" id="shotstackEnv"><option value="stage">Stage · มีลายน้ำ / ทดสอบ</option><option value="v1">Production · ไม่มีลายน้ำ</option></select></div>
+                </div>
+                <div class="info-box" style="margin-top:14px">Shotstack รวมหลาย AI scenes เป็น MP4 เดียวและสร้างซับอัตโนมัติ รุ่น Stage เหมาะสำหรับทดสอบ ส่วนงานนำเสนอจริงให้ใช้ Production key และเลือก v1</div>
+                <div class="settings-actions"><button class="btn" data-test-api="shotstack">ทดสอบการเชื่อมต่อ</button><button class="btn btn-danger" id="clearShotstack">ล้าง Key</button></div>
+              </article>
+            </div>
+
+            <aside>
+              <article class="card settings-card">
+                <div class="settings-title"><h3>AI models</h3><span class="chip">Advanced</span></div>
+                <div class="field"><label class="field-label" for="plannerModel"><span>Planner / Vision</span></label><input class="input" id="plannerModel"></div>
+                <div class="field"><label class="field-label" for="imageModel"><span>Image generation</span></label><input class="input" id="imageModel"></div>
+                <div class="field"><label class="field-label" for="videoModel"><span>Video generation</span></label><input class="input" id="videoModel"></div>
+              </article>
+              <article class="card settings-card">
+                <div class="settings-title"><h3>ก่อนเปิดขาย</h3><span class="chip">Checklist</span></div>
+                <div class="info-box"><strong>แนะนำให้ทำเพิ่มก่อนรับผู้ใช้ภายนอก</strong><br>• ระบบสมาชิกและสิทธิ์ใช้งาน<br>• Payment / เครดิตต่อผู้ใช้<br>• Cloud Run สำหรับคิวจำนวนมาก<br>• Terms, Privacy และ Consent<br>• Rate limit และตรวจโฆษณาก่อนเผยแพร่</div>
+              </article>
+            </aside>
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <div class="overlay" id="generationOverlay" hidden>
+    <div class="generation-modal">
+      <div class="generation-head">
+        <div><div class="gen-title" id="genTitle">กำลังสร้างแคมเปญ</div><div class="gen-status" id="genStatus">กำลังเตรียม Creative Pipeline</div></div>
+        <button class="btn btn-icon" id="closeGeneration">×</button>
+      </div>
+      <div class="generation-body">
+        <div class="progress-panel">
+          <div class="progress-top"><div><div class="eyebrow">Production progress</div><div style="margin-top:7px;font-size:12px" id="progressStatus">เริ่มต้นระบบ</div></div><div class="progress-num" id="progressNumber">0%</div></div>
+          <div class="progress-track"><span id="progressBar"></span></div>
+          <div class="stage-list">
+            <div class="stage" data-stage="planning">Creative Plan</div>
+            <div class="stage" data-stage="visual">Key Visual</div>
+            <div class="stage" data-stage="generating">AI Video</div>
+            <div class="stage" data-stage="rendering">Captions & Merge</div>
+            <div class="stage" data-stage="completed">Final MP4</div>
+          </div>
+        </div>
+        <div class="result-grid">
+          <div class="visual-box" id="visualBox"><div class="visual-empty"><div><div class="visual-loader"></div><div>Key Visual จะแสดงที่นี่<br><small style="color:var(--subtle)">โปรดอย่าปิดหน้านี้ระหว่างส่งงานเข้าคิว</small></div></div></div></div>
+          <div class="plan-panel">
+            <div class="plan-card"><div class="plan-label">Campaign concept</div><div class="plan-value" id="planConcept">AI กำลังวิเคราะห์สินค้า จุดขาย และกลุ่มเป้าหมาย...</div></div>
+            <div class="plan-card"><div class="plan-label">Hook</div><div class="plan-value" id="planHook">—</div></div>
+            <div class="plan-card"><div class="plan-label">Scene production</div><div class="scene-list" id="sceneList"><div class="scene-row"><div class="scene-index">01</div><div><div class="scene-name">รอ Creative Plan</div><div class="scene-copy">ระบบกำลังออกแบบลำดับการเล่าเรื่อง</div></div><span class="scene-state">waiting</span></div></div></div>
+            <div class="error-box" id="generationError" hidden></div>
+            <div class="final-actions" id="finalActions" hidden></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast-stack" id="toastStack"></div>
+
+  <script>
+    const state = {
+      bootstrap: null,
+      step: 1,
+      view: 'studio',
+      pollTimer: null,
+      activeCampaign: null,
+      form: {
+        productImage: '',
+        presenterImage: '',
+        style: 'UGC Review',
+        platform: 'TikTok',
+        duration: 8,
+      },
+    };
+
+    const $ = (selector, root = document) => root.querySelector(selector);
+    const $$ = (selector, root = document) => Array.from(root.querySelectorAll(selector));
+
+    function server(name, ...args) {
+      return new Promise((resolve, reject) => {
+        google.script.run
+          .withSuccessHandler(resolve)
+          .withFailureHandler((error) => reject(new Error(error && error.message ? error.message : String(error))))[name](...args);
+      });
+    }
+
+    document.addEventListener('DOMContentLoaded', init);
+
+    async function init() {
+      bindEvents();
+      loadDraft();
+      updateWizard();
+      try {
+        state.bootstrap = await server('getBootstrapData');
+        hydrateBootstrap();
+      } catch (error) {
+        toast(error.message, 'error');
+      }
+    }
+
+    function bindEvents() {
+      $$('.nav-item').forEach((button) => button.addEventListener('click', () => switchView(button.dataset.view)));
+      $('#quickSettings').addEventListener('click', () => switchView('settings'));
+      $('#newCampaignBtn').addEventListener('click', () => switchView('studio'));
+      $('#mobileMenuBtn').addEventListener('click', () => setSidebarOpen(!$('#sidebar').classList.contains('open')));
+      $('#sidebarBackdrop').addEventListener('click', () => setSidebarOpen(false));
+      document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape') setSidebarOpen(false);
+      });
+      $('#nextBtn').addEventListener('click', nextStep);
+      $('#prevBtn').addEventListener('click', prevStep);
+      $('#productImage').addEventListener('change', (event) => handleImage(event.target.files[0], 'product'));
+      $('#presenterImage').addEventListener('change', (event) => handleImage(event.target.files[0], 'presenter'));
+      $$('[data-remove]').forEach((button) => button.addEventListener('click', (event) => {
+        event.preventDefault(); event.stopPropagation(); removeImage(button.dataset.remove);
+      }));
+      setupDropZone($('#productDrop'), 'product');
+      setupDropZone($('#presenterDrop'), 'presenter');
+      $$('.style-card').forEach((button) => button.addEventListener('click', () => selectCard('.style-card', button, 'style', button.dataset.style)));
+      $$('.option-card[data-platform]').forEach((button) => button.addEventListener('click', () => selectCard('.option-card[data-platform]', button, 'platform', button.dataset.platform)));
+      $$('.option-card[data-duration]').forEach((button) => button.addEventListener('click', () => selectCard('.option-card[data-duration]', button, 'duration', Number(button.dataset.duration))));
+      ['productName','category','sellingPoints','audience','offer','forbiddenClaims','presenterDescription','tone','callToAction'].forEach((id) => {
+        $('#' + id).addEventListener('input', saveDraft);
+      });
+      $('#saveSettingsBtn').addEventListener('click', saveSettings);
+      $$('[data-test-api]').forEach((button) => button.addEventListener('click', () => testApi(button.dataset.testApi, button)));
+      $('#clearOpenrouter').addEventListener('click', () => clearKey('openrouter'));
+      $('#clearShotstack').addEventListener('click', () => clearKey('shotstack'));
+      $('#closeGeneration').addEventListener('click', closeGeneration);
+    }
+
+    function hydrateBootstrap() {
+      const { app, settings, campaigns } = state.bootstrap;
+      $('#sideVersion').textContent = app.version;
+      $('#plannerModel').value = settings.models.planner;
+      $('#imageModel').value = settings.models.image;
+      $('#videoModel').value = settings.models.video;
+      $('#shotstackEnv').value = settings.shotstackEnv;
+      $('#openrouterKey').placeholder = settings.openrouterMasked || 'sk-or-v1-...';
+      $('#shotstackKey').placeholder = settings.shotstackMasked || 'ใส่ Stage หรือ Production key';
+      renderSettingsStatus(settings);
+      renderProjects(campaigns || []);
+    }
+
+    function renderSettingsStatus(settings) {
+      $('#openrouterDot').classList.toggle('ok', settings.openrouterConfigured);
+      $('#shotstackDot').classList.toggle('ok', settings.shotstackConfigured);
+      $('#topStatusDot').classList.toggle('ok', settings.openrouterConfigured);
+      $('#systemPct').textContent = `${Number(settings.openrouterConfigured) + Number(settings.shotstackConfigured)}/2`;
+      $('#topStatusText').textContent = settings.openrouterConfigured ? 'พร้อมสร้างแคมเปญ' : 'ต้องตั้งค่า OpenRouter';
+      $('#openrouterChip').textContent = settings.openrouterConfigured ? 'Connected' : 'Not configured';
+      $('#openrouterChip').classList.toggle('ok', settings.openrouterConfigured);
+      $('#shotstackChip').textContent = settings.shotstackConfigured ? `Connected · ${settings.shotstackEnv}` : 'Optional for 8 sec';
+      $('#shotstackChip').classList.toggle('ok', settings.shotstackConfigured);
+    }
+
+    function switchView(view) {
+      state.view = view;
+      $$('.view').forEach((section) => section.hidden = section.id !== `view-${view}`);
+      $$('.nav-item').forEach((button) => button.classList.toggle('active', button.dataset.view === view));
+      const titles = { studio: 'สร้างโฆษณาใหม่', projects: 'โปรเจกต์ของฉัน', settings: 'ตั้งค่าระบบ' };
+      $('#topTitle').textContent = titles[view];
+      setSidebarOpen(false);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function setSidebarOpen(open) {
+      $('#sidebar').classList.toggle('open', Boolean(open));
+      $('#mobileMenuBtn').setAttribute('aria-expanded', String(Boolean(open)));
+    }
+
+    function setupDropZone(zone, type) {
+      ['dragenter','dragover'].forEach((name) => zone.addEventListener(name, (event) => { event.preventDefault(); zone.classList.add('drag'); }));
+      ['dragleave','drop'].forEach((name) => zone.addEventListener(name, (event) => { event.preventDefault(); zone.classList.remove('drag'); }));
+      zone.addEventListener('drop', (event) => handleImage(event.dataTransfer.files[0], type));
+    }
+
+    async function handleImage(file, type) {
+      if (!file) return;
+      if (!/^image\/(jpeg|png|webp)$/.test(file.type)) return toast('รองรับเฉพาะ JPG, PNG และ WEBP', 'error');
+      const maxBytes = state.bootstrap?.app?.limits?.maxImageBytes || 5 * 1024 * 1024;
+      if (file.size > maxBytes) return toast('ไฟล์ต้องมีขนาดไม่เกิน 5 MB', 'error');
+      const dataUrl = await readFile(file);
+      state.form[type + 'Image'] = dataUrl;
+      const preview = $('#' + type + 'Preview');
+      $('img', preview).src = dataUrl;
+      preview.hidden = false;
+      saveDraft();
+    }
+
+    function removeImage(type) {
+      state.form[type + 'Image'] = '';
+      $('#' + type + 'Preview').hidden = true;
+      $('#' + type + 'Image').value = '';
+      saveDraft();
+    }
+
+    function readFile(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+    }
+
+    function selectCard(selector, button, key, value) {
+      $$(selector).forEach((item) => item.classList.remove('selected'));
+      button.classList.add('selected');
+      state.form[key] = value;
+      updateSummary();
+      saveDraft();
+    }
+
+    function nextStep() {
+      if (state.step < 4) {
+        const error = validateStep(state.step);
+        if (error) return toast(error, 'error');
+        state.step += 1;
+        updateWizard();
+        return;
+      }
+      startGeneration();
+    }
+
+    function prevStep() {
+      if (state.step > 1) { state.step -= 1; updateWizard(); }
+    }
+
+    function validateStep(step) {
+      if (step === 1 && !state.form.productImage) return 'กรุณาอัปโหลดรูปสินค้าก่อน';
+      if (step === 2 && $('#productName').value.trim().length < 2) return 'กรุณาใส่ชื่อสินค้า';
+      if (step === 2 && $('#sellingPoints').value.trim().length < 5) return 'กรุณาใส่จุดขายของสินค้า';
+      return '';
+    }
+
+    function updateWizard() {
+      $$('.wizard-step').forEach((section) => section.hidden = Number(section.dataset.step) !== state.step);
+      $$('[data-step-indicator]').forEach((item) => {
+        const step = Number(item.dataset.stepIndicator);
+        item.classList.toggle('active', step === state.step);
+        item.classList.toggle('done', step < state.step);
+        $('.step-num', item).textContent = step < state.step ? '✓' : String(step).padStart(2, '0');
+      });
+      $('#prevBtn').disabled = state.step === 1;
+      $('#nextBtn').innerHTML = state.step === 4 ? '✦ สร้างโฆษณาอัตโนมัติ' : 'ถัดไป →';
+      const hints = ['อัปโหลดรูปสินค้า', 'ใส่ข้อมูลที่ AI ต้องรู้', 'กำหนดทิศทางความคิดสร้างสรรค์', 'ตรวจและเริ่ม Production'];
+      $('#stepHint').textContent = `Step ${state.step} of 4 · ${hints[state.step - 1]}`;
+      updateSummary();
+    }
+
+    function getPayload() {
+      return {
+        productImage: state.form.productImage,
+        presenterImage: state.form.presenterImage,
+        productName: $('#productName').value.trim(),
+        category: $('#category').value.trim(),
+        sellingPoints: $('#sellingPoints').value.trim(),
+        audience: $('#audience').value.trim(),
+        offer: $('#offer').value.trim(),
+        forbiddenClaims: $('#forbiddenClaims').value.trim(),
+        presenterDescription: $('#presenterDescription').value.trim(),
+        style: state.form.style,
+        tone: $('#tone').value,
+        platform: state.form.platform,
+        duration: state.form.duration,
+        callToAction: $('#callToAction').value.trim(),
+        acceptRights: $('#acceptRights').checked,
+      };
+    }
+
+    function updateSummary() {
+      const seconds = Number(state.form.duration || 8);
+      const scenes = Math.ceil(seconds / 8);
+      const min = seconds * .10 + .30;
+      const max = seconds * .10 + 1;
+      $('#heroCost').textContent = `${min.toFixed(2)}–${max.toFixed(2)}`;
+      $('#sumProduct').textContent = $('#productName').value.trim() || '—';
+      $('#sumStyle').textContent = state.form.style;
+      $('#sumPlatform').textContent = state.form.platform;
+      $('#sumDuration').textContent = `${seconds} sec / ${scenes} scene${scenes > 1 ? 's' : ''}`;
+      $('#sumCost').innerHTML = `$${min.toFixed(2)}–${max.toFixed(2)} <small>USD</small>`;
+    }
+
+    async function startGeneration() {
+      const payload = getPayload();
+      const error = validateStep(1) || validateStep(2);
+      if (error) return toast(error, 'error');
+      if (!payload.acceptRights) return toast('กรุณายืนยันสิทธิ์การใช้รูปภาพและข้อมูลสินค้า', 'error');
+      if (!state.bootstrap?.settings?.openrouterConfigured) {
+        toast('กรุณาตั้งค่า OpenRouter API key ก่อนเริ่มสร้าง', 'error');
+        switchView('settings');
+        return;
+      }
+      if (payload.duration > 8 && !state.bootstrap?.settings?.shotstackConfigured) {
+        toast('ยังไม่มี Shotstack key: ระบบจะสร้างทุกฉากให้ แต่จะรอ Key ก่อนรวมเป็น MP4 เดียว', 'error');
+      }
+
+      openGeneration({ productName: payload.productName, status: 'planning', progress: 4, statusText: 'กำลังเริ่ม Creative Pipeline' });
+      $('#nextBtn').disabled = true;
+      try {
+        const campaign = await server('startCampaign', payload);
+        state.activeCampaign = campaign;
+        renderCampaign(campaign);
+        state.bootstrap.campaigns = [campaign].concat((state.bootstrap.campaigns || []).filter((item) => item.id !== campaign.id));
+        renderProjects(state.bootstrap.campaigns);
+        schedulePoll();
+      } catch (error) {
+        showGenerationError(error.message);
+        toast(error.message, 'error');
+      } finally {
+        $('#nextBtn').disabled = false;
+      }
+    }
+
+    function openGeneration(campaign) {
+      state.activeCampaign = campaign;
+      $('#generationOverlay').hidden = false;
+      document.body.style.overflow = 'hidden';
+      renderCampaign(campaign);
+    }
+
+    function closeGeneration() {
+      $('#generationOverlay').hidden = true;
+      document.body.style.overflow = '';
+      if (state.activeCampaign && !['completed','failed'].includes(state.activeCampaign.status)) {
+        toast('งานยังประมวลผลต่อ คุณเปิดดูได้จากโปรเจกต์ของฉัน');
+      }
+    }
+
+    function renderCampaign(campaign) {
+      if (!campaign) return;
+      const progress = Number(campaign.progress || 0);
+      $('#genTitle').textContent = campaign.productName || 'กำลังสร้างแคมเปญ';
+      $('#genStatus').textContent = `${campaign.platform || 'Vertical'} · ${campaign.duration || 8} sec · ${campaign.style || 'AI Ad'}`;
+      $('#progressStatus').textContent = campaign.statusText || 'กำลังประมวลผล';
+      $('#progressNumber').textContent = progress + '%';
+      $('#progressBar').style.width = progress + '%';
+      renderStages(campaign.status, progress);
+
+      if (campaign.finalUrl) {
+        $('#visualBox').innerHTML = `<video controls playsinline poster="${escapeAttr(campaign.keyVisualUrl || '')}" src="${escapeAttr(campaign.finalUrl)}"></video>`;
+      } else if (campaign.keyVisualUrl) {
+        $('#visualBox').innerHTML = `<img src="${escapeAttr(campaign.keyVisualUrl)}" alt="AI key visual">`;
+      }
+
+      if (campaign.plan) {
+        $('#planConcept').textContent = `${campaign.plan.title || ''} — ${campaign.plan.angle || ''}`;
+        $('#planHook').textContent = campaign.plan.hook || '—';
+      }
+
+      if (campaign.scenes && campaign.scenes.length) {
+        $('#sceneList').innerHTML = campaign.scenes.map((scene) => `
+          <div class="scene-row">
+            <div class="scene-index">${String(scene.index).padStart(2, '0')}</div>
+            <div><div class="scene-name">${escapeHtml(scene.title || `Scene ${scene.index}`)}</div><div class="scene-copy">${escapeHtml(scene.voiceover || 'AI กำลังสร้างเสียงและวิดีโอ')}</div></div>
+            <span class="scene-state ${escapeAttr(scene.status || '')}">${escapeHtml(scene.status || 'queued')}</span>
+          </div>`).join('');
+      }
+
+      const actions = $('#finalActions');
+      actions.hidden = true;
+      actions.innerHTML = '';
+      $('#generationError').hidden = !campaign.error;
+      if (campaign.error) $('#generationError').textContent = campaign.error;
+
+      if (campaign.status === 'needs_render_key') {
+        actions.hidden = false;
+        actions.innerHTML = '<button class="btn btn-primary" id="resumeRenderBtn">ใส่ Key แล้วรวมเป็น MP4</button><button class="btn" id="openSettingsFromGen">เปิด Settings</button>';
+        $('#resumeRenderBtn').addEventListener('click', resumeRender);
+        $('#openSettingsFromGen').addEventListener('click', () => { closeGeneration(); switchView('settings'); });
+      }
+      if (campaign.status === 'completed') {
+        actions.hidden = false;
+        actions.innerHTML = `${campaign.finalUrl ? `<a class="btn btn-primary" href="${escapeAttr(campaign.finalUrl)}" target="_blank" rel="noopener">↓ ดาวน์โหลด MP4</a>` : ''}<a class="btn" href="${escapeAttr(campaign.finalDriveUrl || campaign.folderUrl)}" target="_blank" rel="noopener">เปิดใน Google Drive</a>`;
+        toast('สร้างโฆษณาสำเร็จแล้ว', 'success');
+        clearTimeout(state.pollTimer);
+      }
+      if (campaign.status === 'failed') clearTimeout(state.pollTimer);
+    }
+
+    function renderStages(status, progress) {
+      const order = ['planning','visual','generating','rendering','completed'];
+      const map = { submitting: 'generating', needs_render_key: 'rendering' };
+      const current = map[status] || status;
+      const currentIndex = order.indexOf(current);
+      $$('.stage').forEach((item, index) => {
+        item.classList.toggle('active', index === currentIndex);
+        item.classList.toggle('done', index < currentIndex || progress === 100);
+      });
+    }
+
+    function schedulePoll() {
+      clearTimeout(state.pollTimer);
+      if (!state.activeCampaign || ['completed','failed','needs_render_key'].includes(state.activeCampaign.status)) return;
+      const seconds = state.bootstrap?.app?.limits?.pollInterval || 20;
+      state.pollTimer = setTimeout(pollActiveCampaign, seconds * 1000);
+    }
+
+    async function pollActiveCampaign() {
+      if (!state.activeCampaign?.id) return;
+      try {
+        const campaign = await server('pollCampaign', state.activeCampaign.id);
+        state.activeCampaign = campaign;
+        renderCampaign(campaign);
+        updateCampaignInList(campaign);
+        schedulePoll();
+      } catch (error) {
+        toast(error.message, 'error');
+        state.pollTimer = setTimeout(pollActiveCampaign, 30000);
+      }
+    }
+
+    async function resumeRender() {
+      try {
+        const campaign = await server('resumeRender', state.activeCampaign.id);
+        state.activeCampaign = campaign;
+        renderCampaign(campaign);
+        schedulePoll();
+      } catch (error) { toast(error.message, 'error'); }
+    }
+
+    function updateCampaignInList(campaign) {
+      const items = state.bootstrap.campaigns || [];
+      const index = items.findIndex((item) => item.id === campaign.id);
+      if (index >= 0) items[index] = campaign; else items.unshift(campaign);
+      renderProjects(items);
+    }
+
+    function renderProjects(campaigns) {
+      const grid = $('#projectsGrid');
+      if (!campaigns || !campaigns.length) {
+        grid.innerHTML = '<div class="empty"><div class="empty-icon">◇</div><strong>ยังไม่มีโปรเจกต์</strong><br><small>เริ่มสร้างโฆษณาแรกของคุณได้เลย</small></div>';
+        return;
+      }
+      grid.innerHTML = campaigns.map((campaign) => `
+        <article class="card project-card" data-campaign-id="${escapeAttr(campaign.id)}">
+          <div class="project-cover">${campaign.keyVisualUrl ? `<img src="${escapeAttr(campaign.keyVisualUrl)}" alt="">` : '<div class="project-placeholder">✦</div>'}<span class="project-status">${escapeHtml(campaign.status)}</span></div>
+          <div class="project-body"><div class="project-title">${escapeHtml(campaign.productName)}</div><div class="project-meta"><span class="tag">${escapeHtml(campaign.platform || 'Vertical')}</span><span class="tag">${campaign.duration || 8}s</span><span class="tag">${escapeHtml(campaign.style || 'AI Ad')}</span></div><div class="project-progress"><span style="width:${Number(campaign.progress || 0)}%"></span></div></div>
+        </article>`).join('');
+      $$('[data-campaign-id]', grid).forEach((card) => card.addEventListener('click', () => openExistingCampaign(card.dataset.campaignId)));
+    }
+
+    async function openExistingCampaign(id) {
+      try {
+        openGeneration({ productName: 'กำลังโหลดโปรเจกต์', status: 'planning', progress: 0, statusText: 'กำลังโหลดข้อมูล' });
+        const campaign = await server('getCampaign', id);
+        state.activeCampaign = campaign;
+        renderCampaign(campaign);
+        schedulePoll();
+      } catch (error) { closeGeneration(); toast(error.message, 'error'); }
+    }
+
+    async function saveSettings() {
+      const button = $('#saveSettingsBtn');
+      button.disabled = true;
+      button.textContent = 'กำลังบันทึก...';
+      try {
+        const settings = await server('saveApiSettings', {
+          openrouterKey: $('#openrouterKey').value.trim(),
+          shotstackKey: $('#shotstackKey').value.trim(),
+          shotstackEnv: $('#shotstackEnv').value,
+          models: { planner: $('#plannerModel').value.trim(), image: $('#imageModel').value.trim(), video: $('#videoModel').value.trim() },
+        });
+        state.bootstrap.settings = settings;
+        $('#openrouterKey').value = '';
+        $('#shotstackKey').value = '';
+        $('#openrouterKey').placeholder = settings.openrouterMasked || 'sk-or-v1-...';
+        $('#shotstackKey').placeholder = settings.shotstackMasked || 'ใส่ Stage หรือ Production key';
+        renderSettingsStatus(settings);
+        toast('บันทึกการตั้งค่าแล้ว', 'success');
+      } catch (error) { toast(error.message, 'error'); }
+      finally { button.disabled = false; button.textContent = 'บันทึกการตั้งค่า'; }
+    }
+
+    async function clearKey(type) {
+      try {
+        const settings = await server('saveApiSettings', type === 'openrouter' ? { clearOpenrouterKey: true } : { clearShotstackKey: true });
+        state.bootstrap.settings = settings;
+        renderSettingsStatus(settings);
+        toast('ล้าง API key แล้ว', 'success');
+      } catch (error) { toast(error.message, 'error'); }
+    }
+
+    async function testApi(serviceName, button) {
+      button.disabled = true;
+      const original = button.textContent;
+      button.textContent = 'กำลังทดสอบ...';
+      try {
+        if ((serviceName === 'openrouter' && $('#openrouterKey').value) || (serviceName === 'shotstack' && $('#shotstackKey').value)) {
+          await saveSettings();
+        }
+        const result = await server('testApiConnection', serviceName);
+        toast(result.message, 'success');
+      } catch (error) { toast(error.message, 'error'); }
+      finally { button.disabled = false; button.textContent = original; }
+    }
+
+    function saveDraft() {
+      const draft = {
+        values: ['productName','category','sellingPoints','audience','offer','forbiddenClaims','presenterDescription','tone','callToAction'].reduce((result, id) => (result[id] = $('#' + id).value, result), {}),
+        style: state.form.style,
+        platform: state.form.platform,
+        duration: state.form.duration,
+      };
+      localStorage.setItem('adora-draft', JSON.stringify(draft));
+      updateSummary();
+    }
+
+    function loadDraft() {
+      try {
+        const draft = JSON.parse(localStorage.getItem('adora-draft') || '{}');
+        Object.entries(draft.values || {}).forEach(([id, value]) => { if ($('#' + id)) $('#' + id).value = value; });
+        if (draft.style) { const button = $(`[data-style="${cssEscape(draft.style)}"]`); if (button) selectCard('.style-card', button, 'style', draft.style); }
+        if (draft.platform) { const button = $(`[data-platform="${cssEscape(draft.platform)}"]`); if (button) selectCard('.option-card[data-platform]', button, 'platform', draft.platform); }
+        if (draft.duration) { const button = $(`[data-duration="${Number(draft.duration)}"]`); if (button) selectCard('.option-card[data-duration]', button, 'duration', Number(draft.duration)); }
+      } catch (error) { /* ignore malformed local draft */ }
+    }
+
+    function showGenerationError(message) {
+      $('#generationError').hidden = false;
+      $('#generationError').textContent = message;
+      $('#progressStatus').textContent = 'เกิดข้อผิดพลาด';
+    }
+
+    function toast(message, type = '') {
+      const element = document.createElement('div');
+      element.className = `toast ${type}`;
+      element.innerHTML = `<span>${type === 'success' ? '✓' : type === 'error' ? '!' : '◈'}</span><span>${escapeHtml(message)}</span>`;
+      $('#toastStack').appendChild(element);
+      setTimeout(() => element.remove(), 5000);
+    }
+
+    function escapeHtml(value) {
+      return String(value == null ? '' : value).replace(/[&<>'"]/g, (char) => ({ '&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;' }[char]));
+    }
+    function escapeAttr(value) { return escapeHtml(value); }
+    function cssEscape(value) { return String(value).replace(/["\\]/g, '\\$&'); }
+  </script>
+</body>
+</html>
