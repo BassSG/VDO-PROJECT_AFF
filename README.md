@@ -5,7 +5,7 @@
 - Web App: https://script.google.com/macros/s/AKfycbz0N9eDGVPJRM89kEEfVZxqdGN8e5K1BY1E3LevfV7mCv3jbMdxJsqlx4OpTaNRi8l70g/exec
 - GitHub Pages application gateway: https://basssg.github.io/VDO-PROJECT_AFF/
 
-GitHub Pages จะส่งผู้ใช้ไปยัง Google Apps Script Web App ตัวจริงโดยอัตโนมัติ จึงไม่พบข้อความว่า Preview เชื่อมต่อ AI ไม่ได้อีก หากต้องการเปิดหน้าออกแบบแบบไม่ redirect ให้ใช้ `?preview=1`
+GitHub Pages จะแสดง Google Apps Script Web App ตัวจริงภายในหน้าเดิม จึงยังคง URL `basssg.github.io` ขณะใช้งาน AI หากต้องการเปิดหน้าออกแบบแบบไม่โหลด Application ให้ใช้ `?preview=1` ผู้ใช้ต้องเข้าสู่ระบบ Google ด้วยบัญชีที่มีสิทธิ์ใช้ Apps Script deployment
 
 ## Workflow
 
