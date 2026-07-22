@@ -1,0 +1,39 @@
+{
+  "id": "./",
+  "name": "ADORA AI Studio",
+  "short_name": "ADORA",
+  "description": "สร้าง Creative Plan, Key Visual และวิดีโอโฆษณาด้วย AI ใน Workflow เดียว",
+  "lang": "th",
+  "dir": "ltr",
+  "start_url": "./?source=pwa",
+  "scope": "./",
+  "display": "standalone",
+  "display_override": ["window-controls-overlay", "standalone", "minimal-ui"],
+  "orientation": "any",
+  "background_color": "#070910",
+  "theme_color": "#0b0e18",
+  "categories": ["business", "design", "photo", "productivity"],
+  "icons": [
+    {
+      "src": "assets/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "assets/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "สร้างโฆษณาใหม่",
+      "short_name": "สร้างงานใหม่",
+      "description": "เปิด ADORA เพื่อเริ่มสร้างโฆษณา",
+      "url": "./?source=pwa&action=new",
+      "icons": [{ "src": "assets/icons/icon-192.png", "sizes": "192x192", "type": "image/png" }]
+    }
+  ]
+}
