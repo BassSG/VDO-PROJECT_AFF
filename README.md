@@ -5,7 +5,11 @@
 - Web App: https://script.google.com/macros/s/AKfycbz0N9eDGVPJRM89kEEfVZxqdGN8e5K1BY1E3LevfV7mCv3jbMdxJsqlx4OpTaNRi8l70g/exec
 - GitHub Pages application gateway: https://basssg.github.io/VDO-PROJECT_AFF/
 
-GitHub Pages จะแสดง Google Apps Script Web App ตัวจริงภายในหน้าเดิม จึงยังคง URL `basssg.github.io` ขณะใช้งาน AI หากต้องการเปิดหน้าออกแบบแบบไม่โหลด Application ให้ใช้ `?preview=1` ผู้ใช้ต้องเข้าสู่ระบบ Google ด้วยบัญชีที่มีสิทธิ์ใช้ Apps Script deployment
+Web App เปิดสิทธิ์แบบ `ANYONE_ANONYMOUS` ผู้ใช้งานจึงเปิดผ่าน GitHub Pages หรือ URL ของ Apps Script ได้โดยไม่ต้องลงชื่อเข้าใช้ Google ระบบทำงานในสิทธิ์ของบัญชีผู้ Deploy (`USER_DEPLOYING`)
+
+> คำเตือน: ผู้ใช้ทุกคนจะใช้เครดิต OpenRouter และพื้นที่ Google Drive ของเจ้าของระบบร่วมกัน ควรกำหนด Budget Limit ที่ OpenRouter และเพิ่มระบบโควตา/Rate limit ก่อนเผยแพร่ให้บุคคลทั่วไปจำนวนมาก
+
+GitHub Pages จะแสดง Google Apps Script Web App ตัวจริงภายในหน้าเดิม จึงยังคง URL `basssg.github.io` ขณะใช้งาน AI หากต้องการเปิดหน้าออกแบบแบบไม่โหลด Application ให้ใช้ `?preview=1` ผู้ใช้ทุกคนเปิดใช้งานได้โดยไม่ต้องเข้าสู่ระบบ Google
 
 ## Workflow
 

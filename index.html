@@ -551,7 +551,7 @@
           <div class="api-mini-head"><span>System health</span><span id="systemPct">0/1</span></div>
           <div class="api-row"><span>OpenRouter</span><i class="status-dot" id="openrouterDot"></i></div>
         </div>
-        <div class="sidebar-note">ADORA v<span id="sideVersion">1.3.2</span><br>OpenRouter-only creative pipeline</div>
+        <div class="sidebar-note">ADORA v<span id="sideVersion">1.3.3</span><br>OpenRouter-only creative pipeline</div>
       </div>
     </aside>
 
@@ -886,7 +886,7 @@
     function notifyParentHostReady() {
       try {
         if (window.parent !== window) {
-          window.parent.postMessage({ type: 'ADORA_APP_READY', release: '1.3.2' }, '*');
+          window.parent.postMessage({ type: 'ADORA_APP_READY', release: '1.3.3' }, '*');
         }
       } catch (error) { /* parent communication is optional */ }
     }
@@ -902,7 +902,7 @@
     function buildLiveAppUrl(source) {
       const target = new URL(LIVE_APP_URL);
       target.searchParams.set('source', source || 'github-embed');
-      target.searchParams.set('release', '1.3.2');
+      target.searchParams.set('release', '1.3.3');
       target.searchParams.set('embedded', '1');
       return target.toString();
     }
@@ -916,7 +916,7 @@
         <main class="live-app-host">
           <div class="live-host-loading" id="liveHostLoading">
             <div class="live-host-progress"><span class="live-host-spinner"></span><strong>กำลังเปิด ADORA AI Studio</strong><span>เชื่อมต่อ Application และ OpenRouter workflow...</span></div>
-            <div class="live-host-auth"><strong>กรุณาลงชื่อเข้าใช้ Google ครั้งแรก</strong><span>เปิด Application โดยตรงด้วยบัญชี bass1135@gmail.com แล้วกลับมารีเฟรชหน้านี้ ระบบจะทำงานภายใน GitHub Pages ตามปกติ</span><a class="btn btn-primary" href="${escapeAttr(liveUrl)}" target="_blank" rel="noopener">ลงชื่อเข้าใช้และเปิด Application ↗</a></div>
+            <div class="live-host-auth"><strong>Application ยังโหลดไม่สำเร็จ</strong><span>กรุณารีเฟรชหน้านี้ หรือเปิด Application โดยตรงเพื่อทดลองเชื่อมต่ออีกครั้ง ไม่จำเป็นต้องลงชื่อเข้าใช้ Google</span><a class="btn btn-primary" href="${escapeAttr(liveUrl)}" target="_blank" rel="noopener">เปิด Application โดยตรง ↗</a></div>
           </div>
           <iframe class="live-app-frame" id="liveAppFrame" src="${escapeAttr(liveUrl)}" title="ADORA AI Studio Application" allow="camera; microphone; clipboard-write; fullscreen" referrerpolicy="strict-origin-when-cross-origin"></iframe>
           <a class="live-host-fallback" href="${escapeAttr(liveUrl)}" target="_blank" rel="noopener">เปิดตรง หากหน้าไม่แสดง ↗</a>
@@ -939,7 +939,7 @@
       return {
         app: {
           name: 'ADORA AI Studio',
-          version: '1.3.2',
+          version: '1.3.3',
           limits: { maxImageBytes: 5 * 1024 * 1024, maxScenes: 1, allowedDurations: [8, 10, 12, 15], pollInterval: 20 },
           defaults: {
             plannerModel: 'google/gemini-2.5-flash-lite',
