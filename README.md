@@ -4,6 +4,8 @@
 
 **Web App:** [เปิด ADORA AI Studio](https://script.google.com/macros/s/AKfycbz0N9eDGVPJRM89kEEfVZxqdGN8e5K1BY1E3LevfV7mCv3jbMdxJsqlx4OpTaNRi8l70g/exec)
 
+**GitHub Pages Preview:** [เปิดหน้า Presentation](https://basssg.github.io/VDO-PROJECT_AFF/)
+
 > Deployment ปัจจุบันตั้งเป็น owner-only (`MYSELF`) เพื่อป้องกันบุคคลอื่นใช้เครดิต API โดยไม่ได้รับอนุญาต เหมาะสำหรับเดโมและนำเสนอภายใต้บัญชีเจ้าของโปรเจกต์
 
 ![ADORA AI Studio desktop preview](docs/preview-desktop.png)
