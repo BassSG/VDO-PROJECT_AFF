@@ -165,6 +165,9 @@
     .top-pill { display: flex; align-items: center; gap: 8px; color: var(--muted); border: 1px solid var(--line); border-radius: 999px; padding: 8px 12px; font-size: 11px; background: rgba(255,255,255,.025); }
 
     .content { width: min(1380px, 100%); min-width: 0; margin: 0 auto; padding: 32px 34px 70px; }
+    .runtime-banner { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 18px; padding: 14px 16px; border: 1px solid rgba(101, 220, 255, .22); border-radius: 16px; background: linear-gradient(110deg, rgba(101, 220, 255, .09), rgba(147, 112, 255, .08)); color: var(--muted); font-size: 11px; line-height: 1.6; }
+    .runtime-banner strong { display: block; color: var(--text); font-size: 12px; }
+    .runtime-banner .btn { flex: 0 0 auto; }
     .view { min-width: 0; animation: fadeUp .32s ease both; }
     @keyframes fadeUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
 
@@ -446,6 +449,8 @@
       .topbar { padding: 0 18px; }
       .top-pill { display: none; }
       .content { padding: 22px 14px 55px; }
+      .runtime-banner { align-items: stretch; flex-direction: column; }
+      .runtime-banner .btn { width: 100%; }
       .hero-main { padding: 25px 20px; min-height: auto; }
       .hero, .hero-side { grid-template-columns: minmax(0, 1fr); }
       .hero-main, .hero-side, .card { min-width: 0; max-width: 100%; }
@@ -539,6 +544,10 @@
       </header>
 
       <div class="content">
+        <div class="runtime-banner" id="runtimeBanner" hidden>
+          <div><strong>GitHub Presentation Preview</strong>หน้านี้ใช้สำหรับดูดีไซน์และทดลอง workflow โดยไม่ใช้เครดิต API หากต้องการสร้างภาพและวิดีโอจริง ให้เปิด Web App บน Google Apps Script</div>
+          <a class="btn btn-primary" href="https://script.google.com/macros/s/AKfycbz0N9eDGVPJRM89kEEfVZxqdGN8e5K1BY1E3LevfV7mCv3jbMdxJsqlx4OpTaNRi8l70g/exec" target="_blank" rel="noopener">เปิด Web App ตัวจริง ↗</a>
+        </div>
         <section class="view" id="view-studio">
           <div class="hero">
             <article class="hero-main">
@@ -748,6 +757,7 @@
   <div class="toast-stack" id="toastStack"></div>
 
   <script>
+    const LIVE_APP_URL = 'https://script.google.com/macros/s/AKfycbz0N9eDGVPJRM89kEEfVZxqdGN8e5K1BY1E3LevfV7mCv3jbMdxJsqlx4OpTaNRi8l70g/exec';
     const state = {
       bootstrap: null,
       step: 1,
@@ -767,6 +777,9 @@
     const $$ = (selector, root = document) => Array.from(root.querySelectorAll(selector));
 
     function server(name, ...args) {
+      if (!hasAppsScriptRuntime()) {
+        return Promise.reject(new Error(`โหมด GitHub Preview ไม่เชื่อมต่อระบบ AI กรุณาเปิด Web App ตัวจริง: ${LIVE_APP_URL}`));
+      }
       return new Promise((resolve, reject) => {
         google.script.run
           .withSuccessHandler(resolve)
@@ -780,12 +793,52 @@
       bindEvents();
       loadDraft();
       updateWizard();
+      if (!hasAppsScriptRuntime()) {
+        state.bootstrap = createPreviewBootstrap();
+        hydrateBootstrap();
+        $('#runtimeBanner').hidden = false;
+        $('#topStatusText').textContent = 'GitHub Preview · ไม่ใช้เครดิต';
+        return;
+      }
       try {
         state.bootstrap = await server('getBootstrapData');
         hydrateBootstrap();
       } catch (error) {
         toast(error.message, 'error');
       }
+    }
+
+    function hasAppsScriptRuntime() {
+      return Boolean(window.google && google.script && google.script.run);
+    }
+
+    function createPreviewBootstrap() {
+      return {
+        app: {
+          name: 'ADORA AI Studio',
+          version: '1.1.0',
+          limits: { maxImageBytes: 5 * 1024 * 1024, maxScenes: 4, sceneDuration: 8, pollInterval: 20 },
+          defaults: {
+            plannerModel: 'google/gemini-3.6-flash',
+            imageModel: 'google/gemini-3.1-flash-image',
+            videoModel: 'google/veo-3.1-fast',
+            shotstackEnv: 'stage',
+          },
+        },
+        settings: {
+          openrouterConfigured: false,
+          shotstackConfigured: false,
+          openrouterMasked: '',
+          shotstackMasked: '',
+          shotstackEnv: 'stage',
+          models: {
+            planner: 'google/gemini-3.6-flash',
+            image: 'google/gemini-3.1-flash-image',
+            video: 'google/veo-3.1-fast',
+          },
+        },
+        campaigns: [],
+      };
     }
 
     function bindEvents() {
