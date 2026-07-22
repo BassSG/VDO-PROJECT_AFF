@@ -438,7 +438,7 @@
     .progress-track span { display: block; width: 0; height: 100%; border-radius: inherit; background: linear-gradient(90deg, var(--violet), var(--lime)); transition: width .65s ease; position: relative; }
     .progress-track span::after { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, transparent, rgba(255,255,255,.35), transparent); transform: translateX(-100%); animation: shine 1.8s linear infinite; }
     @keyframes shine { to { transform: translateX(100%); } }
-    .stage-list { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 18px; }
+    .stage-list { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-top: 18px; }
     .stage { padding: 10px; border: 1px solid var(--line); border-radius: 12px; color: var(--subtle); font-size: 8px; text-align: center; }
     .stage.active { color: var(--lime); border-color: rgba(201,255,99,.25); background: rgba(201,255,99,.04); }
     .stage.done { color: var(--success); }
@@ -453,6 +453,15 @@
     .plan-card + .plan-card { margin-top: 13px; }
     .plan-label { color: var(--lime); font: 700 8px "Manrope", sans-serif; letter-spacing: .12em; text-transform: uppercase; }
     .plan-value { margin-top: 7px; color: var(--text); font-size: 11px; line-height: 1.7; }
+    .qa-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+    .qa-score { font: 800 20px "Manrope", sans-serif; }
+    .qa-score.pass { color: var(--success); }
+    .qa-score.warn { color: var(--warning); }
+    .qa-transcript { margin-top: 10px; padding: 10px 11px; border-radius: 11px; background: rgba(255,255,255,.035); color: var(--muted); font-size: 9px; line-height: 1.65; }
+    .qa-issues { margin-top: 8px; color: #ffc3c9; font-size: 9px; line-height: 1.6; }
+    .cost-ledger { display: grid; gap: 7px; margin-top: 10px; }
+    .cost-ledger-row { display: flex; justify-content: space-between; gap: 12px; color: var(--muted); font-size: 9px; }
+    .cost-ledger-row.total { padding-top: 8px; border-top: 1px solid var(--line); color: var(--text); font-weight: 800; }
     .scene-list { display: grid; gap: 8px; margin-top: 12px; }
     .scene-row { display: grid; grid-template-columns: 34px minmax(0, 1fr) auto; gap: 10px; align-items: center; padding: 10px; border: 1px solid var(--line); border-radius: 12px; background: rgba(255,255,255,.02); }
     .scene-index { width: 34px; height: 34px; border-radius: 10px; display: grid; place-items: center; background: rgba(147,112,255,.1); color: #b9a8ff; font: 700 10px "Manrope", sans-serif; }
@@ -564,7 +573,7 @@
           <div class="api-mini-head"><span>System health</span><span id="systemPct">0/1</span></div>
           <div class="api-row"><span>OpenRouter</span><i class="status-dot" id="openrouterDot"></i></div>
         </div>
-        <div class="sidebar-note">ADORA v<span id="sideVersion">1.5.1</span><br>OpenRouter-only creative pipeline</div>
+        <div class="sidebar-note">ADORA v<span id="sideVersion">1.6.0</span><br>Thai Native Audio + Auto QA</div>
       </div>
     </aside>
 
@@ -595,18 +604,18 @@
             <article class="hero-main">
               <div class="hero-kicker"><span class="spark">✦</span> ONE-BRIEF AI PRODUCTION</div>
               <h1>จากรูปสินค้า สู่<span class="gradient">โฆษณาพร้อมขาย</span><br>ใน Workflow เดียว</h1>
-              <p class="hero-desc">AI วางกลยุทธ์ เขียนบท สร้างพรีเซนเตอร์ สร้างวิดีโอ พากย์เสียง ใส่ซับ และ Export พร้อมใช้งาน — คุณดูแลเพียงสิ่งที่สำคัญที่สุด: แบรนด์ของคุณ</p>
+              <p class="hero-desc">AI วางกลยุทธ์ เขียนบทไทย สร้างพรีเซนเตอร์ และสร้างวิดีโอพร้อม Native Audio ในครั้งเดียว จากนั้น Auto Review จะฟังซ้ำว่าพูดตรงบทก่อนส่งงาน</p>
             </article>
             <aside class="hero-side">
               <div>
                 <div class="stat-label">Estimated production</div>
-                <div class="big-stat"><span>$</span><b id="heroCost">0.45–0.51</b></div>
-                <div class="cost-note" id="heroCostNote">แพ็กเกจประหยัด · 8 วินาที · ก่อน regenerate</div>
+                <div class="big-stat"><span>$</span><b id="heroCost">0.44–0.51</b></div>
+                <div class="cost-note" id="heroCostNote">รวม AI ทุกขั้นตอน · 8 วินาที · ไม่สร้างซ้ำอัตโนมัติ</div>
               </div>
               <div class="flow-mini">
                 <div class="flow-row"><span class="flow-num">01</span><span>รับภาพและวิเคราะห์สินค้า</span></div>
                 <div class="flow-row"><span class="flow-num">02</span><span>สร้าง Creative Plan + Key Visual</span></div>
-                <div class="flow-row"><span class="flow-num">03</span><span>สร้างเสียง วิดีโอ ซับ และไฟล์ MP4</span></div>
+                <div class="flow-row"><span class="flow-num">03</span><span>สร้างวิดีโอพร้อมเสียง ตรวจภาษาไทย และส่งไฟล์ MP4</span></div>
               </div>
             </aside>
           </div>
@@ -703,25 +712,24 @@
                       <button type="button" class="option-card" data-platform="Instagram Reels"><div class="option-title">Reels</div><div class="option-sub">9:16 · Brand discovery</div></button>
                       <button type="button" class="option-card" data-platform="YouTube Shorts"><div class="option-title">Shorts</div><div class="option-sub">9:16 · Reach</div></button>
                     </div>
-                    <div class="field-label" style="margin-top:18px"><span>ความยาววิดีโอ</span><span class="field-hint">Seedance สร้างเป็นคลิปเดียว</span></div>
+                    <div class="field-label" style="margin-top:18px"><span>ความยาววิดีโอ</span><span class="field-hint">Veo สร้างภาพและเสียงพร้อมกัน</span></div>
                     <div class="grid-2" id="durationGrid">
-                      <button type="button" class="option-card selected" data-duration="8"><div class="option-title">8 sec</div><div class="option-sub">เร็ว · เหมาะกับ Hook</div></button>
-                      <button type="button" class="option-card" data-duration="10"><div class="option-title">10 sec</div><div class="option-sub">กระชับ · รีวิวสินค้า</div></button>
-                      <button type="button" class="option-card" data-duration="12"><div class="option-title">12 sec</div><div class="option-sub">ครบทุกแพ็กเกจ</div></button>
-                      <button type="button" class="option-card" data-duration="15"><div class="option-title">15 sec</div><div class="option-sub">สมดุลขึ้นไป · Full ad</div></button>
+                      <button type="button" class="option-card" data-duration="4"><div class="option-title">4 sec</div><div class="option-sub">สั้นมาก · ชื่อสินค้า + Hook</div></button>
+                      <button type="button" class="option-card" data-duration="6"><div class="option-title">6 sec</div><div class="option-sub">กระชับ · หนึ่งประโยคไทย</div></button>
+                      <button type="button" class="option-card selected" data-duration="8"><div class="option-title">8 sec</div><div class="option-sub">แนะนำ · บทพูดครบที่สุด</div></button>
                     </div>
                     <div class="tier-picker">
                       <div class="tier-head"><label class="field-label" for="modelTier" style="margin:0"><span>ชุดคุณภาพ AI</span></label><span class="tier-badge" id="tierBadge">เริ่มต้นที่แนะนำ</span></div>
                       <select class="select" id="modelTier" aria-describedby="tierDescription">
-                        <option value="economy">ประหยัด · เริ่มทดลอง</option>
-                        <option value="balanced">สมดุล · งานมาตรฐาน</option>
-                        <option value="premium">พรีเมียม · ดีที่สุด</option>
+                        <option value="economy">คุ้มค่า · ภาษาไทย</option>
+                        <option value="balanced">สมดุล · เสียงและภาพดีขึ้น</option>
+                        <option value="premium">พรีเมียม · Final production</option>
                       </select>
-                      <div class="tier-description" id="tierDescription">ต้นทุนต่ำ เหมาะสำหรับทดลอง Prompt และตรวจแนวทางงานก่อน</div>
+                      <div class="tier-description" id="tierDescription">ราคาใกล้ของเดิม ใช้ Veo 3.1 Lite พร้อม Native Audio และตรวจเสียงไทยอัตโนมัติ</div>
                       <div class="model-stack" aria-live="polite">
                         <div class="model-row"><span class="model-role">วิเคราะห์</span><span class="model-name" id="tierPlanner">Gemini 2.5 Flash Lite</span></div>
                         <div class="model-row"><span class="model-role">สร้างภาพ</span><span class="model-name" id="tierImage">Nano Banana 2 Lite</span></div>
-                        <div class="model-row"><span class="model-role">สร้างวิดีโอ</span><span class="model-name" id="tierVideo">Seedance 1.5 Pro</span></div>
+                        <div class="model-row"><span class="model-role">วิดีโอ+เสียง</span><span class="model-name" id="tierVideo">Veo 3.1 Lite</span></div>
                       </div>
                     </div>
                     <div class="field" id="customCtaField" style="margin-top:18px" hidden><label class="field-label" for="callToAction"><span>Call to Action</span></label><input class="input" id="callToAction" value="สั่งซื้อเลยวันนี้" placeholder="เช่น กดสั่งซื้อที่ตะกร้าได้เลย"></div>
@@ -735,7 +743,7 @@
                       <div class="summary-row"><span>Duration</span><strong id="sumDuration">8 sec / 1 scene</strong></div>
                       <div class="summary-row"><span>AI package</span><strong id="sumTier">ประหยัด</strong></div>
                     </div>
-                    <div class="cost-box"><div class="stat-label">Estimated OpenRouter cost</div><div class="cost-value" id="sumCost">$0.45–0.51 <small>USD</small></div><div class="cost-breakdown" id="sumCostBreakdown">วิเคราะห์ + ภาพ $0.04–0.10 · Seedance $0.41</div><div class="cost-note">ราคาประมาณก่อน regenerate และอาจเปลี่ยนตามผู้ให้บริการ</div></div>
+                    <div class="cost-box"><div class="stat-label">กดสร้างครั้งนี้ · รวม AI ทุกขั้นตอน</div><div class="cost-value" id="sumCost">$0.44–0.51 <small>USD</small></div><div class="cost-breakdown" id="sumCostBreakdown">วางแผน + ภาพ $0.04–0.11 · Veo พร้อมเสียง $0.40 · Auto QA ≤ $0.001</div><div class="cost-note">Auto Review/Recheck รวมแล้ว แต่ระบบจะไม่สร้างวิดีโอซ้ำและไม่หักเงินรอบใหม่โดยอัตโนมัติ</div></div>
                     <label class="check-row"><input type="checkbox" id="acceptRights"><span>ฉันมีสิทธิ์ใช้รูปบุคคลและรูปสินค้า ข้อมูลโฆษณาเป็นความจริง และยินยอมให้ส่งไฟล์ไปยังผู้ให้บริการ AI/วิดีโอที่ตั้งค่าไว้</span></label>
                   </aside>
                 </div>
@@ -762,7 +770,7 @@
               <article class="card settings-card">
                 <div class="settings-title"><h3>OpenRouter</h3><span class="chip" id="openrouterChip">Not configured</span></div>
                 <div class="field"><label class="field-label" for="openrouterKey"><span>OpenRouter API key</span><span class="field-hint">Required</span></label><input class="input" type="password" id="openrouterKey" autocomplete="new-password" placeholder="sk-or-v1-..."></div>
-                <div class="info-box" style="margin-top:14px"><strong>API key เดียวจบทุกขั้นตอน</strong><br>ใช้สำหรับวิเคราะห์รูป เขียน Creative Plan สร้าง Key Visual และสร้างวิดีโอ Seedance พร้อมเสียง กรุณาตั้ง Budget limit ใน OpenRouter เพื่อควบคุมค่าใช้จ่าย</div>
+                <div class="info-box" style="margin-top:14px"><strong>API key เดียวจบทุกขั้นตอน</strong><br>ใช้วาง Creative Plan สร้าง Key Visual สร้างวิดีโอ Veo พร้อม Native Audio และตรวจเสียงไทยด้วย Whisper กรุณาตั้ง Budget limit ใน OpenRouter เพื่อควบคุมค่าใช้จ่าย</div>
                 <div class="settings-actions"><button class="btn" data-test-api="openrouter">ทดสอบการเชื่อมต่อ</button><button class="btn btn-danger" id="clearOpenrouter">ล้าง Key</button></div>
               </article>
             </div>
@@ -770,11 +778,11 @@
             <aside>
               <article class="card settings-card">
                 <div class="settings-title"><h3>ชุดโมเดลเริ่มต้น</h3><span class="chip">3 ระดับ</span></div>
-                <div class="field"><label class="field-label" for="defaultModelTier"><span>Default AI package</span><span class="field-hint">เปลี่ยนได้ทุกแคมเปญ</span></label><select class="select" id="defaultModelTier"><option value="economy">ประหยัด · เริ่มทดลอง</option><option value="balanced">สมดุล · งานมาตรฐาน</option><option value="premium">พรีเมียม · ดีที่สุด</option></select></div>
+                <div class="field"><label class="field-label" for="defaultModelTier"><span>Default AI package</span><span class="field-hint">เปลี่ยนได้ทุกแคมเปญ</span></label><select class="select" id="defaultModelTier"><option value="economy">คุ้มค่า · ภาษาไทย</option><option value="balanced">สมดุล · เสียงและภาพดีขึ้น</option><option value="premium">พรีเมียม · Final production</option></select></div>
                 <div class="tier-mini-list">
-                  <div class="tier-mini"><strong>ประหยัด</strong><span>Gemini 2.5 Flash Lite · Nano Banana 2 Lite · Seedance 1.5 Pro</span></div>
-                  <div class="tier-mini"><strong>สมดุล</strong><span>Gemini 3.6 Flash · Nano Banana 2 · Seedance 2.0 Fast</span></div>
-                  <div class="tier-mini"><strong>พรีเมียม</strong><span>Claude Sonnet 5 · Nano Banana Pro · Seedance 2.0</span></div>
+                  <div class="tier-mini"><strong>คุ้มค่า</strong><span>Gemini 3.1 Flash Lite · Nano Banana 2 Lite · Veo 3.1 Lite · Whisper QA</span></div>
+                  <div class="tier-mini"><strong>สมดุล</strong><span>Gemini 3.6 Flash · Nano Banana 2 · Veo 3.1 Fast · Whisper QA</span></div>
+                  <div class="tier-mini"><strong>พรีเมียม</strong><span>Claude Sonnet 5 · Nano Banana Pro · Veo 3.1 · Whisper QA</span></div>
                 </div>
               </article>
               <article class="card settings-card">
@@ -801,7 +809,8 @@
           <div class="stage-list">
             <div class="stage" data-stage="planning">Creative Plan</div>
             <div class="stage" data-stage="visual">Key Visual</div>
-            <div class="stage" data-stage="generating">Seedance Video</div>
+            <div class="stage" data-stage="generating">Native Audio Video</div>
+            <div class="stage" data-stage="reviewing">Thai Auto QA</div>
             <div class="stage" data-stage="completed">Final MP4</div>
           </div>
         </div>
@@ -811,6 +820,8 @@
             <div class="plan-card"><div class="plan-label">Campaign concept</div><div class="plan-value" id="planConcept">AI กำลังวิเคราะห์สินค้า จุดขาย และกลุ่มเป้าหมาย...</div></div>
             <div class="plan-card"><div class="plan-label">Hook</div><div class="plan-value" id="planHook">—</div></div>
             <div class="plan-card"><div class="plan-label">Scene production</div><div class="scene-list" id="sceneList"><div class="scene-row"><div class="scene-index">01</div><div><div class="scene-name">รอ Creative Plan</div><div class="scene-copy">ระบบกำลังออกแบบลำดับการเล่าเรื่อง</div></div><span class="scene-state">waiting</span></div></div></div>
+            <div class="plan-card" id="qualityReviewCard" hidden><div class="qa-head"><div class="plan-label">Thai Auto Review</div><div class="qa-score" id="qualityScore">—</div></div><div class="plan-value" id="qualityStatus">กำลังรอตรวจเสียงภาษาไทย</div><div class="qa-transcript" id="qualityTranscript"></div><div class="qa-issues" id="qualityIssues" hidden></div></div>
+            <div class="plan-card" id="actualCostCard"><div class="plan-label">AI cost ledger</div><div class="cost-ledger" id="actualCostLedger"><div class="cost-ledger-row total"><span>ค่าใช้จ่ายที่ OpenRouter รายงาน</span><strong>$0.0000</strong></div></div></div>
             <div class="error-box" id="generationError" hidden></div>
             <div class="final-actions" id="finalActions" hidden></div>
           </div>
@@ -825,28 +836,28 @@
     const LIVE_APP_URL = 'https://script.google.com/macros/s/AKfycbz0N9eDGVPJRM89kEEfVZxqdGN8e5K1BY1E3LevfV7mCv3jbMdxJsqlx4OpTaNRi8l70g/exec';
     const PREVIEW_MODEL_TIERS = [
       {
-        id: 'economy', label: 'ประหยัด · เริ่มทดลอง', shortLabel: 'ประหยัด', badge: 'เริ่มต้นที่แนะนำ',
-        description: 'ต้นทุนต่ำ สร้างคลิปพร้อมเสียงผ่าน OpenRouter เหมาะสำหรับทดลองงาน สูงสุด 12 วินาที',
-        planner: { id: 'google/gemini-2.5-flash-lite', name: 'Gemini 2.5 Flash Lite' },
+        id: 'economy', label: 'คุ้มค่า · ภาษาไทย', shortLabel: 'คุ้มค่า', badge: 'แนะนำสำหรับเริ่มขาย',
+        description: 'ราคาใกล้ Seedance 1.5 แต่ใช้ Veo 3.1 Lite พร้อม Native Audio และตรวจเสียงไทยอัตโนมัติ',
+        planner: { id: 'google/gemini-3.1-flash-lite', name: 'Gemini 3.1 Flash Lite' },
         image: { id: 'google/gemini-3.1-flash-lite-image', name: 'Nano Banana 2 Lite', resolution: '1K' },
-        video: { id: 'bytedance/seedance-1-5-pro', name: 'Seedance 1.5 Pro', pricePerSecond: .05184, resolution: '720p', maxDuration: 12, generateAudio: true },
-        otherMin: .04, otherMax: .10,
+        video: { id: 'google/veo-3.1-lite', name: 'Veo 3.1 Lite', pricePerSecond: .05, resolution: '720p', maxDuration: 8, supportedDurations: [4, 6, 8], generateAudio: true },
+        otherMin: .04, otherMax: .11, qaMax: .001,
       },
       {
-        id: 'balanced', label: 'สมดุล · งานมาตรฐาน', shortLabel: 'สมดุล', badge: 'คุณภาพคุ้มราคา',
-        description: 'สมดุลด้านราคา ความเร็ว และคุณภาพ ใช้ Seedance 2.0 Fast สร้างคลิปเดียวสูงสุด 15 วินาที',
+        id: 'balanced', label: 'สมดุล · เสียงและภาพดีขึ้น', shortLabel: 'สมดุล', badge: 'คุณภาพคุ้มราคา',
+        description: 'ใช้ Veo 3.1 Fast พร้อม Native Audio สำหรับงานลูกค้าที่ต้องการภาพและเสียงนิ่งขึ้น',
         planner: { id: 'google/gemini-3.6-flash', name: 'Gemini 3.6 Flash' },
         image: { id: 'google/gemini-3.1-flash-image', name: 'Nano Banana 2', resolution: '1K' },
-        video: { id: 'bytedance/seedance-2.0-fast', name: 'Seedance 2.0 Fast', pricePerSecond: .12096, resolution: '720p', maxDuration: 15, generateAudio: true },
-        otherMin: .09, otherMax: .20,
+        video: { id: 'google/veo-3.1-fast', name: 'Veo 3.1 Fast', pricePerSecond: .10, resolution: '720p', maxDuration: 8, supportedDurations: [4, 6, 8], generateAudio: true },
+        otherMin: .09, otherMax: .22, qaMax: .001,
       },
       {
-        id: 'premium', label: 'พรีเมียม · ดีที่สุด', shortLabel: 'พรีเมียม', badge: 'Final production',
-        description: 'คุณภาพสูงสุด ใช้ Seedance 2.0 ที่ 1080p พร้อมเสียง สร้างคลิปเดียวสูงสุด 15 วินาที',
+        id: 'premium', label: 'พรีเมียม · Final production', shortLabel: 'พรีเมียม', badge: 'Final production',
+        description: 'ใช้ Veo 3.1 ที่ 1080p พร้อม Native Audio สำหรับงาน Final ที่เน้นบทพูดและคุณภาพภาพสูงสุด',
         planner: { id: 'anthropic/claude-sonnet-5', name: 'Claude Sonnet 5' },
         image: { id: 'google/gemini-3-pro-image', name: 'Nano Banana Pro', resolution: '2K' },
-        video: { id: 'bytedance/seedance-2.0', name: 'Seedance 2.0', pricePerSecond: .3402, resolution: '1080p', maxDuration: 15, generateAudio: true },
-        otherMin: .28, otherMax: .50,
+        video: { id: 'google/veo-3.1', name: 'Veo 3.1', pricePerSecond: .40, resolution: '1080p', maxDuration: 8, supportedDurations: [4, 6, 8], generateAudio: true },
+        otherMin: .28, otherMax: .50, qaMax: .001,
       },
     ];
     const PREVIEW_PROMPT_SETS = [
@@ -939,7 +950,7 @@
     function notifyParentHostReady() {
       try {
         if (window.top !== window) {
-          window.top.postMessage({ type: 'ADORA_APP_READY', release: '1.5.1' }, '*');
+          window.top.postMessage({ type: 'ADORA_APP_READY', release: '1.6.0' }, '*');
         }
       } catch (error) { /* parent communication is optional */ }
     }
@@ -955,7 +966,7 @@
     function buildLiveAppUrl(source) {
       const target = new URL(LIVE_APP_URL);
       target.searchParams.set('source', source || 'github-embed');
-      target.searchParams.set('release', '1.5.1');
+      target.searchParams.set('release', '1.6.0');
       target.searchParams.set('embedded', '1');
       return target.toString();
     }
@@ -1051,12 +1062,12 @@
       return {
         app: {
           name: 'ADORA AI Studio',
-          version: '1.5.1',
-          limits: { maxImageBytes: 5 * 1024 * 1024, maxScenes: 1, allowedDurations: [8, 10, 12, 15], pollInterval: 20 },
+          version: '1.6.0',
+          limits: { maxImageBytes: 5 * 1024 * 1024, maxScenes: 1, allowedDurations: [4, 6, 8], pollInterval: 20 },
           defaults: {
-            plannerModel: 'google/gemini-2.5-flash-lite',
+            plannerModel: 'google/gemini-3.1-flash-lite',
             imageModel: 'google/gemini-3.1-flash-lite-image',
-            videoModel: 'bytedance/seedance-1-5-pro',
+            videoModel: 'google/veo-3.1-lite',
             modelTier: 'economy',
           },
           modelTiers: PREVIEW_MODEL_TIERS,
@@ -1069,7 +1080,7 @@
           models: {
             planner: 'google/gemini-3.6-flash',
             image: 'google/gemini-3.1-flash-image',
-            video: 'bytedance/seedance-2.0-fast',
+            video: 'google/veo-3.1-fast',
           },
         },
         campaigns: [],
@@ -1382,23 +1393,25 @@
       const seconds = Number(state.form.duration || 8);
       const tier = getSelectedTier();
       const video = seconds * Number(tier.video.pricePerSecond || 0);
+      const qaMax = Number(tier.qaMax || .001);
       const min = video + Number(tier.otherMin || 0);
-      const max = video + Number(tier.otherMax || 0);
+      const max = video + Number(tier.otherMax || 0) + qaMax;
       $('#heroCost').textContent = `${min.toFixed(2)}–${max.toFixed(2)}`;
-      $('#heroCostNote').textContent = `แพ็กเกจ${tier.shortLabel} · ${seconds} วินาที · ก่อน regenerate`;
+      $('#heroCostNote').textContent = `รวม AI ทุกขั้นตอน · ${tier.shortLabel} · ${seconds} วินาที · ไม่สร้างซ้ำอัตโนมัติ`;
       $('#sumProduct').textContent = $('#productName').value.trim() || '—';
       const promptSet = getSelectedPromptSet();
       $('#sumStyle').textContent = state.form.promptMode === 'set' && promptSet ? promptSet.label : state.form.style;
       $('#sumPlatform').textContent = state.form.platform;
-      $('#sumDuration').textContent = `${seconds} sec / 1 Seedance clip`;
+      $('#sumDuration').textContent = `${seconds} sec / 1 Native Audio clip`;
       $('#sumTier').textContent = tier.label;
       $('#sumCost').innerHTML = `$${min.toFixed(2)}–${max.toFixed(2)} <small>USD</small>`;
-      $('#sumCostBreakdown').textContent = `วิเคราะห์ + ภาพ $${Number(tier.otherMin).toFixed(2)}–${Number(tier.otherMax).toFixed(2)} · Seedance $${video.toFixed(2)}`;
+      $('#sumCostBreakdown').textContent = `วางแผน + ภาพ $${Number(tier.otherMin).toFixed(2)}–${Number(tier.otherMax).toFixed(2)} · ${tier.video.name} พร้อมเสียง $${video.toFixed(2)} · Auto QA ≤ $${qaMax.toFixed(3)}`;
       $('#tierBadge').textContent = tier.badge;
       $('#tierDescription').textContent = tier.description;
       $('#tierPlanner').textContent = `${tier.planner.name} · ${tier.planner.id}`;
       $('#tierImage').textContent = `${tier.image.name} · ${tier.image.resolution || '1K'}`;
-      $('#tierVideo').textContent = `${tier.video.name} · ${tier.video.resolution || '720p'} · พร้อมเสียง · สูงสุด ${tier.video.maxDuration || 15} วิ · $${Number(tier.video.pricePerSecond).toFixed(3)}/วิ`;
+      $('#tierVideo').textContent = `${tier.video.name} · ${tier.video.resolution || '720p'} · Native Audio · สูงสุด ${tier.video.maxDuration || 8} วิ · $${Number(tier.video.pricePerSecond).toFixed(3)}/วิ`;
+      if (state.step === 4) $('#nextBtn').innerHTML = `✦ สร้างงานนี้ · ประมาณ $${min.toFixed(2)}–${max.toFixed(2)}`;
     }
 
     function getSelectedTier() {
@@ -1410,9 +1423,11 @@
     function syncDurationAvailability() {
       const tier = getSelectedTier();
       const maxDuration = Number(tier.video.maxDuration || 15);
+      const supportedDurations = tier.video.supportedDurations || [4, 6, 8];
       const buttons = $$('.option-card[data-duration]');
       buttons.forEach((button) => {
-        const disabled = Number(button.dataset.duration) > maxDuration;
+        const duration = Number(button.dataset.duration);
+        const disabled = duration > maxDuration || !supportedDurations.includes(duration);
         button.disabled = disabled;
         button.setAttribute('aria-disabled', String(disabled));
         button.title = disabled ? `แพ็กเกจ${tier.shortLabel}รองรับสูงสุด ${maxDuration} วินาที` : '';
@@ -1435,6 +1450,14 @@
         switchView('settings');
         return;
       }
+      const tier = getSelectedTier();
+      const videoCost = Number(payload.duration) * Number(tier.video.pricePerSecond || 0);
+      const estimatedMin = videoCost + Number(tier.otherMin || 0);
+      const estimatedMax = videoCost + Number(tier.otherMax || 0) + Number(tier.qaMax || .001);
+      const confirmed = window.confirm(
+        `ยืนยันสร้างงานนี้ด้วย ${tier.video.name}\n\nค่าใช้จ่ายรวม AI โดยประมาณ $${estimatedMin.toFixed(2)}–$${estimatedMax.toFixed(2)} USD\nรวมวางแผน ภาพ วิดีโอพร้อมเสียง และ Auto QA แล้ว\n\nระบบจะไม่สร้างวิดีโอซ้ำและไม่หักเงินรอบใหม่โดยอัตโนมัติ`
+      );
+      if (!confirmed) return;
       openGeneration({ productName: payload.productName, status: 'planning', progress: 4, statusText: 'กำลังเริ่ม Creative Pipeline' });
       $('#nextBtn').disabled = true;
       try {
@@ -1462,7 +1485,7 @@
     function closeGeneration() {
       $('#generationOverlay').hidden = true;
       document.body.style.overflow = '';
-      if (state.activeCampaign && !['completed','failed'].includes(state.activeCampaign.status)) {
+      if (state.activeCampaign && !['completed','needs_review','failed'].includes(state.activeCampaign.status)) {
         toast('งานยังประมวลผลต่อ คุณเปิดดูได้จากโปรเจกต์ของฉัน');
       }
     }
@@ -1478,9 +1501,10 @@
       renderStages(campaign.status, progress);
 
       const keyVisualPreview = campaign.keyVisualPreviewUrl || campaign.keyVisualUrl || '';
-      if (campaign.status === 'completed' && campaign.finalPreviewUrl) {
+      const outputFinished = ['completed', 'needs_review'].includes(campaign.status);
+      if (outputFinished && campaign.finalPreviewUrl) {
         $('#visualBox').innerHTML = `<iframe src="${escapeAttr(campaign.finalPreviewUrl)}" title="Video preview" allow="autoplay; fullscreen" allowfullscreen></iframe>`;
-      } else if (campaign.status === 'completed' && campaign.finalUrl) {
+      } else if (outputFinished && campaign.finalUrl) {
         $('#visualBox').innerHTML = `<video controls playsinline poster="${escapeAttr(keyVisualPreview)}" src="${escapeAttr(campaign.finalUrl)}"></video>`;
       } else if (keyVisualPreview) {
         $('#visualBox').innerHTML = `<img src="${escapeAttr(keyVisualPreview)}" alt="AI key visual">`;
@@ -1499,6 +1523,8 @@
             <span class="scene-state ${escapeAttr(scene.status || '')}">${escapeHtml(scene.status || 'queued')}</span>
           </div>`).join('');
       }
+      renderQualityReview(campaign.qualityReview);
+      renderActualCost(campaign.costBreakdown, campaign.actualCost);
 
       const actions = $('#finalActions');
       actions.hidden = true;
@@ -1508,9 +1534,14 @@
 
       const downloadUrl = campaign.downloadUrl || campaign.finalUrl || '';
       const watchUrl = campaign.finalPreviewUrl || campaign.finalDriveUrl || '';
-      if (['completed', 'finalizing'].includes(campaign.status) && (downloadUrl || watchUrl)) {
+      if (['completed', 'needs_review', 'finalizing'].includes(campaign.status) && (downloadUrl || watchUrl)) {
         actions.hidden = false;
-        actions.innerHTML = `${campaign.status === 'finalizing' ? '<div class="note" style="width:100%">ไฟล์ MP4 พร้อมดาวน์โหลดแล้ว ส่วนการเล่นบน Google Drive อาจใช้เวลาสักครู่</div>' : ''}${watchUrl ? `<a class="btn" href="${escapeAttr(watchUrl)}" target="_blank" rel="noopener">▶ ดูวิดีโอ</a>` : ''}${downloadUrl ? `<a class="btn btn-primary" href="${escapeAttr(downloadUrl)}" target="_blank" rel="noopener">↓ ดาวน์โหลด MP4</a>` : ''}<a class="btn" href="${escapeAttr(campaign.finalDriveUrl || campaign.folderUrl)}" target="_blank" rel="noopener">เปิดใน Google Drive</a>`;
+        const notice = campaign.status === 'finalizing'
+          ? '<div class="note" style="width:100%">ไฟล์ MP4 พร้อมดาวน์โหลดแล้ว ส่วนการเล่นบน Google Drive อาจใช้เวลาสักครู่</div>'
+          : campaign.status === 'needs_review'
+            ? '<div class="error-box" style="width:100%;margin:0">Auto Review ยังไม่ยืนยันว่าพูดภาษาไทยตรงบท ระบบจึงหยุดโดยไม่สร้างวิดีโอซ้ำและไม่หักเงินรอบใหม่</div>'
+            : '';
+        actions.innerHTML = `${notice}${watchUrl ? `<a class="btn" href="${escapeAttr(watchUrl)}" target="_blank" rel="noopener">▶ ดูวิดีโอ</a>` : ''}${downloadUrl ? `<a class="btn btn-primary" href="${escapeAttr(downloadUrl)}" target="_blank" rel="noopener">↓ ดาวน์โหลด MP4</a>` : ''}<a class="btn" href="${escapeAttr(campaign.finalDriveUrl || campaign.folderUrl)}" target="_blank" rel="noopener">เปิดใน Google Drive</a>`;
       }
       if (campaign.status === 'completed') {
         if (state.lastCompletedToastId !== campaign.id) {
@@ -1519,12 +1550,48 @@
         }
         clearTimeout(state.pollTimer);
       }
+      if (campaign.status === 'needs_review') {
+        if (state.lastReviewToastId !== campaign.id) {
+          toast('วิดีโอเสร็จแล้ว แต่เสียงไทยยังไม่ผ่าน Auto Review', 'error');
+          state.lastReviewToastId = campaign.id;
+        }
+        clearTimeout(state.pollTimer);
+      }
       if (campaign.status === 'failed') clearTimeout(state.pollTimer);
     }
 
+    function renderQualityReview(review) {
+      const card = $('#qualityReviewCard');
+      if (!review) { card.hidden = true; return; }
+      card.hidden = false;
+      const passed = review.status === 'passed';
+      $('#qualityScore').textContent = `${Number(review.score || 0)}%`;
+      $('#qualityScore').className = `qa-score ${passed ? 'pass' : 'warn'}`;
+      $('#qualityStatus').textContent = passed
+        ? `ผ่าน Auto Review${review.autoRechecked ? ' และ Auto Recheck' : ''} · เสียงไทยตรงบทในระดับที่กำหนด`
+        : `ต้องตรวจด้วยคน${review.autoRechecked ? ' · ระบบ Recheck ให้อัตโนมัติแล้ว' : ''}`;
+      $('#qualityTranscript').innerHTML = `<strong>บทที่ต้องพูด:</strong> ${escapeHtml(review.expected || '—')}<br><strong>ระบบได้ยิน:</strong> ${escapeHtml(review.transcript || 'ตรวจไม่พบคำพูด')}`;
+      const issues = review.issues || [];
+      $('#qualityIssues').hidden = !issues.length;
+      $('#qualityIssues').textContent = issues.length ? `ตรวจพบ: ${issues.join(' · ')}` : '';
+    }
+
+    function renderActualCost(costs, actualCost) {
+      costs = costs || {};
+      const rows = [
+        ['วาง Creative Plan', costs.planner],
+        ['สร้าง Key Visual', costs.image],
+        ['วิดีโอพร้อม Native Audio', costs.video],
+        ['Thai Auto Review', costs.speechReview],
+        ['Thai Auto Recheck', costs.speechRecheck],
+      ];
+      $('#actualCostLedger').innerHTML = rows.map(([label, value]) => `<div class="cost-ledger-row"><span>${label}</span><strong>$${Number(value || 0).toFixed(4)}</strong></div>`).join('')
+        + `<div class="cost-ledger-row total"><span>รวมที่ OpenRouter รายงาน</span><strong>$${Number(actualCost || 0).toFixed(4)}</strong></div>`;
+    }
+
     function renderStages(status, progress) {
-      const order = ['planning','visual','generating','completed'];
-      const map = { submitting: 'generating', finalizing: 'generating' };
+      const order = ['planning','visual','generating','reviewing','completed'];
+      const map = { submitting: 'generating', finalizing: 'completed', needs_review: 'completed' };
       const current = map[status] || status;
       const currentIndex = order.indexOf(current);
       $$('.stage').forEach((item, index) => {
@@ -1535,7 +1602,7 @@
 
     function schedulePoll() {
       clearTimeout(state.pollTimer);
-      if (!state.activeCampaign || ['completed','failed'].includes(state.activeCampaign.status)) return;
+      if (!state.activeCampaign || ['completed','needs_review','failed'].includes(state.activeCampaign.status)) return;
       const seconds = state.bootstrap?.app?.limits?.pollInterval || 20;
       state.pollTimer = setTimeout(pollActiveCampaign, seconds * 1000);
     }
@@ -1571,12 +1638,18 @@
         const coverUrl = campaign.keyVisualPreviewUrl || campaign.keyVisualUrl || '';
         const watchUrl = campaign.finalPreviewUrl || campaign.finalDriveUrl || '';
         const downloadUrl = campaign.downloadUrl || campaign.finalUrl || '';
-        const outputReady = ['completed', 'finalizing'].includes(campaign.status) && (watchUrl || downloadUrl);
+        const outputReady = ['completed', 'needs_review', 'finalizing'].includes(campaign.status) && (watchUrl || downloadUrl);
+        const qaTag = campaign.qualityReview
+          ? `<span class="tag">Thai QA ${Number(campaign.qualityReview.score || 0)}%</span>`
+          : '';
+        const costTag = Number(campaign.actualCost || 0) > 0
+          ? `<span class="tag">$${Number(campaign.actualCost).toFixed(4)}</span>`
+          : '';
         const outputActions = outputReady ? `<div class="project-actions">${watchUrl ? `<a class="btn" data-project-action href="${escapeAttr(watchUrl)}" target="_blank" rel="noopener">▶ ดู</a>` : ''}${downloadUrl ? `<a class="btn btn-primary" data-project-action href="${escapeAttr(downloadUrl)}" target="_blank" rel="noopener">↓ ดาวน์โหลด</a>` : ''}</div>` : '';
         return `
           <article class="card project-card" data-campaign-id="${escapeAttr(campaign.id)}">
             <div class="project-cover">${coverUrl ? `<img src="${escapeAttr(coverUrl)}" alt="ภาพปก ${escapeAttr(campaign.productName || '')}">` : '<div class="project-placeholder">✦</div>'}<span class="project-status">${escapeHtml(campaign.status)}</span></div>
-            <div class="project-body"><div class="project-title">${escapeHtml(campaign.productName)}</div><div class="project-meta"><span class="tag">${escapeHtml(campaign.platform || 'Vertical')}</span><span class="tag">${campaign.duration || 8}s</span><span class="tag">${escapeHtml(campaign.modelTierLabel || 'ประหยัด')}</span><span class="tag">${escapeHtml(campaign.promptSetLabel || campaign.style || 'AI Ad')}</span></div><div class="project-progress"><span style="width:${Number(campaign.progress || 0)}%"></span></div>${outputActions}</div>
+            <div class="project-body"><div class="project-title">${escapeHtml(campaign.productName)}</div><div class="project-meta"><span class="tag">${escapeHtml(campaign.platform || 'Vertical')}</span><span class="tag">${campaign.duration || 8}s</span><span class="tag">${escapeHtml(campaign.modelTierLabel || 'คุ้มค่า')}</span><span class="tag">${escapeHtml(campaign.promptSetLabel || campaign.style || 'AI Ad')}</span>${qaTag}${costTag}</div><div class="project-progress"><span style="width:${Number(campaign.progress || 0)}%"></span></div>${outputActions}</div>
           </article>`;
       }).join('');
       $$('[data-campaign-id]', grid).forEach((card) => card.addEventListener('click', () => openExistingCampaign(card.dataset.campaignId)));
