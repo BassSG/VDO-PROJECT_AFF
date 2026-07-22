@@ -295,6 +295,7 @@
     }
     .style-card:hover, .option-card:hover { transform: translateY(-2px); border-color: var(--line-strong); background: rgba(255,255,255,.045); }
     .style-card.selected, .option-card.selected { border-color: rgba(201,255,99,.5); background: linear-gradient(145deg, rgba(201,255,99,.09), rgba(147,112,255,.05)); box-shadow: inset 0 0 0 1px rgba(201,255,99,.05); }
+    .option-card:disabled { opacity: .38; cursor: not-allowed; transform: none; border-color: var(--line); }
     .style-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 13px; }
     .style-icon { width: 38px; height: 38px; display: grid; place-items: center; border-radius: 13px; background: rgba(255,255,255,.05); font-size: 17px; }
     .select-check { width: 20px; height: 20px; display: grid; place-items: center; border: 1px solid var(--line); border-radius: 7px; color: transparent; font-size: 10px; }
@@ -409,7 +410,7 @@
     .progress-track span { display: block; width: 0; height: 100%; border-radius: inherit; background: linear-gradient(90deg, var(--violet), var(--lime)); transition: width .65s ease; position: relative; }
     .progress-track span::after { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, transparent, rgba(255,255,255,.35), transparent); transform: translateX(-100%); animation: shine 1.8s linear infinite; }
     @keyframes shine { to { transform: translateX(100%); } }
-    .stage-list { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-top: 18px; }
+    .stage-list { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 18px; }
     .stage { padding: 10px; border: 1px solid var(--line); border-radius: 12px; color: var(--subtle); font-size: 8px; text-align: center; }
     .stage.active { color: var(--lime); border-color: rgba(201,255,99,.25); background: rgba(201,255,99,.04); }
     .stage.done { color: var(--success); }
@@ -532,11 +533,10 @@
 
       <div class="sidebar-bottom">
         <div class="api-mini">
-          <div class="api-mini-head"><span>System health</span><span id="systemPct">0/2</span></div>
+          <div class="api-mini-head"><span>System health</span><span id="systemPct">0/1</span></div>
           <div class="api-row"><span>OpenRouter</span><i class="status-dot" id="openrouterDot"></i></div>
-          <div class="api-row"><span>Shotstack</span><i class="status-dot" id="shotstackDot"></i></div>
         </div>
-        <div class="sidebar-note">ADORA v<span id="sideVersion">1.1.0</span><br>Built for premium social ads</div>
+        <div class="sidebar-note">ADORA v<span id="sideVersion">1.3.0</span><br>OpenRouter-only creative pipeline</div>
       </div>
     </aside>
 
@@ -572,7 +572,7 @@
             <aside class="hero-side">
               <div>
                 <div class="stat-label">Estimated production</div>
-                <div class="big-stat"><span>$</span><b id="heroCost">0.44–0.50</b></div>
+                <div class="big-stat"><span>$</span><b id="heroCost">0.45–0.51</b></div>
                 <div class="cost-note" id="heroCostNote">แพ็กเกจประหยัด · 8 วินาที · ก่อน regenerate</div>
               </div>
               <div class="flow-mini">
@@ -658,12 +658,12 @@
                       <button type="button" class="option-card" data-platform="Instagram Reels"><div class="option-title">Reels</div><div class="option-sub">9:16 · Brand discovery</div></button>
                       <button type="button" class="option-card" data-platform="YouTube Shorts"><div class="option-title">Shorts</div><div class="option-sub">9:16 · Reach</div></button>
                     </div>
-                    <div class="field-label" style="margin-top:18px"><span>ความยาววิดีโอ</span><span class="field-hint">8 วินาทีต่อ 1 AI scene</span></div>
+                    <div class="field-label" style="margin-top:18px"><span>ความยาววิดีโอ</span><span class="field-hint">Seedance สร้างเป็นคลิปเดียว</span></div>
                     <div class="grid-2" id="durationGrid">
-                      <button type="button" class="option-card selected" data-duration="8"><div class="option-title">8 sec</div><div class="option-sub">1 ฉาก · ไม่ต้องใช้ Shotstack</div></button>
-                      <button type="button" class="option-card" data-duration="16"><div class="option-title">16 sec</div><div class="option-sub">2 ฉาก · ต้องรวมคลิป</div></button>
-                      <button type="button" class="option-card" data-duration="24"><div class="option-title">24 sec</div><div class="option-sub">3 ฉาก · เล่าเรื่องครบขึ้น</div></button>
-                      <button type="button" class="option-card" data-duration="32"><div class="option-title">32 sec</div><div class="option-sub">4 ฉาก · Full campaign</div></button>
+                      <button type="button" class="option-card selected" data-duration="8"><div class="option-title">8 sec</div><div class="option-sub">เร็ว · เหมาะกับ Hook</div></button>
+                      <button type="button" class="option-card" data-duration="10"><div class="option-title">10 sec</div><div class="option-sub">กระชับ · รีวิวสินค้า</div></button>
+                      <button type="button" class="option-card" data-duration="12"><div class="option-title">12 sec</div><div class="option-sub">ครบทุกแพ็กเกจ</div></button>
+                      <button type="button" class="option-card" data-duration="15"><div class="option-title">15 sec</div><div class="option-sub">สมดุลขึ้นไป · Full ad</div></button>
                     </div>
                     <div class="tier-picker">
                       <div class="tier-head"><label class="field-label" for="modelTier" style="margin:0"><span>ชุดคุณภาพ AI</span></label><span class="tier-badge" id="tierBadge">เริ่มต้นที่แนะนำ</span></div>
@@ -676,13 +676,13 @@
                       <div class="model-stack" aria-live="polite">
                         <div class="model-row"><span class="model-role">วิเคราะห์</span><span class="model-name" id="tierPlanner">Gemini 2.5 Flash Lite</span></div>
                         <div class="model-row"><span class="model-role">สร้างภาพ</span><span class="model-name" id="tierImage">Nano Banana 2 Lite</span></div>
-                        <div class="model-row"><span class="model-role">สร้างวิดีโอ</span><span class="model-name" id="tierVideo">Veo 3.1 Lite</span></div>
+                        <div class="model-row"><span class="model-role">สร้างวิดีโอ</span><span class="model-name" id="tierVideo">Seedance 1.5 Pro</span></div>
                       </div>
                     </div>
                     <div class="field" style="margin-top:18px"><label class="field-label" for="callToAction"><span>Call to Action</span></label><input class="input" id="callToAction" value="สั่งซื้อเลยวันนี้" placeholder="เช่น กดสั่งซื้อที่ตะกร้าได้เลย"></div>
                   </div>
                   <aside class="summary-card">
-                    <div class="summary-head"><strong>Campaign summary</strong><span class="chip">9:16 HD</span></div>
+                    <div class="summary-head"><strong>Campaign summary</strong><span class="chip">OpenRouter only</span></div>
                     <div class="summary-list">
                       <div class="summary-row"><span>สินค้า</span><strong id="sumProduct">—</strong></div>
                       <div class="summary-row"><span>Creative style</span><strong id="sumStyle">UGC Review</strong></div>
@@ -690,7 +690,7 @@
                       <div class="summary-row"><span>Duration</span><strong id="sumDuration">8 sec / 1 scene</strong></div>
                       <div class="summary-row"><span>AI package</span><strong id="sumTier">ประหยัด</strong></div>
                     </div>
-                    <div class="cost-box"><div class="stat-label">Estimated API cost</div><div class="cost-value" id="sumCost">$0.44–0.50 <small>USD</small></div><div class="cost-breakdown" id="sumCostBreakdown">วิเคราะห์ + ภาพ $0.04–0.10 · วิดีโอ $0.40</div><div class="cost-note">ราคาประมาณก่อน regenerate และอาจเปลี่ยนตามผู้ให้บริการ</div></div>
+                    <div class="cost-box"><div class="stat-label">Estimated OpenRouter cost</div><div class="cost-value" id="sumCost">$0.45–0.51 <small>USD</small></div><div class="cost-breakdown" id="sumCostBreakdown">วิเคราะห์ + ภาพ $0.04–0.10 · Seedance $0.41</div><div class="cost-note">ราคาประมาณก่อน regenerate และอาจเปลี่ยนตามผู้ให้บริการ</div></div>
                     <label class="check-row"><input type="checkbox" id="acceptRights"><span>ฉันมีสิทธิ์ใช้รูปบุคคลและรูปสินค้า ข้อมูลโฆษณาเป็นความจริง และยินยอมให้ส่งไฟล์ไปยังผู้ให้บริการ AI/วิดีโอที่ตั้งค่าไว้</span></label>
                   </aside>
                 </div>
@@ -711,24 +711,14 @@
         </section>
 
         <section class="view" id="view-settings" hidden>
-          <div class="page-head"><div><h2>ตั้งค่าระบบ</h2><p>API keys ถูกเก็บใน Script Properties ฝั่งเซิร์ฟเวอร์และไม่แสดงใน Browser</p></div><button class="btn btn-primary" id="saveSettingsBtn">บันทึกการตั้งค่า</button></div>
+          <div class="page-head"><div><h2>ตั้งค่าระบบ</h2><p>ใช้ OpenRouter API key เพียงรายการเดียว และเก็บใน Script Properties ฝั่งเซิร์ฟเวอร์</p></div><button class="btn btn-primary" id="saveSettingsBtn">บันทึกการตั้งค่า</button></div>
           <div class="settings-layout">
             <div>
               <article class="card settings-card">
                 <div class="settings-title"><h3>OpenRouter</h3><span class="chip" id="openrouterChip">Not configured</span></div>
                 <div class="field"><label class="field-label" for="openrouterKey"><span>OpenRouter API key</span><span class="field-hint">Required</span></label><input class="input" type="password" id="openrouterKey" autocomplete="new-password" placeholder="sk-or-v1-..."></div>
-                <div class="info-box" style="margin-top:14px">ใช้สำหรับวิเคราะห์รูป เขียน Creative Plan สร้าง Key Visual และสร้างวิดีโอ กรุณาตั้ง Budget limit ใน OpenRouter เพื่อควบคุมค่าใช้จ่าย</div>
+                <div class="info-box" style="margin-top:14px"><strong>API key เดียวจบทุกขั้นตอน</strong><br>ใช้สำหรับวิเคราะห์รูป เขียน Creative Plan สร้าง Key Visual และสร้างวิดีโอ Seedance พร้อมเสียง กรุณาตั้ง Budget limit ใน OpenRouter เพื่อควบคุมค่าใช้จ่าย</div>
                 <div class="settings-actions"><button class="btn" data-test-api="openrouter">ทดสอบการเชื่อมต่อ</button><button class="btn btn-danger" id="clearOpenrouter">ล้าง Key</button></div>
-              </article>
-
-              <article class="card settings-card">
-                <div class="settings-title"><h3>Shotstack</h3><span class="chip" id="shotstackChip">Optional for 8 sec</span></div>
-                <div class="grid-2">
-                  <div class="field"><label class="field-label" for="shotstackKey"><span>Shotstack API key</span><span class="field-hint">Required for 16–32 sec</span></label><input class="input" type="password" id="shotstackKey" autocomplete="new-password" placeholder="ใส่ Stage หรือ Production key"></div>
-                  <div class="field"><label class="field-label" for="shotstackEnv"><span>Environment</span></label><select class="select" id="shotstackEnv"><option value="stage">Stage · มีลายน้ำ / ทดสอบ</option><option value="v1">Production · ไม่มีลายน้ำ</option></select></div>
-                </div>
-                <div class="info-box" style="margin-top:14px">Shotstack รวมหลาย AI scenes เป็น MP4 เดียวและสร้างซับอัตโนมัติ รุ่น Stage เหมาะสำหรับทดสอบ ส่วนงานนำเสนอจริงให้ใช้ Production key และเลือก v1</div>
-                <div class="settings-actions"><button class="btn" data-test-api="shotstack">ทดสอบการเชื่อมต่อ</button><button class="btn btn-danger" id="clearShotstack">ล้าง Key</button></div>
               </article>
             </div>
 
@@ -737,9 +727,9 @@
                 <div class="settings-title"><h3>ชุดโมเดลเริ่มต้น</h3><span class="chip">3 ระดับ</span></div>
                 <div class="field"><label class="field-label" for="defaultModelTier"><span>Default AI package</span><span class="field-hint">เปลี่ยนได้ทุกแคมเปญ</span></label><select class="select" id="defaultModelTier"><option value="economy">ประหยัด · เริ่มทดลอง</option><option value="balanced">สมดุล · งานมาตรฐาน</option><option value="premium">พรีเมียม · ดีที่สุด</option></select></div>
                 <div class="tier-mini-list">
-                  <div class="tier-mini"><strong>ประหยัด</strong><span>Gemini 2.5 Flash Lite · Nano Banana 2 Lite · Veo 3.1 Lite</span></div>
-                  <div class="tier-mini"><strong>สมดุล</strong><span>Gemini 3.6 Flash · Nano Banana 2 · Veo 3.1 Fast</span></div>
-                  <div class="tier-mini"><strong>พรีเมียม</strong><span>Claude Sonnet 5 · Nano Banana Pro · Veo 3.1</span></div>
+                  <div class="tier-mini"><strong>ประหยัด</strong><span>Gemini 2.5 Flash Lite · Nano Banana 2 Lite · Seedance 1.5 Pro</span></div>
+                  <div class="tier-mini"><strong>สมดุล</strong><span>Gemini 3.6 Flash · Nano Banana 2 · Seedance 2.0 Fast</span></div>
+                  <div class="tier-mini"><strong>พรีเมียม</strong><span>Claude Sonnet 5 · Nano Banana Pro · Seedance 2.0</span></div>
                 </div>
               </article>
               <article class="card settings-card">
@@ -766,8 +756,7 @@
           <div class="stage-list">
             <div class="stage" data-stage="planning">Creative Plan</div>
             <div class="stage" data-stage="visual">Key Visual</div>
-            <div class="stage" data-stage="generating">AI Video</div>
-            <div class="stage" data-stage="rendering">Captions & Merge</div>
+            <div class="stage" data-stage="generating">Seedance Video</div>
             <div class="stage" data-stage="completed">Final MP4</div>
           </div>
         </div>
@@ -792,26 +781,26 @@
     const PREVIEW_MODEL_TIERS = [
       {
         id: 'economy', label: 'ประหยัด · เริ่มทดลอง', shortLabel: 'ประหยัด', badge: 'เริ่มต้นที่แนะนำ',
-        description: 'ต้นทุนต่ำ เหมาะสำหรับทดลอง Prompt และตรวจแนวทางงานก่อน',
+        description: 'ต้นทุนต่ำ สร้างคลิปพร้อมเสียงผ่าน OpenRouter เหมาะสำหรับทดลองงาน สูงสุด 12 วินาที',
         planner: { id: 'google/gemini-2.5-flash-lite', name: 'Gemini 2.5 Flash Lite' },
         image: { id: 'google/gemini-3.1-flash-lite-image', name: 'Nano Banana 2 Lite', resolution: '1K' },
-        video: { id: 'google/veo-3.1-lite', name: 'Veo 3.1 Lite', pricePerSecond: .05, resolution: '720p' },
+        video: { id: 'bytedance/seedance-1-5-pro', name: 'Seedance 1.5 Pro', pricePerSecond: .05184, resolution: '720p', maxDuration: 12, generateAudio: true },
         otherMin: .04, otherMax: .10,
       },
       {
         id: 'balanced', label: 'สมดุล · งานมาตรฐาน', shortLabel: 'สมดุล', badge: 'คุณภาพคุ้มราคา',
-        description: 'วิเคราะห์ละเอียดขึ้น ภาพคมขึ้น และวิดีโอคุณภาพสูงสำหรับงานใช้งานจริง',
+        description: 'สมดุลด้านราคา ความเร็ว และคุณภาพ ใช้ Seedance 2.0 Fast สร้างคลิปเดียวสูงสุด 15 วินาที',
         planner: { id: 'google/gemini-3.6-flash', name: 'Gemini 3.6 Flash' },
         image: { id: 'google/gemini-3.1-flash-image', name: 'Nano Banana 2', resolution: '1K' },
-        video: { id: 'google/veo-3.1-fast', name: 'Veo 3.1 Fast', pricePerSecond: .10, resolution: '720p' },
+        video: { id: 'bytedance/seedance-2.0-fast', name: 'Seedance 2.0 Fast', pricePerSecond: .12096, resolution: '720p', maxDuration: 15, generateAudio: true },
         otherMin: .09, otherMax: .20,
       },
       {
         id: 'premium', label: 'พรีเมียม · ดีที่สุด', shortLabel: 'พรีเมียม', badge: 'Final production',
-        description: 'ใช้โมเดลระดับสูงสำหรับวิเคราะห์แบรนด์ ภาพโฆษณา และวิดีโอคุณภาพสูงสุด',
+        description: 'คุณภาพสูงสุด ใช้ Seedance 2.0 ที่ 1080p พร้อมเสียง สร้างคลิปเดียวสูงสุด 15 วินาที',
         planner: { id: 'anthropic/claude-sonnet-5', name: 'Claude Sonnet 5' },
         image: { id: 'google/gemini-3-pro-image', name: 'Nano Banana Pro', resolution: '2K' },
-        video: { id: 'google/veo-3.1', name: 'Veo 3.1', pricePerSecond: .40, resolution: '1080p' },
+        video: { id: 'bytedance/seedance-2.0', name: 'Seedance 2.0', pricePerSecond: .3402, resolution: '1080p', maxDuration: 15, generateAudio: true },
         otherMin: .28, otherMax: .50,
       },
     ];
@@ -874,28 +863,24 @@
       return {
         app: {
           name: 'ADORA AI Studio',
-          version: '1.2.0',
-          limits: { maxImageBytes: 5 * 1024 * 1024, maxScenes: 4, sceneDuration: 8, pollInterval: 20 },
+          version: '1.3.0',
+          limits: { maxImageBytes: 5 * 1024 * 1024, maxScenes: 1, allowedDurations: [8, 10, 12, 15], pollInterval: 20 },
           defaults: {
             plannerModel: 'google/gemini-2.5-flash-lite',
             imageModel: 'google/gemini-3.1-flash-lite-image',
-            videoModel: 'google/veo-3.1-lite',
-            shotstackEnv: 'stage',
+            videoModel: 'bytedance/seedance-1-5-pro',
             modelTier: 'economy',
           },
           modelTiers: PREVIEW_MODEL_TIERS,
         },
         settings: {
           openrouterConfigured: false,
-          shotstackConfigured: false,
           openrouterMasked: '',
-          shotstackMasked: '',
-          shotstackEnv: 'stage',
           defaultModelTier: 'economy',
           models: {
             planner: 'google/gemini-3.6-flash',
             image: 'google/gemini-3.1-flash-image',
-            video: 'google/veo-3.1-fast',
+            video: 'bytedance/seedance-2.0-fast',
           },
         },
         campaigns: [],
@@ -922,9 +907,13 @@
       setupDropZone($('#presenterDrop'), 'presenter');
       $$('.style-card').forEach((button) => button.addEventListener('click', () => selectCard('.style-card', button, 'style', button.dataset.style)));
       $$('.option-card[data-platform]').forEach((button) => button.addEventListener('click', () => selectCard('.option-card[data-platform]', button, 'platform', button.dataset.platform)));
-      $$('.option-card[data-duration]').forEach((button) => button.addEventListener('click', () => selectCard('.option-card[data-duration]', button, 'duration', Number(button.dataset.duration))));
+      $$('.option-card[data-duration]').forEach((button) => button.addEventListener('click', () => {
+        if (button.disabled) return;
+        selectCard('.option-card[data-duration]', button, 'duration', Number(button.dataset.duration));
+      }));
       $('#modelTier').addEventListener('change', (event) => {
         state.form.modelTier = event.target.value;
+        syncDurationAvailability();
         updateSummary();
         saveDraft();
       });
@@ -934,7 +923,6 @@
       $('#saveSettingsBtn').addEventListener('click', saveSettings);
       $$('[data-test-api]').forEach((button) => button.addEventListener('click', () => testApi(button.dataset.testApi, button)));
       $('#clearOpenrouter').addEventListener('click', () => clearKey('openrouter'));
-      $('#clearShotstack').addEventListener('click', () => clearKey('shotstack'));
       $('#closeGeneration').addEventListener('click', closeGeneration);
     }
 
@@ -945,9 +933,8 @@
       state.form.modelTier = state.form.modelTier || settings.defaultModelTier || app.defaults.modelTier || 'economy';
       $('#modelTier').value = state.form.modelTier;
       $('#defaultModelTier').value = settings.defaultModelTier || app.defaults.modelTier || 'economy';
-      $('#shotstackEnv').value = settings.shotstackEnv;
       $('#openrouterKey').placeholder = settings.openrouterMasked || 'sk-or-v1-...';
-      $('#shotstackKey').placeholder = settings.shotstackMasked || 'ใส่ Stage หรือ Production key';
+      syncDurationAvailability();
       renderSettingsStatus(settings);
       renderProjects(campaigns || []);
       updateSummary();
@@ -961,14 +948,11 @@
 
     function renderSettingsStatus(settings) {
       $('#openrouterDot').classList.toggle('ok', settings.openrouterConfigured);
-      $('#shotstackDot').classList.toggle('ok', settings.shotstackConfigured);
       $('#topStatusDot').classList.toggle('ok', settings.openrouterConfigured);
-      $('#systemPct').textContent = `${Number(settings.openrouterConfigured) + Number(settings.shotstackConfigured)}/2`;
+      $('#systemPct').textContent = `${Number(settings.openrouterConfigured)}/1`;
       $('#topStatusText').textContent = settings.openrouterConfigured ? 'พร้อมสร้างแคมเปญ' : 'ต้องตั้งค่า OpenRouter';
       $('#openrouterChip').textContent = settings.openrouterConfigured ? 'Connected' : 'Not configured';
       $('#openrouterChip').classList.toggle('ok', settings.openrouterConfigured);
-      $('#shotstackChip').textContent = settings.shotstackConfigured ? `Connected · ${settings.shotstackEnv}` : 'Optional for 8 sec';
-      $('#shotstackChip').classList.toggle('ok', settings.shotstackConfigured);
     }
 
     function switchView(view) {
@@ -1089,32 +1073,48 @@
 
     function updateSummary() {
       const seconds = Number(state.form.duration || 8);
-      const scenes = Math.ceil(seconds / 8);
       const tier = getSelectedTier();
       const video = seconds * Number(tier.video.pricePerSecond || 0);
-      const shotstack = seconds > 8 ? seconds * .005 : 0;
-      const min = video + Number(tier.otherMin || 0) + shotstack;
-      const max = video + Number(tier.otherMax || 0) + shotstack;
+      const min = video + Number(tier.otherMin || 0);
+      const max = video + Number(tier.otherMax || 0);
       $('#heroCost').textContent = `${min.toFixed(2)}–${max.toFixed(2)}`;
       $('#heroCostNote').textContent = `แพ็กเกจ${tier.shortLabel} · ${seconds} วินาที · ก่อน regenerate`;
       $('#sumProduct').textContent = $('#productName').value.trim() || '—';
       $('#sumStyle').textContent = state.form.style;
       $('#sumPlatform').textContent = state.form.platform;
-      $('#sumDuration').textContent = `${seconds} sec / ${scenes} scene${scenes > 1 ? 's' : ''}`;
+      $('#sumDuration').textContent = `${seconds} sec / 1 Seedance clip`;
       $('#sumTier').textContent = tier.label;
       $('#sumCost').innerHTML = `$${min.toFixed(2)}–${max.toFixed(2)} <small>USD</small>`;
-      $('#sumCostBreakdown').textContent = `วิเคราะห์ + ภาพ $${Number(tier.otherMin).toFixed(2)}–${Number(tier.otherMax).toFixed(2)} · วิดีโอ $${video.toFixed(2)}${shotstack ? ` · Shotstack $${shotstack.toFixed(2)}` : ''}`;
+      $('#sumCostBreakdown').textContent = `วิเคราะห์ + ภาพ $${Number(tier.otherMin).toFixed(2)}–${Number(tier.otherMax).toFixed(2)} · Seedance $${video.toFixed(2)}`;
       $('#tierBadge').textContent = tier.badge;
       $('#tierDescription').textContent = tier.description;
       $('#tierPlanner').textContent = `${tier.planner.name} · ${tier.planner.id}`;
       $('#tierImage').textContent = `${tier.image.name} · ${tier.image.resolution || '1K'}`;
-      $('#tierVideo').textContent = `${tier.video.name} · ${tier.video.resolution || '720p'} · $${Number(tier.video.pricePerSecond).toFixed(2)}/วินาที`;
+      $('#tierVideo').textContent = `${tier.video.name} · ${tier.video.resolution || '720p'} · พร้อมเสียง · สูงสุด ${tier.video.maxDuration || 15} วิ · $${Number(tier.video.pricePerSecond).toFixed(3)}/วิ`;
     }
 
     function getSelectedTier() {
       const tiers = state.bootstrap?.app?.modelTiers || PREVIEW_MODEL_TIERS;
       const id = state.form.modelTier || $('#modelTier')?.value || 'economy';
       return tiers.find((tier) => tier.id === id) || tiers[0] || PREVIEW_MODEL_TIERS[0];
+    }
+
+    function syncDurationAvailability() {
+      const tier = getSelectedTier();
+      const maxDuration = Number(tier.video.maxDuration || 15);
+      const buttons = $$('.option-card[data-duration]');
+      buttons.forEach((button) => {
+        const disabled = Number(button.dataset.duration) > maxDuration;
+        button.disabled = disabled;
+        button.setAttribute('aria-disabled', String(disabled));
+        button.title = disabled ? `แพ็กเกจ${tier.shortLabel}รองรับสูงสุด ${maxDuration} วินาที` : '';
+      });
+      if (Number(state.form.duration) > maxDuration) {
+        const fallback = buttons
+          .filter((button) => !button.disabled)
+          .sort((a, b) => Number(b.dataset.duration) - Number(a.dataset.duration))[0];
+        if (fallback) selectCard('.option-card[data-duration]', fallback, 'duration', Number(fallback.dataset.duration));
+      }
     }
 
     async function startGeneration() {
@@ -1127,10 +1127,6 @@
         switchView('settings');
         return;
       }
-      if (payload.duration > 8 && !state.bootstrap?.settings?.shotstackConfigured) {
-        toast('ยังไม่มี Shotstack key: ระบบจะสร้างทุกฉากให้ แต่จะรอ Key ก่อนรวมเป็น MP4 เดียว', 'error');
-      }
-
       openGeneration({ productName: payload.productName, status: 'planning', progress: 4, statusText: 'กำลังเริ่ม Creative Pipeline' });
       $('#nextBtn').disabled = true;
       try {
@@ -1199,12 +1195,6 @@
       $('#generationError').hidden = !campaign.error;
       if (campaign.error) $('#generationError').textContent = campaign.error;
 
-      if (campaign.status === 'needs_render_key') {
-        actions.hidden = false;
-        actions.innerHTML = '<button class="btn btn-primary" id="resumeRenderBtn">ใส่ Key แล้วรวมเป็น MP4</button><button class="btn" id="openSettingsFromGen">เปิด Settings</button>';
-        $('#resumeRenderBtn').addEventListener('click', resumeRender);
-        $('#openSettingsFromGen').addEventListener('click', () => { closeGeneration(); switchView('settings'); });
-      }
       if (campaign.status === 'completed') {
         actions.hidden = false;
         actions.innerHTML = `${campaign.finalUrl ? `<a class="btn btn-primary" href="${escapeAttr(campaign.finalUrl)}" target="_blank" rel="noopener">↓ ดาวน์โหลด MP4</a>` : ''}<a class="btn" href="${escapeAttr(campaign.finalDriveUrl || campaign.folderUrl)}" target="_blank" rel="noopener">เปิดใน Google Drive</a>`;
@@ -1215,8 +1205,8 @@
     }
 
     function renderStages(status, progress) {
-      const order = ['planning','visual','generating','rendering','completed'];
-      const map = { submitting: 'generating', needs_render_key: 'rendering' };
+      const order = ['planning','visual','generating','completed'];
+      const map = { submitting: 'generating' };
       const current = map[status] || status;
       const currentIndex = order.indexOf(current);
       $$('.stage').forEach((item, index) => {
@@ -1227,7 +1217,7 @@
 
     function schedulePoll() {
       clearTimeout(state.pollTimer);
-      if (!state.activeCampaign || ['completed','failed','needs_render_key'].includes(state.activeCampaign.status)) return;
+      if (!state.activeCampaign || ['completed','failed'].includes(state.activeCampaign.status)) return;
       const seconds = state.bootstrap?.app?.limits?.pollInterval || 20;
       state.pollTimer = setTimeout(pollActiveCampaign, seconds * 1000);
     }
@@ -1244,15 +1234,6 @@
         toast(error.message, 'error');
         state.pollTimer = setTimeout(pollActiveCampaign, 30000);
       }
-    }
-
-    async function resumeRender() {
-      try {
-        const campaign = await server('resumeRender', state.activeCampaign.id);
-        state.activeCampaign = campaign;
-        renderCampaign(campaign);
-        schedulePoll();
-      } catch (error) { toast(error.message, 'error'); }
     }
 
     function updateCampaignInList(campaign) {
@@ -1293,15 +1274,11 @@
       try {
         const settings = await server('saveApiSettings', {
           openrouterKey: $('#openrouterKey').value.trim(),
-          shotstackKey: $('#shotstackKey').value.trim(),
-          shotstackEnv: $('#shotstackEnv').value,
           modelTier: $('#defaultModelTier').value,
         });
         state.bootstrap.settings = settings;
         $('#openrouterKey').value = '';
-        $('#shotstackKey').value = '';
         $('#openrouterKey').placeholder = settings.openrouterMasked || 'sk-or-v1-...';
-        $('#shotstackKey').placeholder = settings.shotstackMasked || 'ใส่ Stage หรือ Production key';
         renderSettingsStatus(settings);
         toast('บันทึกการตั้งค่าแล้ว', 'success');
       } catch (error) { toast(error.message, 'error'); }
@@ -1310,7 +1287,7 @@
 
     async function clearKey(type) {
       try {
-        const settings = await server('saveApiSettings', type === 'openrouter' ? { clearOpenrouterKey: true } : { clearShotstackKey: true });
+        const settings = await server('saveApiSettings', { clearOpenrouterKey: true });
         state.bootstrap.settings = settings;
         renderSettingsStatus(settings);
         toast('ล้าง API key แล้ว', 'success');
@@ -1322,7 +1299,7 @@
       const original = button.textContent;
       button.textContent = 'กำลังทดสอบ...';
       try {
-        if ((serviceName === 'openrouter' && $('#openrouterKey').value) || (serviceName === 'shotstack' && $('#shotstackKey').value)) {
+        if (serviceName === 'openrouter' && $('#openrouterKey').value) {
           await saveSettings();
         }
         const result = await server('testApiConnection', serviceName);
