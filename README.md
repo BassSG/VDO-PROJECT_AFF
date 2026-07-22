@@ -3,9 +3,9 @@
 เว็บแอปสร้างวิดีโอโฆษณาแนวตั้งแบบครบขั้นตอนบน Google Apps Script โดยใช้ **OpenRouter API key เพียงรายการเดียว** ตั้งแต่วิเคราะห์รูป วาง Creative Plan สร้าง Key Visual จนถึงสร้างวิดีโอ Seedance พร้อมเสียง
 
 - Web App: https://script.google.com/macros/s/AKfycbz0N9eDGVPJRM89kEEfVZxqdGN8e5K1BY1E3LevfV7mCv3jbMdxJsqlx4OpTaNRi8l70g/exec
-- GitHub Pages preview: https://basssg.github.io/VDO-PROJECT_AFF/
+- GitHub Pages application gateway: https://basssg.github.io/VDO-PROJECT_AFF/
 
-> GitHub Pages เป็นหน้าพรีวิว UI เท่านั้น งาน AI จริงทำงานบน Google Apps Script Web App
+GitHub Pages จะส่งผู้ใช้ไปยัง Google Apps Script Web App ตัวจริงโดยอัตโนมัติ จึงไม่พบข้อความว่า Preview เชื่อมต่อ AI ไม่ได้อีก หากต้องการเปิดหน้าออกแบบแบบไม่ redirect ให้ใช้ `?preview=1`
 
 ## Workflow
 
