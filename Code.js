@@ -9,7 +9,7 @@
  */
 const APP_CONFIG = {
   APP_NAME: 'ADORA AI Studio',
-  VERSION: '1.6.0',
+  VERSION: '1.7.0',
 
   API_KEYS: {
     // Recommended: leave blank and save the key from the in-app Settings page.
@@ -78,6 +78,8 @@ const APP_CONFIG = {
     MAX_IMAGE_BYTES: 5 * 1024 * 1024,
     MIN_VIDEO_BYTES: 100 * 1024,
     DRIVE_PREVIEW_DELAY_SECONDS: 75,
+    PLAYBACK_CHUNK_BYTES: 2 * 1024 * 1024,
+    MAX_BROWSER_PLAYBACK_BYTES: 40 * 1024 * 1024,
     SPEECH_REVIEW_PASS_SCORE: 0.76,
     SPEECH_REVIEW_MODELS: ['openai/whisper-large-v3', 'openai/whisper-large-v3-turbo'],
     SPEECH_BUDGET_CHARS: { 4: 32, 6: 48, 8: 64 },
@@ -228,7 +230,7 @@ function testApiConnection(service) {
 
 /**
  * Starts the full asynchronous workflow:
- * plan -> key visual -> submit one OpenRouter native-audio video -> Thai speech QA.
+ * plan -> key visual -> explicit paid-video approval -> native-audio video -> Thai speech QA.
  * The browser continues with pollCampaign() until a final MP4 is ready.
  */
 function startCampaign(payload) {
@@ -312,29 +314,27 @@ function startCampaign(payload) {
     record.keyVisualFileId = keyVisualFile.getId();
     record.keyVisualUrl = keyVisualDirectUrl;
     record.keyVisualDriveUrl = keyVisualFile.getUrl();
-    record.progress = 42;
-    record.status = 'submitting';
-    record.statusText = `กำลังส่ง ${modelTier.video.name} ${payload.duration} วินาที พร้อมเสียงเข้าคิว OpenRouter`;
-    saveCampaign_(record);
-
     const scenePlan = plan.scenes[0];
-    const job = submitVideo_(payload, plan, scenePlan, keyVisualDirectUrl, modelTier);
-    const scenes = [{
+    record.videoRequest = {
+      productName: payload.productName,
+      duration: payload.duration,
+      promptMode: payload.promptMode,
+      customPrompt: payload.customPrompt,
+      promptInstruction: payload.promptInstruction,
+    };
+    record.videoApprovalRequired = true;
+    record.scenes = [{
       index: 1,
       title: scenePlan.title || 'Full advertisement',
       voiceover: scenePlan.voiceover || '',
       overlay: scenePlan.overlay || '',
       duration: payload.duration,
-      jobId: job.id,
-      pollingUrl: job.polling_url || `${APP_CONFIG.API.OPENROUTER_BASE_URL}/videos/${job.id}`,
-      status: job.status || 'pending',
+      status: 'awaiting_approval',
       cost: 0,
     }];
-
-    record.scenes = scenes;
-    record.status = 'generating';
-    record.progress = 50;
-    record.statusText = `${modelTier.video.name} กำลังสร้างวิดีโอและเสียงพูดพร้อมกัน ${payload.duration} วินาที`;
+    record.status = 'awaiting_video_approval';
+    record.progress = 45;
+    record.statusText = `ตรวจ Key Visual และบทพูดก่อนยืนยันค่าวิดีโอ $${Number(record.estimatedCost.video || 0).toFixed(2)} USD`;
     saveCampaign_(record);
     return publicCampaign_(record);
   } catch (error) {
@@ -350,11 +350,75 @@ function startCampaign(payload) {
   }
 }
 
+/**
+ * Starts the only high-cost step after the user has inspected the generated
+ * first frame, exact Thai script, and confirmed that no minor is depicted.
+ * The lock and status check make double taps idempotent.
+ */
+function approveCampaignVideo(campaignId, adultConfirmed) {
+  if (adultConfirmed !== true) {
+    throw new Error('กรุณายืนยันว่าบุคคลในภาพเป็นผู้ใหญ่อายุ 18 ปีขึ้นไป หรือภาพไม่มีเด็ก/เยาวชน');
+  }
+  const lock = LockService.getScriptLock();
+  lock.waitLock(30000);
+  let record;
+  try {
+    record = getCampaignRecord_(campaignId);
+    if (!record) throw new Error('ไม่พบแคมเปญนี้');
+    if (record.status !== 'awaiting_video_approval') return publicCampaign_(record);
+
+    const modelTier = getModelTier_(record.modelTier);
+    const payload = record.videoRequest || {};
+    const scenePlan = record.plan && record.plan.scenes ? record.plan.scenes[0] : null;
+    if (!scenePlan || !record.keyVisualFileId) throw new Error('ข้อมูล Key Visual หรือบทวิดีโอไม่ครบ');
+
+    record.status = 'submitting';
+    record.progress = 48;
+    record.videoApprovedAt = new Date().toISOString();
+    record.adultConfirmedAt = record.videoApprovedAt;
+    record.error = '';
+    record.statusText = `กำลังส่ง ${modelTier.video.name} ${record.duration} วินาที พร้อมเสียงเข้าคิว OpenRouter`;
+    saveCampaign_(record);
+
+    const keyVisualDirectUrl = driveDirectUrl_(record.keyVisualFileId);
+    const job = submitVideo_(payload, record.plan, scenePlan, keyVisualDirectUrl, modelTier);
+    record.scenes = [{
+      index: 1,
+      title: scenePlan.title || 'Full advertisement',
+      voiceover: scenePlan.voiceover || '',
+      overlay: scenePlan.overlay || '',
+      duration: record.duration,
+      jobId: job.id,
+      pollingUrl: job.polling_url || `${APP_CONFIG.API.OPENROUTER_BASE_URL}/videos/${job.id}`,
+      status: job.status || 'pending',
+      cost: 0,
+    }];
+    record.status = 'generating';
+    record.progress = 50;
+    record.statusText = `${modelTier.video.name} กำลังสร้างวิดีโอและเสียงพูดพร้อมกัน ${record.duration} วินาที`;
+    saveCampaign_(record);
+    return publicCampaign_(record);
+  } catch (error) {
+    if (record) {
+      record.status = 'video_submission_failed';
+      record.error = cleanError_(error);
+      record.statusText = 'หยุดการส่งซ้ำอัตโนมัติ · ยังไม่ได้รับรหัสงานวิดีโอ กรุณาตรวจ OpenRouter Usage ก่อนลองใหม่';
+      saveCampaign_(record);
+      return publicCampaign_(record);
+    }
+    throw new Error(cleanError_(error));
+  } finally {
+    lock.releaseLock();
+  }
+}
+
 /** Polls providers and advances the workflow without blocking Apps Script. */
 function pollCampaign(campaignId) {
   const record = getCampaignRecord_(campaignId);
   if (!record) throw new Error('ไม่พบแคมเปญนี้');
-  if (['completed', 'needs_review', 'failed'].indexOf(record.status) >= 0) return publicCampaign_(record);
+  if (['completed', 'needs_review', 'failed', 'awaiting_video_approval', 'video_submission_failed'].indexOf(record.status) >= 0) {
+    return publicCampaign_(record);
+  }
 
   try {
     if (['generating', 'submitting', 'reviewing', 'finalizing'].indexOf(record.status) >= 0) {
@@ -363,19 +427,98 @@ function pollCampaign(campaignId) {
     saveCampaign_(record);
     return publicCampaign_(record);
   } catch (error) {
-    record.status = 'failed';
-    record.error = cleanError_(error);
-    record.statusText = 'ระบบหยุดทำงานเนื่องจากเกิดข้อผิดพลาด';
+    if (!preservePaidVideoOutput_(record, error)) {
+      record.status = 'failed';
+      record.error = cleanError_(error);
+      record.statusText = 'ระบบหยุดทำงานและจะไม่ส่งงานซ้ำอัตโนมัติ';
+    }
     saveCampaign_(record);
     return publicCampaign_(record);
   }
 }
 
+/**
+ * A QA, Drive-preview, or post-processing error must never hide a video that
+ * has already been generated and stored. Expose the verified scene file as a
+ * review-required output without submitting another paid generation.
+ */
+function preservePaidVideoOutput_(record, error) {
+  if (!record || !Array.isArray(record.scenes)) return false;
+  const scene = record.scenes.find((item) => item && item.fileId);
+  if (!scene) return false;
+
+  record.finalFileId = scene.fileId;
+  record.finalUrl = scene.publicUrl || driveDirectUrl_(scene.fileId);
+  record.finalPreviewUrl = scene.previewUrl || drivePreviewUrl_(scene.fileId);
+  record.finalDriveUrl = scene.driveUrl || '';
+  record.finalFileSize = Number(scene.fileSize || record.finalFileSize || 0);
+  record.finalMimeType = scene.mimeType || record.finalMimeType || 'video/mp4';
+  record.outputVerifiedAt = record.outputVerifiedAt || new Date().toISOString();
+  record.status = 'needs_review';
+  record.progress = 100;
+  record.error = `วิดีโอถูกเก็บไว้แล้ว แต่ขั้นตรวจหลังสร้างมีปัญหา: ${cleanError_(error)}`;
+  record.statusText = 'กู้ไฟล์วิดีโอที่สร้างแล้วสำเร็จ · เปิดและดาวน์โหลดได้ โดยระบบไม่สร้างซ้ำและไม่คิดเงินเพิ่ม';
+  record.completedAt = record.completedAt || new Date().toISOString();
+  if (!record.qualityReview) {
+    record.qualityReview = {
+      status: 'needs_review',
+      score: 0,
+      expected: scene.voiceover || '',
+      transcript: '',
+      autoRechecked: false,
+      issues: ['ขั้น Auto Review ไม่สำเร็จ กรุณาตรวจเสียงและภาพด้วยคน'],
+      reviewError: cleanError_(error),
+      reviewCost: 0,
+      recheckCost: 0,
+    };
+  }
+  scene.status = 'completed';
+  scene.qualityReview = scene.qualityReview || record.qualityReview;
+  return true;
+}
+
 function getCampaign(campaignId) {
   const record = getCampaignRecord_(campaignId);
   if (!record) throw new Error('ไม่พบแคมเปญนี้');
-  if (refreshCampaignOutputMetadata_(record)) saveCampaign_(record);
+  const outputChanged = refreshCampaignOutputMetadata_(record);
+  const qualityChanged = refreshStoredQualityReview_(record);
+  if (outputChanged || qualityChanged) saveCampaign_(record);
   return publicCampaign_(record);
+}
+
+/**
+ * Returns a bounded chunk of the verified Drive file. The browser assembles
+ * the chunks into a Blob URL, avoiding Google Drive's delayed preview encoder
+ * and attachment response that cannot be used as an HTML video source.
+ */
+function getCampaignVideoChunk(campaignId, requestedOffset) {
+  const record = getCampaignRecord_(campaignId);
+  if (!record || !record.finalFileId) throw new Error('ยังไม่พบไฟล์วิดีโอของแคมเปญนี้');
+  if (['completed', 'needs_review', 'finalizing'].indexOf(record.status) < 0) {
+    throw new Error('ไฟล์วิดีโอยังไม่พร้อมส่งไปยัง Browser');
+  }
+
+  const file = DriveApp.getFileById(record.finalFileId);
+  const blob = file.getBlob();
+  const bytes = blob.getBytes();
+  const totalSize = bytes.length;
+  if (totalSize > APP_CONFIG.WORKFLOW.MAX_BROWSER_PLAYBACK_BYTES) {
+    throw new Error(`ไฟล์มีขนาด ${Math.round(totalSize / 1048576)} MB ซึ่งใหญ่เกินโหมดเล่นทันที กรุณาใช้ปุ่มดาวน์โหลด MP4`);
+  }
+  const offset = Math.max(0, Math.min(Number(requestedOffset) || 0, totalSize));
+  const end = Math.min(offset + APP_CONFIG.WORKFLOW.PLAYBACK_CHUNK_BYTES, totalSize);
+  const chunk = bytes.slice(offset, end);
+  const metadata = offset === 0 ? validateMp4Bytes_(bytes, blob.getContentType()) : null;
+  return {
+    base64: Utilities.base64Encode(chunk),
+    offset,
+    nextOffset: end,
+    done: end >= totalSize,
+    totalSize,
+    mimeType: 'video/mp4',
+    fileName: `${safeFileName_(record.productName)}.mp4`,
+    codecs: metadata ? metadata.codecs : null,
+  };
 }
 
 function refreshCampaignOutputMetadata_(record) {
@@ -716,6 +859,16 @@ function submitVideo_(payload, plan, scene, keyVisualUrl, modelTier) {
       image_url: { url: keyVisualUrl },
       frame_type: 'first_frame',
     }],
+    provider: {
+      options: {
+        'google-vertex': {
+          parameters: {
+            personGeneration: 'allow_adult',
+            negativePrompt: 'children, minors, teenagers, school uniforms, youthful-looking presenter',
+          },
+        },
+      },
+    },
   });
 }
 
@@ -807,6 +960,34 @@ function validateMp4Bytes_(bytes, contentType) {
     const type = String(contentType || 'unknown');
     throw new Error(`ไฟล์ที่ provider ส่งกลับมาไม่ใช่ MP4 ที่สมบูรณ์ (Content-Type: ${type})`);
   }
+  const codecs = findMp4SampleEntryTypes_(bytes);
+  if (codecs.indexOf('avc1') < 0 && codecs.indexOf('avc3') < 0) {
+    throw new Error(`MP4 ใช้ Video codec ที่ Browser มือถือไม่รองรับ (${codecs.join(', ') || 'unknown'})`);
+  }
+  if (codecs.indexOf('mp4a') < 0) {
+    throw new Error(`MP4 ไม่มีเสียง AAC ที่ Browser มือถือรองรับ (${codecs.join(', ') || 'unknown'})`);
+  }
+  return { size, codecs };
+}
+
+function findMp4SampleEntryTypes_(bytes) {
+  const result = [];
+  for (let typeOffset = 4; typeOffset + 20 < bytes.length; typeOffset += 1) {
+    if ((bytes[typeOffset] & 255) !== 115
+      || (bytes[typeOffset + 1] & 255) !== 116
+      || (bytes[typeOffset + 2] & 255) !== 115
+      || (bytes[typeOffset + 3] & 255) !== 100) continue;
+    const boxStart = typeOffset - 4;
+    const boxSize = readUint32_(bytes, boxStart);
+    if (boxSize < 24 || boxStart + boxSize > bytes.length) continue;
+    const entryCount = readUint32_(bytes, boxStart + 12);
+    if (entryCount < 1) continue;
+    const entrySize = readUint32_(bytes, boxStart + 16);
+    if (entrySize < 8 || boxStart + 16 + entrySize > bytes.length) continue;
+    const entryType = readAtomType_(bytes, boxStart + 20);
+    if (result.indexOf(entryType) < 0) result.push(entryType);
+  }
+  return result;
 }
 
 function readUint32_(bytes, offset) {
@@ -899,9 +1080,13 @@ function scoreSpeechTranscript_(expected, transcript, productName) {
   const thaiCount = (transcriptNormalized.match(/[ก-๙]/g) || []).length;
   const thaiRatio = transcriptNormalized.length ? thaiCount / transcriptNormalized.length : 0;
   const productNormalized = normalizeSpeechText_(productName);
-  const productPresent = !productNormalized
-    || transcriptNormalized.indexOf(productNormalized) >= 0
-    || diceSimilarity_(productNormalized, transcriptNormalized) >= 0.35;
+  // A product-name check is valid only when the approved script actually asks
+  // the presenter to say that exact name. Older logic required the campaign
+  // title even when the script used a generic product description, producing
+  // false failures such as a 94% transcript match marked as needs_review.
+  const productRequired = Boolean(productNormalized && expectedNormalized.indexOf(productNormalized) >= 0);
+  const productPresent = !productRequired
+    || containsFuzzyPhrase_(transcriptNormalized, productNormalized, 0.75);
   const needsThai = /[ก-๙]/.test(expectedNormalized);
   const passed = Boolean(
     transcriptNormalized
@@ -913,8 +1098,47 @@ function scoreSpeechTranscript_(expected, transcript, productName) {
   if (!transcriptNormalized) issues.push('ตรวจไม่พบคำพูดในวิดีโอ');
   if (transcriptNormalized && score < APP_CONFIG.WORKFLOW.SPEECH_REVIEW_PASS_SCORE) issues.push('คำพูดไม่ครบหรือไม่ตรงกับบทที่กำหนด');
   if (needsThai && transcriptNormalized && thaiRatio < 0.55) issues.push('สัดส่วนภาษาไทยในเสียงต่ำกว่ามาตรฐาน');
-  if (!productPresent) issues.push('ตรวจไม่พบชื่อสินค้าอย่างชัดเจน');
-  return { score, thaiRatio, productPresent, passed, issues };
+  if (productRequired && !productPresent) issues.push('ตรวจไม่พบชื่อสินค้าที่กำหนดไว้ในบทพูด');
+  return { score, thaiRatio, productRequired, productPresent, passed, issues };
+}
+
+/** Re-evaluates stored transcripts without another paid transcription call. */
+function refreshStoredQualityReview_(record) {
+  if (!record || !record.qualityReview || !record.qualityReview.expected || !record.qualityReview.transcript) return false;
+  const review = record.qualityReview;
+  const metrics = scoreSpeechTranscript_(review.expected, review.transcript, record.productName);
+  const desiredStatus = metrics.passed ? 'passed' : 'needs_review';
+  const desiredScore = Math.round(metrics.score * 100);
+  const desiredThaiRatio = Math.round(metrics.thaiRatio * 100);
+  const reviewChanged = review.status !== desiredStatus
+    || Number(review.score || 0) !== desiredScore
+    || Number(review.thaiRatio || 0) !== desiredThaiRatio
+    || JSON.stringify(review.issues || []) !== JSON.stringify(metrics.issues);
+  const shouldPromote = record.status === 'needs_review' && metrics.passed;
+  if (!reviewChanged && !shouldPromote) return false;
+
+  review.status = desiredStatus;
+  review.score = desiredScore;
+  review.thaiRatio = desiredThaiRatio;
+  review.issues = metrics.issues;
+  review.reassessedAt = new Date().toISOString();
+  review.reassessedWithoutCharge = true;
+  if (Array.isArray(review.attempts)) {
+    review.attempts = review.attempts.map((attempt) => {
+      if (!attempt || !attempt.transcript) return attempt;
+      attempt.metrics = scoreSpeechTranscript_(review.expected, attempt.transcript, record.productName);
+      return attempt;
+    });
+  }
+  (record.scenes || []).forEach((scene) => {
+    if (scene.qualityReview) scene.qualityReview = review;
+  });
+  if (record.status === 'needs_review' && metrics.passed) {
+    record.status = 'completed';
+    record.statusText = 'วิดีโอผ่านการตรวจบทพูดย้อนหลังแล้ว · พร้อมดูและดาวน์โหลดโดยไม่เสียค่าใช้จ่ายเพิ่ม';
+    record.completedAt = record.completedAt || new Date().toISOString();
+  }
+  return true;
 }
 
 function normalizeSpeechText_(value) {
@@ -939,6 +1163,21 @@ function diceSimilarity_(left, right) {
     }
   }
   return (2 * overlap) / ((left.length - 1) + (right.length - 1));
+}
+
+function containsFuzzyPhrase_(source, phrase, threshold) {
+  if (!phrase) return true;
+  if (!source) return false;
+  if (source.indexOf(phrase) >= 0) return true;
+  const phraseLength = phrase.length;
+  const minLength = Math.max(2, phraseLength - Math.max(1, Math.round(phraseLength * 0.15)));
+  const maxLength = Math.min(source.length, phraseLength + Math.max(1, Math.round(phraseLength * 0.15)));
+  for (let windowLength = minLength; windowLength <= maxLength; windowLength += 1) {
+    for (let start = 0; start + windowLength <= source.length; start += 1) {
+      if (diceSimilarity_(phrase, source.slice(start, start + windowLength)) >= threshold) return true;
+    }
+  }
+  return false;
 }
 
 function extractUsageCost_(result) {
@@ -1243,6 +1482,7 @@ function listCampaigns_() {
   const ids = parseJsonSafe_(props.getProperty(PROPERTY_KEYS.CAMPAIGN_INDEX), []);
   return ids.map((id) => {
     const record = getCampaignRecord_(id);
+    if (record && refreshStoredQualityReview_(record)) saveCampaign_(record);
     return record ? publicCampaign_(record, true) : null;
   }).filter(Boolean);
 }
@@ -1279,6 +1519,10 @@ function publicCampaign_(record, compact) {
     finalMimeType: record.finalMimeType || '',
     error: record.error || '',
     estimatedCost: record.estimatedCost || null,
+    videoApprovalRequired: record.status === 'awaiting_video_approval',
+    videoApprovedAt: record.videoApprovedAt || '',
+    browserPlaybackAvailable: Boolean(record.finalFileId
+      && Number(record.finalFileSize || 0) <= APP_CONFIG.WORKFLOW.MAX_BROWSER_PLAYBACK_BYTES),
     actualCost: Number(record.actualCost || 0),
     costBreakdown: record.costBreakdown || null,
     qualityReview: record.qualityReview || null,
@@ -1293,6 +1537,7 @@ function publicCampaign_(record, compact) {
       overlay: scene.overlay,
       duration: scene.duration,
       status: scene.status,
+      jobId: scene.jobId || '',
       driveUrl: scene.driveUrl || '',
       publicUrl: scene.publicUrl || '',
       previewUrl: scene.fileId ? drivePreviewUrl_(scene.fileId) : (scene.previewUrl || ''),
