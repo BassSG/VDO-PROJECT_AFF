@@ -470,6 +470,15 @@
     .scene-state { padding: 5px 7px; border-radius: 999px; border: 1px solid var(--line); color: var(--muted); font-size: 7px; text-transform: uppercase; }
     .scene-state.completed { color: var(--success); border-color: rgba(101,229,161,.2); }
     .final-actions { display: flex; flex-wrap: wrap; gap: 9px; margin-top: 16px; }
+    .delivery-gate { width: 100%; padding: 16px; border: 1px solid rgba(201,255,99,.24); border-radius: 16px; background: linear-gradient(145deg, rgba(201,255,99,.08), rgba(101,220,255,.045)); }
+    .delivery-gate strong { display: block; color: var(--text); font-size: 12px; }
+    .delivery-gate p { margin: 7px 0 0; color: var(--muted); font-size: 10px; line-height: 1.7; }
+    .adult-confirm { display: flex; gap: 10px; align-items: flex-start; width: 100%; padding: 13px; border: 1px solid rgba(255,194,91,.22); border-radius: 13px; background: rgba(255,194,91,.06); color: var(--muted); font-size: 10px; line-height: 1.6; cursor: pointer; }
+    .adult-confirm input { margin-top: 2px; accent-color: var(--lime); }
+    .delivery-progress { width: 100%; padding: 12px 13px; border: 1px solid rgba(101,220,255,.18); border-radius: 13px; background: rgba(101,220,255,.055); color: var(--muted); font-size: 10px; line-height: 1.6; }
+    .visual-ready { position: absolute; inset: 0; display: grid; place-items: center; padding: 26px; background: radial-gradient(circle at 50% 45%, rgba(201,255,99,.10), transparent 36%), rgba(7,9,16,.72); text-align: center; }
+    .visual-ready strong { display: block; margin-top: 12px; font-size: 13px; }
+    .visual-ready span { display: block; margin: 7px auto 14px; max-width: 240px; color: var(--muted); font-size: 9px; line-height: 1.6; }
     .error-box { margin-top: 15px; padding: 14px; color: #ffc3c9; border: 1px solid rgba(255,111,125,.25); border-radius: 14px; background: rgba(255,111,125,.07); font-size: 10px; line-height: 1.6; }
 
     .toast-stack { position: fixed; right: 20px; bottom: 20px; z-index: 90; display: grid; gap: 9px; width: min(360px, calc(100vw - 40px)); }
@@ -573,7 +582,7 @@
           <div class="api-mini-head"><span>System health</span><span id="systemPct">0/1</span></div>
           <div class="api-row"><span>OpenRouter</span><i class="status-dot" id="openrouterDot"></i></div>
         </div>
-        <div class="sidebar-note">ADORA v<span id="sideVersion">1.6.0</span><br>Thai Native Audio + Auto QA</div>
+        <div class="sidebar-note">ADORA v<span id="sideVersion">1.7.0</span><br>Protected Delivery + Cost Guard</div>
       </div>
     </aside>
 
@@ -874,6 +883,9 @@
       view: 'studio',
       pollTimer: null,
       activeCampaign: null,
+      videoObjectUrl: '',
+      videoBlob: null,
+      videoCampaignId: '',
       form: {
         productImage: '',
         presenterImage: '',
@@ -950,7 +962,7 @@
     function notifyParentHostReady() {
       try {
         if (window.top !== window) {
-          window.top.postMessage({ type: 'ADORA_APP_READY', release: '1.6.0' }, '*');
+          window.top.postMessage({ type: 'ADORA_APP_READY', release: '1.7.0' }, '*');
         }
       } catch (error) { /* parent communication is optional */ }
     }
@@ -966,7 +978,7 @@
     function buildLiveAppUrl(source) {
       const target = new URL(LIVE_APP_URL);
       target.searchParams.set('source', source || 'github-embed');
-      target.searchParams.set('release', '1.6.0');
+      target.searchParams.set('release', '1.7.0');
       target.searchParams.set('embedded', '1');
       return target.toString();
     }
@@ -1062,7 +1074,7 @@
       return {
         app: {
           name: 'ADORA AI Studio',
-          version: '1.6.0',
+          version: '1.7.0',
           limits: { maxImageBytes: 5 * 1024 * 1024, maxScenes: 1, allowedDurations: [4, 6, 8], pollInterval: 20 },
           defaults: {
             plannerModel: 'google/gemini-3.1-flash-lite',
@@ -1485,7 +1497,7 @@
     function closeGeneration() {
       $('#generationOverlay').hidden = true;
       document.body.style.overflow = '';
-      if (state.activeCampaign && !['completed','needs_review','failed'].includes(state.activeCampaign.status)) {
+      if (state.activeCampaign && !['completed','needs_review','failed','awaiting_video_approval','video_submission_failed'].includes(state.activeCampaign.status)) {
         toast('งานยังประมวลผลต่อ คุณเปิดดูได้จากโปรเจกต์ของฉัน');
       }
     }
@@ -1502,10 +1514,11 @@
 
       const keyVisualPreview = campaign.keyVisualPreviewUrl || campaign.keyVisualUrl || '';
       const outputFinished = ['completed', 'needs_review'].includes(campaign.status);
-      if (outputFinished && campaign.finalPreviewUrl) {
-        $('#visualBox').innerHTML = `<iframe src="${escapeAttr(campaign.finalPreviewUrl)}" title="Video preview" allow="autoplay; fullscreen" allowfullscreen></iframe>`;
-      } else if (outputFinished && campaign.finalUrl) {
-        $('#visualBox').innerHTML = `<video controls playsinline poster="${escapeAttr(keyVisualPreview)}" src="${escapeAttr(campaign.finalUrl)}"></video>`;
+      const localVideoLoaded = state.videoObjectUrl && state.videoCampaignId === campaign.id;
+      if (localVideoLoaded) {
+        $('#visualBox').innerHTML = `<video controls playsinline preload="metadata" poster="${escapeAttr(keyVisualPreview)}" src="${escapeAttr(state.videoObjectUrl)}"></video>`;
+      } else if (outputFinished && (campaign.downloadUrl || campaign.finalUrl)) {
+        $('#visualBox').innerHTML = `${keyVisualPreview ? `<img src="${escapeAttr(keyVisualPreview)}" alt="AI key visual">` : ''}<div class="visual-ready"><div><div style="font-size:38px">▶</div><strong>ไฟล์ MP4 สร้างเสร็จแล้ว</strong><span>กดดูทันทีเพื่อโหลดไฟล์จากระบบเป็น Blob โดยไม่ต้องรอ Google Drive แปลง Preview</span><button class="btn btn-primary" type="button" onclick="playCampaignVideo('${escapeAttr(campaign.id)}')">ดูทันทีในแอป</button></div></div>`;
       } else if (keyVisualPreview) {
         $('#visualBox').innerHTML = `<img src="${escapeAttr(keyVisualPreview)}" alt="AI key visual">`;
       }
@@ -1533,15 +1546,26 @@
       if (campaign.error) $('#generationError').textContent = campaign.error;
 
       const downloadUrl = campaign.downloadUrl || campaign.finalUrl || '';
-      const watchUrl = campaign.finalPreviewUrl || campaign.finalDriveUrl || '';
-      if (['completed', 'needs_review', 'finalizing'].includes(campaign.status) && (downloadUrl || watchUrl)) {
+      const watchUrl = campaign.finalDriveUrl || campaign.finalPreviewUrl || '';
+      if (campaign.status === 'awaiting_video_approval') {
+        const videoCost = Number(campaign.estimatedCost?.video || 0);
+        actions.hidden = false;
+        actions.innerHTML = `
+          <div class="delivery-gate"><strong>Cost Guard · ยังไม่คิดค่าวิดีโอ $${videoCost.toFixed(2)}</strong><p>ตรวจ Key Visual และบทพูดด้านบนให้เรียบร้อยก่อน ระบบจะส่ง Veo เมื่อคุณกดยืนยันครั้งนี้เท่านั้น</p></div>
+          <label class="adult-confirm"><input type="checkbox" id="adultSafetyConfirm"><span>ฉันตรวจภาพแล้ว: บุคคลในภาพเป็นผู้ใหญ่อายุ 18 ปีขึ้นไป หรือภาพนี้ไม่มีเด็ก/เยาวชน หากไม่แน่ใจให้หยุดและเปลี่ยนภาพก่อน</span></label>
+          <button class="btn btn-primary" id="approveVideoBtn" type="button" onclick="approvePaidVideo('${escapeAttr(campaign.id)}')">ยืนยันสร้างวิดีโอ · $${videoCost.toFixed(2)}</button>
+          <button class="btn" type="button" onclick="closeGeneration()">หยุดไว้ก่อน · ไม่เสียค่าวิดีโอ</button>`;
+      } else if (['completed', 'needs_review', 'finalizing'].includes(campaign.status) && (downloadUrl || watchUrl)) {
         actions.hidden = false;
         const notice = campaign.status === 'finalizing'
-          ? '<div class="note" style="width:100%">ไฟล์ MP4 พร้อมดาวน์โหลดแล้ว ส่วนการเล่นบน Google Drive อาจใช้เวลาสักครู่</div>'
+          ? '<div class="note" style="width:100%">ไฟล์ MP4 พร้อมแล้ว ระบบเล่นในแอปได้โดยไม่ต้องรอ Google Drive Preview</div>'
           : campaign.status === 'needs_review'
-            ? '<div class="error-box" style="width:100%;margin:0">Auto Review ยังไม่ยืนยันว่าพูดภาษาไทยตรงบท ระบบจึงหยุดโดยไม่สร้างวิดีโอซ้ำและไม่หักเงินรอบใหม่</div>'
-            : '';
-        actions.innerHTML = `${notice}${watchUrl ? `<a class="btn" href="${escapeAttr(watchUrl)}" target="_blank" rel="noopener">▶ ดูวิดีโอ</a>` : ''}${downloadUrl ? `<a class="btn btn-primary" href="${escapeAttr(downloadUrl)}" target="_blank" rel="noopener">↓ ดาวน์โหลด MP4</a>` : ''}<a class="btn" href="${escapeAttr(campaign.finalDriveUrl || campaign.folderUrl)}" target="_blank" rel="noopener">เปิดใน Google Drive</a>`;
+            ? '<div class="error-box" style="width:100%;margin:0">สร้างไฟล์และคิดค่าวิดีโอแล้ว คุณยังดูและดาวน์โหลดได้เสมอ ผล Auto Review เป็นคำเตือนเท่านั้นและจะไม่ซ่อนไฟล์</div>'
+            : '<div class="delivery-gate"><strong>Protected Delivery</strong><p>ระบบตรวจโครงสร้าง MP4, H.264 และ AAC แล้ว พร้อมส่งไฟล์เข้า Browser โดยตรง</p></div>';
+        actions.innerHTML = `${notice}<div class="delivery-progress" id="deliveryProgress" hidden></div><button class="btn" type="button" onclick="playCampaignVideo('${escapeAttr(campaign.id)}')">▶ ดูทันทีในแอป</button><button class="btn btn-primary" type="button" onclick="downloadCampaignVideo('${escapeAttr(campaign.id)}')">↓ ดาวน์โหลด MP4 ที่ตรวจแล้ว</button>${watchUrl ? `<a class="btn" href="${escapeAttr(watchUrl)}" target="_blank" rel="noopener">Google Drive (สำรอง)</a>` : ''}`;
+      } else if (campaign.status === 'video_submission_failed') {
+        actions.hidden = false;
+        actions.innerHTML = '<div class="error-box" style="width:100%;margin:0">ระบบยังไม่ได้รับรหัสงานวิดีโอและได้หยุดการส่งซ้ำอัตโนมัติ กรุณาตรวจหน้า OpenRouter Activity/Usage ก่อนลองใหม่ เพราะกรณีเครือข่ายขาดช่วงไม่ควรสรุปเองว่าไม่มีค่าใช้จ่าย</div>';
       }
       if (campaign.status === 'completed') {
         if (state.lastCompletedToastId !== campaign.id) {
@@ -1557,7 +1581,100 @@
         }
         clearTimeout(state.pollTimer);
       }
-      if (campaign.status === 'failed') clearTimeout(state.pollTimer);
+      if (['failed', 'video_submission_failed', 'awaiting_video_approval'].includes(campaign.status)) clearTimeout(state.pollTimer);
+    }
+
+    async function approvePaidVideo(campaignId) {
+      const checkbox = $('#adultSafetyConfirm');
+      if (!checkbox?.checked) return toast('กรุณาตรวจภาพและยืนยันว่าไม่มีเด็กหรือเยาวชนก่อน', 'error');
+      const campaign = state.activeCampaign;
+      const videoCost = Number(campaign?.estimatedCost?.video || 0);
+      if (!window.confirm(`ยืนยันส่งวิดีโอเข้าคิว\n\nค่าวิดีโอประมาณ $${videoCost.toFixed(2)} USD\nหลังจากยืนยัน provider อาจเริ่มคิดค่าบริการทันที`)) return;
+      const button = $('#approveVideoBtn');
+      if (button) { button.disabled = true; button.textContent = 'กำลังส่งเข้าคิว...'; }
+      try {
+        const updated = await server('approveCampaignVideo', campaignId, true);
+        state.activeCampaign = updated;
+        renderCampaign(updated);
+        updateCampaignInList(updated);
+        if (updated.status === 'video_submission_failed') toast(updated.error || 'ส่งวิดีโอเข้าคิวไม่สำเร็จ', 'error');
+        else {
+          toast('ยืนยันแล้ว · เริ่มสร้างวิดีโอเพียงหนึ่งครั้ง', 'success');
+          schedulePoll();
+        }
+      } catch (error) {
+        toast(error.message, 'error');
+        if (button) { button.disabled = false; button.textContent = `ยืนยันสร้างวิดีโอ · $${videoCost.toFixed(2)}`; }
+      }
+    }
+
+    async function loadCampaignVideoBlob(campaignId) {
+      if (state.videoBlob && state.videoCampaignId === campaignId && state.videoObjectUrl) {
+        return { blob: state.videoBlob, objectUrl: state.videoObjectUrl, fileName: `${state.activeCampaign?.productName || 'adora-video'}.mp4` };
+      }
+      const progress = $('#deliveryProgress');
+      if (progress) { progress.hidden = false; progress.textContent = 'กำลังเตรียมไฟล์ที่ตรวจแล้ว 0%'; }
+      const chunks = [];
+      let offset = 0;
+      let totalSize = 0;
+      let fileName = 'adora-video.mp4';
+      try {
+        while (true) {
+          const part = await server('getCampaignVideoChunk', campaignId, offset);
+          if (Number(part.offset) !== offset || Number(part.nextOffset) <= offset) throw new Error('ลำดับข้อมูลวิดีโอไม่ถูกต้อง');
+          const binary = atob(part.base64 || '');
+          const bytes = new Uint8Array(binary.length);
+          for (let index = 0; index < binary.length; index += 1) bytes[index] = binary.charCodeAt(index);
+          chunks.push(bytes);
+          offset = Number(part.nextOffset);
+          totalSize = Number(part.totalSize || offset);
+          fileName = part.fileName || fileName;
+          const percent = totalSize ? Math.min(100, Math.round((offset / totalSize) * 100)) : 0;
+          if (progress) progress.textContent = `กำลังเตรียมไฟล์ที่ตรวจแล้ว ${percent}% · ${formatBytes(offset)} / ${formatBytes(totalSize)}`;
+          if (part.done) break;
+        }
+        const blob = new Blob(chunks, { type: 'video/mp4' });
+        if (blob.size !== totalSize) throw new Error(`ขนาดไฟล์ไม่ตรงกัน (${blob.size}/${totalSize} bytes)`);
+        if (state.videoObjectUrl) URL.revokeObjectURL(state.videoObjectUrl);
+        state.videoBlob = blob;
+        state.videoCampaignId = campaignId;
+        state.videoObjectUrl = URL.createObjectURL(blob);
+        if (progress) progress.textContent = `ไฟล์พร้อมใช้งานแล้ว · ${formatBytes(blob.size)} · H.264/AAC MP4`;
+        return { blob, objectUrl: state.videoObjectUrl, fileName };
+      } catch (error) {
+        if (progress) { progress.hidden = false; progress.textContent = `เตรียมไฟล์ไม่สำเร็จ: ${error.message}`; }
+        throw error;
+      }
+    }
+
+    async function playCampaignVideo(campaignId) {
+      try {
+        const file = await loadCampaignVideoBlob(campaignId);
+        const poster = state.activeCampaign?.keyVisualPreviewUrl || state.activeCampaign?.keyVisualUrl || '';
+        $('#visualBox').innerHTML = `<video controls playsinline preload="auto" poster="${escapeAttr(poster)}" src="${escapeAttr(file.objectUrl)}"></video>`;
+        const video = $('#visualBox video');
+        await new Promise((resolve, reject) => {
+          if (video.readyState >= 1) return resolve();
+          video.addEventListener('loadedmetadata', resolve, { once: true });
+          video.addEventListener('error', () => reject(new Error(video.error?.message || 'Browser เปิด MP4 ไม่สำเร็จ')), { once: true });
+          video.load();
+        });
+        video.play().catch(() => {});
+        toast(`เปิดวิดีโอ ${Math.round(video.duration || 0)} วินาทีสำเร็จ`, 'success');
+      } catch (error) { toast(error.message, 'error'); }
+    }
+
+    async function downloadCampaignVideo(campaignId) {
+      try {
+        const file = await loadCampaignVideoBlob(campaignId);
+        const link = document.createElement('a');
+        link.href = file.objectUrl;
+        link.download = file.fileName;
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        toast('เริ่มดาวน์โหลด MP4 ที่ตรวจแล้ว', 'success');
+      } catch (error) { toast(error.message, 'error'); }
     }
 
     function renderQualityReview(review) {
@@ -1591,7 +1708,7 @@
 
     function renderStages(status, progress) {
       const order = ['planning','visual','generating','reviewing','completed'];
-      const map = { submitting: 'generating', finalizing: 'completed', needs_review: 'completed' };
+      const map = { awaiting_video_approval: 'visual', video_submission_failed: 'generating', submitting: 'generating', finalizing: 'completed', needs_review: 'completed' };
       const current = map[status] || status;
       const currentIndex = order.indexOf(current);
       $$('.stage').forEach((item, index) => {
@@ -1602,7 +1719,7 @@
 
     function schedulePoll() {
       clearTimeout(state.pollTimer);
-      if (!state.activeCampaign || ['completed','needs_review','failed'].includes(state.activeCampaign.status)) return;
+      if (!state.activeCampaign || ['completed','needs_review','failed','awaiting_video_approval','video_submission_failed'].includes(state.activeCampaign.status)) return;
       const seconds = state.bootstrap?.app?.limits?.pollInterval || 20;
       state.pollTimer = setTimeout(pollActiveCampaign, seconds * 1000);
     }
@@ -1645,7 +1762,10 @@
         const costTag = Number(campaign.actualCost || 0) > 0
           ? `<span class="tag">$${Number(campaign.actualCost).toFixed(4)}</span>`
           : '';
-        const outputActions = outputReady ? `<div class="project-actions">${watchUrl ? `<a class="btn" data-project-action href="${escapeAttr(watchUrl)}" target="_blank" rel="noopener">▶ ดู</a>` : ''}${downloadUrl ? `<a class="btn btn-primary" data-project-action href="${escapeAttr(downloadUrl)}" target="_blank" rel="noopener">↓ ดาวน์โหลด</a>` : ''}</div>` : '';
+        const approvalAction = campaign.status === 'awaiting_video_approval'
+          ? `<div class="project-actions"><button class="btn btn-primary" data-open-output="${escapeAttr(campaign.id)}" type="button">ตรวจภาพก่อนจ่ายค่าวิดีโอ</button></div>`
+          : '';
+        const outputActions = outputReady ? `<div class="project-actions"><button class="btn btn-primary" data-open-output="${escapeAttr(campaign.id)}" type="button">▶ เปิดไฟล์ที่สร้างแล้ว</button></div>` : approvalAction;
         return `
           <article class="card project-card" data-campaign-id="${escapeAttr(campaign.id)}">
             <div class="project-cover">${coverUrl ? `<img src="${escapeAttr(coverUrl)}" alt="ภาพปก ${escapeAttr(campaign.productName || '')}">` : '<div class="project-placeholder">✦</div>'}<span class="project-status">${escapeHtml(campaign.status)}</span></div>
@@ -1654,6 +1774,10 @@
       }).join('');
       $$('[data-campaign-id]', grid).forEach((card) => card.addEventListener('click', () => openExistingCampaign(card.dataset.campaignId)));
       $$('[data-project-action]', grid).forEach((link) => link.addEventListener('click', (event) => event.stopPropagation()));
+      $$('[data-open-output]', grid).forEach((button) => button.addEventListener('click', (event) => {
+        event.stopPropagation();
+        openExistingCampaign(button.dataset.openOutput);
+      }));
     }
 
     async function openExistingCampaign(id) {
